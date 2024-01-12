@@ -1,13 +1,20 @@
 # MAS306 Dronearena 2024
-## Gruppe 12: Thomas, Jan og Adrian
+## Group 12: Thomas, Jan og Adrian
 
-### Mappeoppdeling
-* Canvas ~ Samlet alle filer som er strødd rundt i canvas moduler
-* Datasheets ~ Datablad, duh
-* Cheat Sheets ~ Oppsummering av markdown, git, etc.
-* Weekly Reports ~ Ukentlig oppsummering av hva som er gjort
+### Folder Structure - Git Repository
+- Canvas ~ Gathered files scattered through modules and courses
+- Datasheets ~ Relevant datasheets
+- Cheat Sheets ~ Summaries of markdown, git, etc.
+ 
+### Google Docs
+#### Folders
+- Archive ~ Old files
+- Friday logs ~ Summary each week
+- Weekly Muri-Meetings ~ Weekly meetings with the project mentor
 
-### Informasjon til gruppen
-#### Google Docs
-* Notater MAS306 ~ Notater underveis i prosjektet
-* Planlegging ~ Konsepter og ukeplanlegging
+#### Files
+- Notes MAS306
+- Planning
+
+### Miscellaneous Notes
+- All dates will be in the order YYYY.MM.DD
