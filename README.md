@@ -5,6 +5,7 @@
 - Canvas ~ Gathered files scattered through modules and courses
 - Datasheets ~ Relevant datasheets
 - Cheat Sheets ~ Summaries of markdown, git, etc.
+- Figures ~ Temporary figures, finals are added in LaTeX.
  
 ### Google Docs
 #### Folders
@@ -15,6 +16,8 @@
 #### Files
 - Notes MAS306
 - Planning
+- Gantt Chart
+- System Overview
 
 ### Miscellaneous Notes
 - All dates will be in the order YYYY.MM.DD
