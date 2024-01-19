@@ -1,0 +1,13 @@
+#ubuntu maskin, åpen terminal:
+ctrl+alt+t
+#finn ip address med pc (eno1) (er dynamisk rn så skyfter når pc restartes noen ganger)
+ifconfig
+	gir ut: inet [ip addresse] netmask [netmask]
+#logg inn med ssh:
+ssh [brukernavn]@[ip addresse av pc]
+#logg ut av ssh
+exit
+#logg in med git på terminal
+https://docs.github.com/en/get-started/getting-started-with-git/about-remote-repositories#cloning-with-https-urls
+https://docs.github.com/en/enterprise-server@3.8/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens
+#i windows cmd, bruk right-click for å paste og kopiere
