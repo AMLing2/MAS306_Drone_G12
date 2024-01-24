@@ -1,6 +1,7 @@
 # From tutorials on youtube: 
-    #OpenCV Python Tutorial For Beginners 4 - How to Read, Write, Show Videos from Camera in OpenCV
-    # Simple Face Detection in Python \\ by NeuralNine
+    # Simple Face Detection in Python \\ https://www.youtube.com/watch?v=5cg_yggtkso
+    # OpenCV Python Tutorial For Beginners 4 \\ https://www.youtube.com/watch?v=-RtVZsCvXAQ&t=871s
+    # GeeksForGeeks for saving video \\ https://www.geeksforgeeks.org/saving-a-video-using-opencv/
 
 import pathlib # To access existing xml files for facial recognition
 import cv2
@@ -23,6 +24,7 @@ while(True):
 
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
+    # Library uses Haar Cascade Filter: https://docs.opencv.org/3.4/db/d28/tutorial_cascade_classifier.html
     faces = classifier.detectMultiScale(
         gray,
         scaleFactor=1.1,
