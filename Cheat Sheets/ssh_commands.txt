@@ -1,3 +1,4 @@
+https://phoenixnap.com/kb/ssh-to-connect-to-remote-server-linux-or-windows
 #ubuntu maskin, åpen terminal:
 ctrl+alt+t
 #finn ip address med pc (eno1) (er dynamisk rn så skyfter når pc restartes noen ganger)
