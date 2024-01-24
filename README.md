@@ -3,8 +3,9 @@
 
 ### Folder Structure - Git Repository
 - Canvas ~ Gathered files scattered through modules and courses
-- Datasheets ~ Relevant datasheets
 - Cheat Sheets ~ Summaries of markdown, git, etc.
+- Code ~ Source Code main folder
+- Datasheets ~ Relevant datasheets
 - Figures ~ Temporary figures, finals are added in LaTeX.
  
 ### Google Docs
