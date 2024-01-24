@@ -1,7 +1,11 @@
+# ProgrammingKnowledge Youtube Tutorial
 
-# this is a test 
-print("Hello World!")
+import cv2
 
-numbers = [1, 2, 3, 4, 5, 6]
-numbers.insert(6,7)
-print(numbers)
+img = cv2.imread('C:/Users/Thoma/OneDrive - Universitetet i Agder/UiA/6. semester/MAS306/MAS306_Drone_G12/Code/Camera/lena.jpg', 0)
+
+print(img)
+
+cv2.imshow('Image', img)
+cv2.waitKey(5000)
+cv2.destroyAllWindows
