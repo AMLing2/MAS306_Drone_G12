@@ -67,7 +67,7 @@ while(True):
             topLeft     = (int(topLeft[0]), int(topLeft[1]))
 
             # Display on the image
-            cv2.putText(color_image, str(ids),(topLeft[0], topLeft[1] - 15), font, fontScale, fontColor, fontThickness)
+            cv2.putText(color_image, str(markerID),(topLeft[0], topLeft[1] - 15), font, fontScale, fontColor, fontThickness)
     # --------------------- ^ Display ID of marker, by pyImageSearch ^ ---------------------
             
     # Display image
