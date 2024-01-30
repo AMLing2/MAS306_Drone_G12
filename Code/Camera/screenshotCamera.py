@@ -13,11 +13,11 @@ os.chdir(dir)
 
 # Depth Camera connection
 pipe = rs.pipeline()
-cfg = rs.config()
+config = rs.config()
 
-cfg.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30) # (streamType, xRes, yRes, bits, fps)
+config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30) # (streamType, xRes, yRes, format, fps)
 
-pipe.start(cfg)
+pipe.start(config)
 
 i = 0
 
