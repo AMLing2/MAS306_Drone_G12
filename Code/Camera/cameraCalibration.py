@@ -7,6 +7,7 @@ import cv2
 import numpy as np
 import glob         # For importing images
 import pickle       # For export/import (of calibration results)
+import os           # For selecting which image to display
 
 # Don't need to import pyrealsense2 as we are using from screenshotCamera.py
 # --------------------------------------- Libraries ---------------------------------------
@@ -20,7 +21,7 @@ imagePoints = []         # 2D
 worldPoints = []         # 3D list. Stores the chessboard template for calibration, expanding 
 iterStop = 30
 cornerTolerance = 0.001
-alpha = 0.5                # Scaling parameter for New Camera Matrix. 0 = max undistortion, 1 = min undistortion
+alpha = 1                # Scaling parameter for New Camera Matrix. 0 = max undistortion, 1 = min undistortion
 
 # Load images
 images = glob.glob('Screenshots/*.jpg')
@@ -78,6 +79,11 @@ print("\nDistortion Coefficients:\n")
 print("\nRotation Vectors:\n", rVecs)
 print("\nTranslation Vectors:\n", tVecs)
 
+# For selecting which image to display
+dir = r'/home/thomaz/MAS306_Drone_G12/Code/Camera/Screenshots'
+os.chdir(dir)
+#img = cv2.imread('screenshot_frameNr749.jpg') # <-------------------------- CHANGE IMAGE TO DISPLAY HERE
+
 # Get Optimized Camera Matrix. (will reduce black borders from undistortion)
 width, height = img.shape[:2] # Extract only height and width, not color channel
 newCameraMatrix, regionOfInterest = cv2.getOptimalNewCameraMatrix(cameraMatrix, distortionCoeffs, (width, height), alpha)
@@ -86,9 +92,12 @@ newCameraMatrix, regionOfInterest = cv2.getOptimalNewCameraMatrix(cameraMatrix, 
 
 undistortedImg = cv2.undistort(img, cameraMatrix, distortionCoeffs, None, newCameraMatrix)
 
-x, y, width, height = regionOfInterest
-undistortedImg = undistortedImg[ y:y+width, x:x+height ]
-
+#x, y, width, height = regionOfInterest
+#undistortedImg = undistortedImg[ y:y+width, x:x+height ]
+#print("\nx:", x)
+#print("\ny:", y)
+#print("\nw:", width)
+#print("\nh:", height)
 
 # Display images
 while(True):
