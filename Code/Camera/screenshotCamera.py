@@ -32,7 +32,7 @@ while(True):
     keyPressed = cv2.waitKey(1) # Store key pressed during 1 [ms] delay
 
     if keyPressed == ord('s'):
-        screenshot = cv2.imwrite(filename=f"screenshot_frameNr{i}.jpg", img=color_image) # solution inspired by azro
+        cv2.imwrite(filename=f"screenshot_frameNr{i}.jpg", img=color_image) # solution inspired by azro
         print('Screenshot successful!')
     elif keyPressed == ord('q'):
         break
