@@ -54,7 +54,9 @@ while(True):
 
     # --------------------- v Display ID of marker, by pyImageSearch v ---------------------
     if len(corners) > 0:    # So iteration makes sense
-
+        
+        ids = ids.flatten() # Remove square brackets for text
+        
         for (markerCorner, markerID) in zip(corners, ids): # alias on left, so can iterate in parallel
             # Extract corners
             corners = markerCorner.reshape(4,2)
@@ -66,8 +68,10 @@ while(True):
             bottomLeft  = (int(bottomLeft[0]), int(bottomLeft[1]))
             topLeft     = (int(topLeft[0]), int(topLeft[1]))
 
+            IDtext = f'ID: {markerID}'
+
             # Display on the image
-            cv2.putText(color_image, str(markerID),(topLeft[0], topLeft[1] - 15), font, fontScale, fontColor, fontThickness)
+            cv2.putText(color_image, IDtext,(topLeft[0], topLeft[1] - 15), font, fontScale, fontColor, fontThickness)
     # --------------------- ^ Display ID of marker, by pyImageSearch ^ ---------------------
             
     # Display image
