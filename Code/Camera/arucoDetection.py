@@ -14,14 +14,11 @@ font = cv2.FONT_HERSHEY_SIMPLEX
 fontColor = (200, 20, 200)
 fontScale = 0.5
 fontThickness = 1
-
-vectorRotation    = None
-vectorTranslation = None
 # ------------------- Constant variables for simple changes -------------------
 
 # Set dictionary for the markers
 arucoParams     = aruco.DetectorParameters()
-arucoDictionary = aruco.getPredefinedDictionary(aruco.DICT_6X6_1000) # <-- Tip from chatGPT, Detector_get is old
+arucoDictionary = aruco.getPredefinedDictionary(aruco.DICT_4X4_50) # <-- Tip from chatGPT, Detector_get is old
 
 
 # Setup configuration and start pipeline stream

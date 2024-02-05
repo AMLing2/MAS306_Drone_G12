@@ -17,6 +17,10 @@ _All source codes in this folder are for Intel Realsense D435 with stereovision,
 - Pose estimation of markers
 - Builds on arucoDetection.py
 
+### Miscellaneous
+- .pkl (pickle) files are exported data from camera calibration
+
+
 ## Screenshots Folder
 - Screenshots from screenshotCamera.py will end here
 

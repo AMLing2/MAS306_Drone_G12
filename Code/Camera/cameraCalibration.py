@@ -75,7 +75,7 @@ pickle.dump( (distortionCoeffs)                            , open("distortionCoe
 # Display Results
 print("\nRMS re-projection error: ", ret) # [pixels]
 print("\nCamera Matrix:\n", cameraMatrix)
-print("\nDistortion Coefficients:\n")
+print("\nDistortion Coefficients:\n", distortionCoeffs)
 print("\nRotation Vectors:\n", rVecs)
 print("\nTranslation Vectors:\n", tVecs)
 
