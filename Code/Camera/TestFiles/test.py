@@ -9,3 +9,5 @@ print(img)
 cv2.imshow('Image', img)
 cv2.waitKey(5000)
 cv2.destroyAllWindows
+
+# Added test line

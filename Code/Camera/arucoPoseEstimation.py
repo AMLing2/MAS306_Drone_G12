@@ -35,7 +35,7 @@ print("\nDistortion Coefficients\n", distortionCoefficients)
 
 # Set dictionary for the markers
 arucoParams     = aruco.DetectorParameters()
-arucoDictionary = aruco.getPredefinedDictionary(aruco.DICT_4X4_50) # <-- Tip from chatGPT, Detector_get is old
+arucoDictionary = aruco.getPredefinedDictionary(aruco.DICT_6X6_1000) # <-- Tip from chatGPT, Detector_get is old
 
 
 # Setup configuration and start pipeline stream
