@@ -7,12 +7,25 @@
 
 #include <avr/io.h>
 
+void initPorts()
+{
+	DDRF |= (1 << DDF5); //set pin 5 as output in data-direction of port F
+	PORTF &= ~(1<<PINF5); //set pin 5 low as initial value
+}
+
+void initRegisters()
+{
+		
+}
 
 int main(void)
 {
-    /* Replace with your application code */
+	initPorts();
+	initRegisters();
+	
     while (1) 
     {
+		PORTF |= (1<<PINF5); //set pin 5 high
     }
 }
 

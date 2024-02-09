@@ -12,3 +12,7 @@ exit
 https://docs.github.com/en/get-started/getting-started-with-git/about-remote-repositories#cloning-with-https-urls
 https://docs.github.com/en/enterprise-server@3.8/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens
 #i windows cmd, bruk right-click for å paste og kopiere
+
+server commands:
+w     #show logged in users (short for "who" command)
+watch -n 1 w     # show logged in users realtime
