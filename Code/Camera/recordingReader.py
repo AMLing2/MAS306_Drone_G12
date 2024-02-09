@@ -59,11 +59,11 @@ cfg = rs.config()
 # Size of window to display recording
 displaySize = (960, 540)
 
-# File Path
-bag_file_path = r'/home/thomaz/Recordings/recordedVideo.bag'
-
 # Enable playback from the specified bag file
-cfg.enable_device_from_file(bag_file_path)
+cfg.enable_device_from_file(r'/home/thomaz/Recordings/recordedVideo.bag')
+
+# Enable recording for exporting results
+cfg.enable_record_to_file(r'/home/thomaz/Recordings/resultVideo.mp4v')
 
 # Start pipeline with configuration
 pipe.start(cfg)
