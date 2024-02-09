@@ -5,7 +5,6 @@ import cv2
 import cv2.aruco as aruco # For simplification
 import pyrealsense2 as rs
 import numpy
-import pickle
 # --------------------------------------- Libraries ---------------------------------------
 
 # ------------------- Constant variables for simple changes -------------------
@@ -27,8 +26,6 @@ cameraMatrix = numpy.array([
 distortionCoefficients = numpy.array(
     [ 0.0, 0.0, 0.0, 0.0, 0.0]) # [k1, k2, p1, p2, k3]
 
-#cameraMatrixFile = pickle.load('cameraMatrix.pkl')
-#distortionCoefficientsFile = pickle.load('distortionCoefficients.pkl')
 print("\nCamera Matrix\n", cameraMatrix)
 print("\nDistortion Coefficients\n", distortionCoefficients)
 # ------------------- Constant variables for simple changes -------------------
