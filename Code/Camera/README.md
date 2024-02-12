@@ -26,6 +26,13 @@ _All source codes in this folder are for Intel Realsense D435 with stereovision,
 - File path is local directory
 - File format: .bag
 
+## Results
+
+### RSenumerateDevices.txt
+- Listed distortion model
+- Copy-pasted from terminal
+- Requires SDK
+
 ---
 ---
 
