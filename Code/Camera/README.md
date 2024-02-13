@@ -48,6 +48,9 @@ _All source codes in this folder are for Intel Realsense D435 with stereovision,
 - Copy-pasted from terminal
 - Requires SDK
 
+### RealSenseViewerIntrinsics.json
+- Listed intrinsic parameters from Intel.RealSense.Viewer.exe on Windows
+
 ---
 ---
 

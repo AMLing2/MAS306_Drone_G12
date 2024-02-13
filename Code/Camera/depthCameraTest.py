@@ -32,4 +32,3 @@ while True:
         break
 
 pipe.stop()
-cv2.destroyAllWindows();
