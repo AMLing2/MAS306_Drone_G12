@@ -5,6 +5,7 @@ import cv2
 import cv2.aruco as aruco # For simplification
 import pyrealsense2 as rs
 import numpy
+import os
 # --------------------------------------- Libraries ---------------------------------------
 
 # ------------------- Constant variables for simple changes -------------------
@@ -16,16 +17,29 @@ fontScale = 0.5
 fontThickness = 1
 # ------------------- Constant variables for simple changes -------------------
 
+# -------------------------------- Save Frame ---------------------------
+# Directory to save image 
+dir = r'/home/thomaz/MAS306_Drone_G12/Code/Camera/Screenshots'
+os.chdir(dir)
+
+# ---------- ChatGPT -----------------
+# Get the list of items (files and folders) inside the folder
+items = os.listdir(dir)
+# Count the number of items
+num_items = len(items)
+# ---------- ChatGPT -----------------
+# -------------------------------- Save Frame ---------------------------
+
 # Set dictionary for the markers
 arucoParams     = aruco.DetectorParameters()
-arucoDictionary = aruco.getPredefinedDictionary(aruco.DICT_4X4_50) # <-- Tip from chatGPT, Detector_get is old
+arucoDictionary = aruco.getPredefinedDictionary(aruco.DICT_6X6_50) # <-- Tip from chatGPT, Detector_get is old
 
 
 # Setup configuration and start pipeline stream
 pipe = rs.pipeline()
 config = rs.config()
 
-config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30) # (streamType, xRes, yRes, format, fps)
+config.enable_stream(rs.stream.color, 848, 480, rs.format.bgr8, 60) # (streamType, xRes, yRes, format, fps)
 pipe.start(config)
 
 
@@ -74,8 +88,13 @@ while(True):
     # Display image
     cv2.imshow('LiveReading', color_image)
 
-    # Loop breaker
-    if cv2.waitKey(1) == ord('q'): # Press Q to stop
+    # Store key pressed during 1 [ms] delay
+    keyPressed = cv2.waitKey(1)
+    # Check for stored key
+    if keyPressed == ord('s'):      # S to save frame
+        cv2.imwrite(filename=f"screenshot_{num_items}.jpg", img=color_image) # solution inspired by azro
+        print('Screenshot successful!')
+    elif keyPressed == ord('q'):    # Q to stop stream
         break
 
 pipe.stop()             # Stop recording
