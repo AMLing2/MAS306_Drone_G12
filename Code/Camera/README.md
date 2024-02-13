@@ -26,6 +26,21 @@ _All source codes in this folder are for Intel Realsense D435 with stereovision,
 - File path is local directory
 - File format: .bag
 
+### screenshotCamera.py
+- For capturing screenshots from the camera stream
+- Press S to capture the current frame
+- Press Q to stop the stream
+- The name of the screenshot will be numbered from the amount of files in the Screenshots folder
+
+
+## Screenshots
+
+- From screenshotCamera.py
+- screenshot_0 = bgra8
+- screenshot_1 = bgr8
+- screenshot_2 = rgba8
+- screenshot_3 = rgb8
+
 ## Results
 
 ### RSenumerateDevices.txt

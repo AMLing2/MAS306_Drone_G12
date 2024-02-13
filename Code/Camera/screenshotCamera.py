@@ -11,15 +11,20 @@ import os                   # For path
 dir = r'/home/thomaz/MAS306_Drone_G12/Code/Camera/Screenshots'
 os.chdir(dir)
 
+# ---------- ChatGPT -----------------
+# Get the list of items (files and folders) inside the folder
+items = os.listdir(dir)
+# Count the number of items
+num_items = len(items)
+# ---------- ChatGPT -----------------
+
 # Depth Camera connection
 pipe = rs.pipeline()
 config = rs.config()
 
-config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30) # (streamType, xRes, yRes, format, fps)
+config.enable_stream(rs.stream.color, 1920, 1080, rs.format.rgb8, 30) # (streamType, xRes, yRes, format, fps)
 
 pipe.start(config)
-
-i = 0
 
 while(True):
     
@@ -32,11 +37,10 @@ while(True):
     keyPressed = cv2.waitKey(1) # Store key pressed during 1 [ms] delay
 
     if keyPressed == ord('s'):
-        cv2.imwrite(filename=f"screenshot_frameNr{i}.jpg", img=color_image) # solution inspired by azro
+        cv2.imwrite(filename=f"screenshot_{num_items}.jpg", img=color_image) # solution inspired by azro
         print('Screenshot successful!')
     elif keyPressed == ord('q'):
         break
-    i += 1
 
 pipe.stop()             # Stop recording
 cv2.destroyAllWindows() # Free resources 
