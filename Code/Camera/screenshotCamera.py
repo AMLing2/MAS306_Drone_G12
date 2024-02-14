@@ -22,7 +22,7 @@ num_items = len(items)
 pipe = rs.pipeline()
 config = rs.config()
 
-config.enable_stream(rs.stream.depth, 848, 480, rs.format.z16, 60) # (streamType, xRes, yRes, format, fps)
+config.enable_stream(rs.stream.infrared, 848, 480, rs.format.y8, 60) # (streamType, xRes, yRes, format, fps)
 
 pipe.start(config)
 
@@ -32,15 +32,15 @@ while(True):
     frame = pipe.wait_for_frames()
 
     # - convert to specific frame
-    #frame = frame.get_infrared_frame() # <-- Toggle these three lines when changing config from (depth,color,IR)
+    frame = frame.get_infrared_frame() # <-- Toggle these three lines when changing config from (depth,color,IR)
     #frame = frame.get_color_frame() # <-- Toggle these three lines when changing config from (depth,color,IR)
-    frame = frame.get_depth_frame() # <-- Toggle these three lines when changing config from (depth,color,IR)
+    #frame = frame.get_depth_frame() # <-- Toggle these three lines when changing config from (depth,color,IR)
 
     # Convert to numpy array
     image = numpy.asanyarray(frame.get_data())
 
     # Add color coding if using depth stream
-    image = cv2.applyColorMap(cv2.convertScaleAbs(image, alpha=1), cv2.COLORMAP_TURBO)
+    #image = cv2.applyColorMap(cv2.convertScaleAbs(image, alpha=1), cv2.COLORMAP_TURBO)
 
     # Display the current frame
     cv2.imshow('LiveReading', image)
