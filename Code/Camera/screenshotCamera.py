@@ -40,7 +40,7 @@ while(True):
     image = numpy.asanyarray(frame.get_data())
 
     # Add color coding if using depth stream
-    #image = cv2.applyColorMap(cv2.convertScaleAbs(image, alpha=0.3), cv2.COLORMAP_TURBO)
+    image = cv2.applyColorMap(cv2.convertScaleAbs(image, alpha=1), cv2.COLORMAP_TURBO)
 
     # Display the current frame
     cv2.imshow('LiveReading', image)
