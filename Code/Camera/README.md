@@ -41,7 +41,9 @@ _All source codes in this folder are for Intel Realsense D435 with stereovision,
 - screenshot_2 = rgba8
 - screenshot_3 = rgb8
 - screenshot_4 = ArUco tacking
-- screenshot_5 = y8
+- screenshot_5 = color y8 848x480
+- screenshot_6 = infrared y8 1280x800 25fps
+
 
 ## Results
 

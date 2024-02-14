@@ -22,24 +22,34 @@ num_items = len(items)
 pipe = rs.pipeline()
 config = rs.config()
 
-config.enable_stream(rs.stream.color, 320, 180, rs.format.y16, 60) # (streamType, xRes, yRes, format, fps)
+config.enable_stream(rs.stream.depth, 848, 480, rs.format.yuyv, 60) # (streamType, xRes, yRes, format, fps)
 
 pipe.start(config)
 
 while(True):
     
-    frame = pipe.wait_for_frames() # waits for and collects all frames from camera (depth, color, etc)
-    color_frame = frame.get_color_frame()
-    color_image = numpy.asanyarray(color_frame.get_data())
+    # Collect frames from camera (depth, color, IR)
+    frame = pipe.wait_for_frames()
 
-    cv2.imshow('LiveReading', color_image)     # Display the current frame
+    # - convert to specific frame
+    #frame = frame.get_infrared_frame() # <-- Toggle these three lines when changing config from (depth,color,IR)
+    #frame = frame.get_color_frame() # <-- Toggle these three lines when changing config from (depth,color,IR)
+    frame = frame.get_depth_frame() # <-- Toggle these three lines when changing config from (depth,color,IR)
+    
+    # Convert to numpy array
+    image = numpy.asanyarray(frame.get_data())
 
-    keyPressed = cv2.waitKey(1) # Store key pressed during 1 [ms] delay
+    # Display the current frame
+    cv2.imshow('LiveReading', image)
 
-    if keyPressed == ord('s'):
-        cv2.imwrite(filename=f"screenshot_{num_items}.jpg", img=color_image) # solution inspired by azro
+    # Store key pressed during 1 [ms] delay
+    keyPressed = cv2.waitKey(1)
+
+    # Check what key was pressed
+    if keyPressed == ord('s'): # Screenshot
+        cv2.imwrite(filename=f"screenshot_{num_items}.jpg", img=image) # solution inspired by azro
         print('Screenshot successful!')
-    elif keyPressed == ord('q'):
+    elif keyPressed == ord('q'): # Stop stream
         break
 
 pipe.stop()             # Stop recording
