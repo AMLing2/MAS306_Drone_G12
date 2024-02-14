@@ -46,6 +46,9 @@ _All source codes in this folder are for Intel Realsense D435 with stereovision,
 - screenshot_7-saved = infrared y16 1280x800 25fps
 - screenshot_8-saved = color y16 848x480 60fps
 - screenshot_9-saved = color yuyv 848x480 60fps
+- screenshot_10 = depth z16 848x480 60fps colormapped
+- screenshot_11 = depth z16 848x480 60fps not mapped
+- screenshot_12-saved = depth z16 848x480 60fps not mapped
 
 
 ## Results
