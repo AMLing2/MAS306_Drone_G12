@@ -19,7 +19,8 @@ fontThickness = 1
 
 # -------------------------------- Save Frame ---------------------------
 # Directory to save image 
-os.chdir(r'/home/thomaz/MAS306_Drone_G12/Code/Camera/Screenshots')
+dir = r'/home/thomaz/MAS306_Drone_G12/Code/Camera/Screenshots'
+os.chdir(dir)
 
 # ---------- ChatGPT -----------------
 # Get the list of items (files and folders) inside the folder
