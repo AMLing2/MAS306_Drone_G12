@@ -1,11 +1,11 @@
 # PyImageSearch: https://pyimagesearch.com/2020/12/21/detecting-aruco-markers-with-opencv-and-python/
 
 # --------------------------------------- Libraries ---------------------------------------
-import cv2
-import cv2.aruco as aruco # For simplification
-import pyrealsense2 as rs
-import numpy
-import os
+import cv2                  # OpenCV
+import cv2.aruco as aruco   # For simplification
+import pyrealsense2 as rs   # RealSense Wrapper
+import numpy                # Python Math
+import os                   # Path Control
 # --------------------------------------- Libraries ---------------------------------------
 
 # ------------------- Constant variables for simple changes -------------------
@@ -31,9 +31,7 @@ num_items = len(items)
 # -------------------------------- Save Frame ---------------------------
 
 # Set dictionary for the markers
-arucoParams     = aruco.DetectorParameters()
 arucoDictionary = aruco.getPredefinedDictionary(aruco.DICT_6X6_50) # <-- Tip from chatGPT, Detector_get is old
-
 
 # Setup configuration and start pipeline stream
 pipe = rs.pipeline()
@@ -52,7 +50,7 @@ while(True):
 
     # Identification
     gray = cv2.cvtColor(color_image, cv2.COLOR_BGR2GRAY)   # Grayscale image
-    corners, ids, rejectedImagePoints = aruco.detectMarkers(gray, arucoDictionary, parameters=arucoParams)
+    corners, ids, rejectedImagePoints = aruco.detectMarkers(gray, arucoDictionary, parameters=aruco.DetectorParameters())
 
     # Information display in terminal
     print(f'\n[INFO] ArUco Marker ID:     {ids}') # Array with current IDs: [ [id1] [id2] ... [idn] ]
