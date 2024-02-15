@@ -1,7 +1,3 @@
-
-# ---- In order to numerate the screenshots, a solution provided by ezro at StackOverflow was used ----
-# https://stackoverflow.com/questions/72329662/how-to-keep-cv2-imwrite-from-overwriting-the-image-files
-
 import cv2
 import pyrealsense2 as rs
 import numpy
@@ -50,7 +46,7 @@ while(True):
 
     # Check what key was pressed
     if keyPressed == ord('s'): # Screenshot
-        cv2.imwrite(filename=f"screenshot_{num_items}.jpg", img=image) # solution inspired by azro
+        cv2.imwrite(filename=f"screenshot_{num_items}.jpg", img=image)  # Incrementing filename
         print('Screenshot successful!')
     elif keyPressed == ord('q'): # Stop stream
         break
