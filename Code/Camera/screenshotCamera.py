@@ -1,6 +1,6 @@
-import cv2
-import pyrealsense2 as rs
-import numpy
+import cv2                  # OpenCV
+import pyrealsense2 as rs   # RealSense wrapper
+import numpy                # Python math
 import os                   # For path
 
 # Directory to save image 
