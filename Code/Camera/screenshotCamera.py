@@ -18,7 +18,7 @@ num_items = len(items)
 pipe = rs.pipeline()
 config = rs.config()
 
-config.enable_stream(rs.stream.infrared, 848, 480, rs.format.y8, 60) # (streamType, xRes, yRes, format, fps)
+config.enable_stream(rs.stream.infrared, 424, 240, rs.format.y8, 30) # (streamType, xRes, yRes, format, fps)
 
 pipe.start(config)
 
