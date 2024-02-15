@@ -45,10 +45,10 @@ while(True):
     keyPressed = cv2.waitKey(1)
 
     # Check what key was pressed
-    if keyPressed == ord('s'): # Screenshot
+    if keyPressed == ord('s'):      # S to save frame
         cv2.imwrite(filename=f"screenshot_{num_items}.jpg", img=image)  # Incrementing filename
         print('Screenshot successful!')
-    elif keyPressed == ord('q'): # Stop stream
+    elif keyPressed == ord('q'):    # Q to stop stream
         break
 
 pipe.stop()             # Stop recording
