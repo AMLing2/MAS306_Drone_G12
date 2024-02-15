@@ -27,10 +27,10 @@ while(True):
     # Collect frames from camera (depth, color, IR)
     frame = pipe.wait_for_frames()
 
-    # - convert to specific frame
-    frame = frame.get_infrared_frame() # <-- Toggle these three lines when changing config from (depth,color,IR)
-    #frame = frame.get_color_frame() # <-- Toggle these three lines when changing config from (depth,color,IR)
-    #frame = frame.get_depth_frame() # <-- Toggle these three lines when changing config from (depth,color,IR)
+    # Toggle these three lines when changing config from (depth,color,IR)
+    frame = frame.get_infrared_frame()
+    #frame = frame.get_color_frame()
+    #frame = frame.get_depth_frame()
 
     # Convert to numpy array
     image = numpy.asanyarray(frame.get_data())
