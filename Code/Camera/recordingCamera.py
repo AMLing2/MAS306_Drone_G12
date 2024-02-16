@@ -14,11 +14,12 @@ fourcc = cv2.VideoWriter_fourcc(*'MJPG')
 # Image Transfer Rate
 fps = 60
 
-# Image size: (horizontal, vertical) [pixels]
-size = (848, 480)
+# Image size [pixels]
+w = 848 # Width
+h = 480 # Height
 
 # File Configuraiton for recording
-recording = cv2.VideoWriter('recording.avi', fourcc, fps, size)
+recording = cv2.VideoWriter('recording.avi', fourcc, fps, (w,h))
 # ------------------ Recording Setup ------------------
 
 # Depth Camera connection
@@ -26,7 +27,7 @@ pipe = rs.pipeline()
 cfg = rs.config()
 
 # Setup Stream
-cfg.enable_stream(rs.stream.color, size, rs.format.bgr8, fps) # (streamType, xRes, yRes, format, fps)
+cfg.enable_stream(rs.stream.color, w, h, rs.format.bgr8, fps) # (streamType, xRes, yRes, format, fps)
 pipe.start(cfg)
 
 while(True):
