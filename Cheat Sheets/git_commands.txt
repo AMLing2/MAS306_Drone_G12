@@ -43,5 +43,8 @@ git pull origin main		// Pull recent changes
 git merge branchName		// Move branchName changes to main
 git add .		// Add any additional changes to staging
 git commit -m "message"	// Commit staging
-git branch -d branchName	// [OPTIONAL] Delete branchName
 git push origin main		// Push changes explicitly to main
+
+// Delete branch after you're done
+git branch -d branchName		// Delete local branchName
+git push origin --delete branchName	// Delete remote branchName
