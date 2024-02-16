@@ -32,3 +32,16 @@ cd "C:/Users/Thoma/OneDrive - Universitetet i Agder/UiA/5. semester/Servoteknikk
 
 https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository //Førstegangs oppretting av local repository
 
+-------- Branching by TLS & GPT3.5 ---------
+// Can either do with setting upstream or specify which to pull/push to:
+git push origin branchName // Pushes to origin-repo, specified to push to branchName
+git pull origin branchName // Pulls to origin-repo, specified to push to branchName
+
+// Merge branchName into main:
+git co main			// Checkout to main
+git pull origin main		// Pull recent changes
+git merge branchName		// Move branchName changes to main
+git add .		// Add any additional changes to staging
+git commit -m "message"	// Commit staging
+git branch -d branchName	// [OPTIONAL] Delete branchName
+git push origin main		// Push changes explicitly to main
