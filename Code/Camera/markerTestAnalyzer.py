@@ -90,7 +90,7 @@ for dict in dictList:
             for i in range(0, len(ids)):
                 
                 # Pose Estimate using ArUco
-                rotVector, transVector, markerPoints = cv2.aruco.estimatePoseSingleMarkers(
+                rotVector, transVector, markerPoints = aruco.estimatePoseSingleMarkers(
                     corners[i], markerSize, cameraMatrix=cameraMatrix, distCoeffs=distortionCoefficients)
 
                 # Check for false positives - change in magnitude (Vector Norm |x|)
