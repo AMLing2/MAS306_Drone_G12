@@ -39,8 +39,15 @@ print("\nDistortion Coefficients\n", distortionCoefficients)
 
 # Set dictionary for the markers
 arucoParams     = aruco.DetectorParameters()
-arucoDictionary = aruco.getPredefinedDictionary(aruco.DICT_7X7_50) # <-- Tip from chatGPT, Detector_get is old
+#arucoDictionary = aruco.getPredefinedDictionary(aruco.DICT_7X7_50) # <-- Tip from chatGPT, Detector_get is old
 
+# Set dictionary for the markers - TEMPORARY
+dictList = numpy.array([
+	aruco.DICT_6X6_50,
+	aruco.DICT_7X7_50,
+	aruco.DICT_APRILTAG_36h10,
+	aruco.DICT_APRILTAG_36h11
+])
 
 # Setup configuration and start pipeline stream
 pipe = rs.pipeline()
@@ -57,9 +64,8 @@ while(True):
     color_frame = frame.get_color_frame()   # Extract RGB module frame
     color_image = numpy.asanyarray(color_frame.get_data()) # Convert to NumPy array
 
-    # Identification
-    gray = cv2.cvtColor(color_image, cv2.COLOR_BGR2GRAY)   # Grayscale image
-    corners, ids, rejectedImagePoints = aruco.detectMarkers(gray, arucoDictionary, parameters=arucoParams)
+    for dict in dictList:
+        arucoDictionary = aruco.getPredefinedDictionary(dict) # <-- Tip from chatGPT, Detector_get is old
 
     # ------------------------------------ Pose Estimation ------------------------------------
     if len(corners) > 0:
