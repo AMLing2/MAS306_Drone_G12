@@ -23,6 +23,10 @@ _All source codes in this folder are for Intel Realsense D435 with stereovision,
 - Display number of frames with data
 - Display number of false positives
 
+### markerTestVideoExport.py
+- For playback and saving of video
+- Only one dict at a time, all at once in TestFiles folder
+
 ### recordingCamera.py
 - For recording videos with Intel Realsense D435 Camera.
 - File path is local directory
@@ -72,7 +76,7 @@ _All source codes in this folder are for Intel Realsense D435 with stereovision,
 
 ### <span style="color:grey">[Discontinued/Irrelevant] TestFiles
 
-- <span style="color:grey">Screenshots directory - frames save here
+- <span style="color:grey">Screenshots directory - old frames saved here
 - <span style="color:grey">screenshotCamera.py - capture single frames
 - <span style="color:grey">.pkl files - Pickle files for calibration testing export
 - <span style="color:grey">cameraCalibration.py - Calibration testing.

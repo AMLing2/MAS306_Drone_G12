@@ -1,5 +1,3 @@
-# https://www.geeksforgeeks.org/how-to-get-the-magnitude-of-a-vector-in-numpy/
-
 # --------------------------------------- Libraries ---------------------------------------
 import pyrealsense2 as rs   # stream configuration
 import cv2                  # Show video with OpenCV
@@ -7,8 +5,6 @@ import cv2.aruco as aruco   # Simplification
 import os                   # Check file-extension
 import numpy                # Python Math
 import csv                  # Export to "Comma-Separated Values" file
-import time                 # Computation Timer
-import math                 # For Square Root
 # --------------------------------------- Libraries ---------------------------------------
 
 #markerColor = (255, 255, 0) # Corner color is set to be contrast to border color
@@ -58,21 +54,6 @@ cfg = rs.config()
 # Size of window to display recording
 displaySize = (960, 540)
 
-# Store relevant values
-framesWithData  = []    # Array to store frames with data
-falsePositives  = []    # Array to store false positives
-computationTime = []    # Array for computation times
-
-# False positives detection tolerance - Change with empirical testing
-falseTol = 0.085
-
-# Function from GeeksForGeeks, see link in top
-def magnitude(vector): 
-    # Convert vector to a NumPy array if it's not already one
-    vector = numpy.array(vector)
-    
-    # Compute magnitude using NumPy's linear algebra norm function
-    return numpy.linalg.norm(vector)
 
 # Export data to csv file
     # Path and name of file
@@ -87,16 +68,6 @@ with open(csvFile, 'w', newline='') as file:
     csvwriter.writerow(['Dictionary', 'Rotation Vector', 'Translation Vector'])
 
     for dict in dictList:
-        
-        print(dict)
-
-        # Restart variables for relevant values
-        startTimer = time.time() # Start timer per dict
-        curDataFrames = 0        # Frames with data for current dict
-        curFalsePos = 0          # False positives for current dict
-        prevRotVec = [0, 0, 0]   # Restart rotation vector
-        prevTransVec = [0, 0, 0] # Restart translation vector
-        totalFrames = 0          # Total Frames extraction part 1
 
         # Fetch current dictionary
         dictionary = aruco.getPredefinedDictionary(dict) # <-- Tip from chatGPT, Detector_get is old
@@ -105,13 +76,10 @@ with open(csvFile, 'w', newline='') as file:
         recording = cv2.VideoCapture('recording.avi')
 
         while(recording.isOpened()):
-
-            # Extract frames
-            ret, frame = recording.read()
             
-            # Total Frames extraction part 2
-            totalFrames += 1
-
+            # Extract frames
+            ret, frame = recording.read()        
+            
             # Stop while loop if no more frames
             if not ret:
                 break
@@ -127,38 +95,17 @@ with open(csvFile, 'w', newline='') as file:
                     rotVector, transVector, markerPoints = cv2.aruco.estimatePoseSingleMarkers(
                         corners[i], markerSize, cameraMatrix=cameraMatrix, distCoeffs=distortionCoefficients)
 
-                    # Check for false positives
-                    # if ( ( (prevRotVec - rotVector) > falseTol ).any() or
-                    #      ( (prevTransVec - transVector) > falseTol ).any() ):
-                    #     curFalsePos += 1
-
-                    if ( ( (magnitude(prevTransVec) - magnitude(transVector)) > falseTol) ): #or
-                        #  ( (magnitude(prevRotVec) - magnitude(rotVector)) > falseTol) ):
-                        curFalsePos += 1
-                        print("False Positive detected!")
-                    else:
-                        print("No False pos.")
-
-                    prevRotVec = rotVector
-                    prevTransVec = transVector
-
-                        # This may be redundant if we detect false positives with too big difference between frames
-                    # if (len(ids) > 1):
-                    #     print("More than 1 marker")
-
                     # Draw axes
-                    # cv2.drawFrameAxes(frame, cameraMatrix=cameraMatrix,
-                    #                 distCoeffs=distortionCoefficients, rvec=rotVector, tvec=transVector, length=axesLength)
-                
-                # Number of frames with data
-                curDataFrames += 1
+                    cv2.drawFrameAxes(frame, cameraMatrix=cameraMatrix,
+                                    distCoeffs=distortionCoefficients, rvec=rotVector, tvec=transVector, length=axesLength)
+
 
             # Write to CSV file
             csvwriter.writerow([dict, rotVector, transVector])
 
             # Display Video
-            #displayWindow = cv2.resize(frame, displaySize)    # Resize window
-            #cv2.imshow('LiveReading', displayWindow)                # Display the current frame
+            displayWindow = cv2.resize(frame, displaySize)    # Resize window
+            cv2.imshow('LiveReading', displayWindow)                # Display the current frame
         
             # Press Q to stop video playback
             if cv2.waitKey(1) == ord('q'):
@@ -166,21 +113,3 @@ with open(csvFile, 'w', newline='') as file:
         
         # Release playback after each dictionary
         recording.release()
-
-        # Computation Time
-        endTimer = time.time()              # Time of loop stop
-        currentTime = endTimer - startTimer # Time difference
-        computationTime.append(currentTime) # Increment array
-
-        # Number of Frames with Data
-        framesWithData.append(curDataFrames)
-
-        # False Positives
-        falsePositives.append(curFalsePos)
-
-        
-# Display relevant array values
-print("\nComputation Time:\n", computationTime)
-print("\nFrames With Data:\n", framesWithData)
-print("\nFalse Positives.\n", falsePositives)
-print("\nTotal Frames: ", totalFrames)
