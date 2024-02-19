@@ -31,7 +31,7 @@ num_items = len(items)
 # -------------------------------- Save Frame ---------------------------
 
 # Set dictionary for the markers
-arucoDictionary = aruco.getPredefinedDictionary(aruco.DICT_6X6_50) # <-- Tip from chatGPT, Detector_get is old
+arucoDictionary = aruco.getPredefinedDictionary(aruco.DICT_6X6_50)
 
 # Setup configuration and start pipeline stream
 pipe = rs.pipeline()
