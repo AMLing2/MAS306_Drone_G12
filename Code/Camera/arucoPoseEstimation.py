@@ -71,9 +71,11 @@ while(True):
             cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
                               distCoeffs=distortionCoefficients, rvec=rotVector, tvec=transVector, length=axesLength)
             
-            magnitude = numpy.linalg.norm(transVector)
-            magnitude = round(magnitude, 4)
-            print("\nMagnitude: ", magnitude)
+            # magnitude = numpy.linalg.norm(transVector)
+            # magnitude = round(magnitude, 4)
+            # print("\nMagnitude: ", magnitude)
+
+            print("\nTranslation Vector: ", transVector)
     # ------------------------------------ Pose Estimation ------------------------------------
 
 

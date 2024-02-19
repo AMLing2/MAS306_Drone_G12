@@ -18,7 +18,6 @@ _All source codes in this folder are for Intel Realsense D435 with stereovision,
 
 ### markerTestAnalyzer.py
 - For reading the recorded videos from recordingCamera.py
-- Save dicitonary, rotation and traslation vectors in results folder
 - Display computation time
 - Display number of frames with data
 - Display number of false positives
@@ -69,12 +68,6 @@ _All source codes in this folder are for Intel Realsense D435 with stereovision,
 
 ### RealSenseViewerIntrinsics.json
 - Listed intrinsic parameters from Intel.RealSense.Viewer.exe on Windows
-
-### markerTestResultsN.csv
-- List of results from recordingReader.py
-- Dictionary, rotation and translation vectors
-- N refers to the number, as there are multiple saved lists
-- Final Test is 4, more speed and more angles.
 
 ---
 ---

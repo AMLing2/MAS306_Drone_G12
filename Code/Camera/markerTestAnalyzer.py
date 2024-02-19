@@ -3,7 +3,6 @@ import cv2                  # Show video with OpenCV
 import cv2.aruco as aruco   # Simplification
 import os                   # Check file-extension
 import numpy                # Python Math
-import csv                  # Export to "Comma-Separated Values" file
 import time                 # Computation Timer
 
 font = cv2.FONT_HERSHEY_SIMPLEX
@@ -55,87 +54,72 @@ computationTime = []    # Array for computation times
 # False positives detection tolerance - Change with empirical testing
 falseTol = 0.085
 
-# Export data to csv file
-    # Path and name of file
-csvFile = r'/home/thomaz/MAS306_Drone_G12/Code/Camera/Results/markerTestResults4.csv'
-    # (fileName, write/read, newline symbol set to nothing)
-with open(csvFile, 'w', newline='') as file:
-    
-    # Create writer object
-    csvwriter = csv.writer(file)
+for dict in dictList:
 
-    # Headers
-    csvwriter.writerow(['Dictionary', 'Rotation Vector', 'Translation Vector'])
+    # Restart variables for relevant values
+    startTimer = time.time() # Start timer per dict
+    curDataFrames = 0        # Frames with data for current dict
+    curFalsePos = 0          # False positives for current dict
+    prevRotVec = [0, 0, 0]   # Restart rotation vector
+    prevTransVec = [0, 0, 0] # Restart translation vector
+    totalFrames = 0          # Total Frames extraction part 1
 
-    for dict in dictList:
+    # Fetch current dictionary
+    dictionary = aruco.getPredefinedDictionary(dict) # <-- Tip from chatGPT, Detector_get is old
 
-        # Restart variables for relevant values
-        startTimer = time.time() # Start timer per dict
-        curDataFrames = 0        # Frames with data for current dict
-        curFalsePos = 0          # False positives for current dict
-        prevRotVec = [0, 0, 0]   # Restart rotation vector
-        prevTransVec = [0, 0, 0] # Restart translation vector
-        totalFrames = 0          # Total Frames extraction part 1
+    # Import recording for each dictionary
+    recording = cv2.VideoCapture('recording4.avi')
 
-        # Fetch current dictionary
-        dictionary = aruco.getPredefinedDictionary(dict) # <-- Tip from chatGPT, Detector_get is old
+    while(recording.isOpened()):
 
-        # Import recording for each dictionary
-        recording = cv2.VideoCapture('recording4.avi')
+        # Extract frames
+        ret, frame = recording.read()
+        
+        # Total Frames extraction part 2
+        totalFrames += 1
 
-        while(recording.isOpened()):
+        # Stop while loop if no more frames
+        if not ret:
+            break
 
-            # Extract frames
-            ret, frame = recording.read()
-            
-            # Total Frames extraction part 2
-            totalFrames += 1
-
-            # Stop while loop if no more frames
-            if not ret:
-                break
-
-            # Identification
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)   # Grayscale image
-            corners, ids, rejectedImagePoints = aruco.detectMarkers(gray, dictionary, parameters=arucoParams)
-            
-            if len(corners) > 0:
-                for i in range(0, len(ids)):
-                    
-                    # Pose Estimate using ArUco
-                    rotVector, transVector, markerPoints = cv2.aruco.estimatePoseSingleMarkers(
-                        corners[i], markerSize, cameraMatrix=cameraMatrix, distCoeffs=distortionCoefficients)
-
-                    # Check for false positives - change in magnitude (Vector Norm |x|)
-                    if ( ( (numpy.linalg.norm(prevTransVec) - numpy.linalg.norm(transVector)) > falseTol) ):
-                        curFalsePos += 1
-
-                    prevRotVec = rotVector
-                    prevTransVec = transVector
+        # Identification
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)   # Grayscale image
+        corners, ids, rejectedImagePoints = aruco.detectMarkers(gray, dictionary, parameters=arucoParams)
+        
+        if len(corners) > 0:
+            for i in range(0, len(ids)):
                 
-                # Number of frames with data
-                curDataFrames += 1
+                # Pose Estimate using ArUco
+                rotVector, transVector, markerPoints = cv2.aruco.estimatePoseSingleMarkers(
+                    corners[i], markerSize, cameraMatrix=cameraMatrix, distCoeffs=distortionCoefficients)
 
-            # Write to CSV file
-            csvwriter.writerow([dict, rotVector, transVector])
-        
-            # Press Q to stop video playback
-            if cv2.waitKey(1) == ord('q'):
-                break
-        
-        # Release playback after each dictionary
-        recording.release()
+                # Check for false positives - change in magnitude (Vector Norm |x|)
+                if ( ( (numpy.linalg.norm(prevTransVec) - numpy.linalg.norm(transVector)) > falseTol) ):
+                    curFalsePos += 1
 
-        # Computation Time
-        endTimer = time.time()              # Time of loop stop
-        currentTime = endTimer - startTimer # Time difference
-        computationTime.append(currentTime) # Increment array
+                prevRotVec = rotVector
+                prevTransVec = transVector
+            
+            # Number of frames with data
+            curDataFrames += 1
+    
+        # Press Q to stop video playback
+        if cv2.waitKey(1) == ord('q'):
+            break
+    
+    # Release playback after each dictionary
+    recording.release()
 
-        # Number of Frames with Data
-        framesWithData.append(curDataFrames)
+    # Computation Time
+    endTimer = time.time()              # Time of loop stop
+    currentTime = endTimer - startTimer # Time difference
+    computationTime.append(currentTime) # Increment array
 
-        # False Positives
-        falsePositives.append(curFalsePos)
+    # Number of Frames with Data
+    framesWithData.append(curDataFrames)
+
+    # False Positives
+    falsePositives.append(curFalsePos)
 
         
 # Display relevant array values
