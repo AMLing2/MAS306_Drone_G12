@@ -1,14 +1,12 @@
-
 # --------------------------------------- Libraries ---------------------------------------
 import pyrealsense2 as rs   # stream configuration
 import cv2                  # Show video with OpenCV
 import cv2.aruco as aruco   # Simplification
-import argparse             # Argument Parsing
-import os.path              # Check file-extension
-import numpy
+import os                   # Check file-extension
+import numpy                # Python Math
+import csv                  # Export to "Comma-Separated Values" file
 # --------------------------------------- Libraries ---------------------------------------
 
-# ------------------- From arucoPoseEstimation -------------------
 #markerColor = (255, 255, 0) # Corner color is set to be contrast to border color
 
 font = cv2.FONT_HERSHEY_SIMPLEX
@@ -17,7 +15,8 @@ fontScale = 0.5
 fontThickness = 1
 axesLength = 0.01
 
-markerSize = 0.04 # Length of ArUco marker sides [m]
+# Length of ArUco marker sides
+markerSize = 0.04 # [m]
 
 # Imported from Camera Calibration, hardcoded for testing first
 cameraMatrix = numpy.array([
@@ -27,11 +26,9 @@ cameraMatrix = numpy.array([
 distortionCoefficients = numpy.array(
     [ 0.0, 0.0, 0.0, 0.0, 0.0]) # [k1, k2, p1, p2, k3]
 
-print("\nCamera Matrix\n", cameraMatrix)
-print("\nDistortion Coefficients\n", distortionCoefficients)
-# ------------------- Constant variables for simple changes -------------------
-
-# ------------------------- ArUco Stuff -------------------------
+# Directory to read/write videos
+dir = r'/home/thomaz/Recordings'
+os.chdir(dir)
 
 # Set dictionary for the markers
 arucoParams     = aruco.DetectorParameters()
@@ -50,8 +47,6 @@ dictList = numpy.array([
     aruco.DICT_ARUCO_MIP_36h12
 ])
 
-# ------------------------- ArUco Stuff -------------------------
-
 # Create pipeline and config object
 pipe = rs.pipeline()
 cfg = rs.config()
@@ -59,50 +54,62 @@ cfg = rs.config()
 # Size of window to display recording
 displaySize = (960, 540)
 
-# Enable playback from the specified bag file
-cfg.enable_device_from_file(r'/home/thomaz/Recordings/recordedVideo.bag')
 
-# Enable recording for exporting results
-cfg.enable_record_to_file(r'/home/thomaz/Recordings/resultVideo.mp4v')
-
-# Start pipeline with configuration
-pipe.start(cfg)
-
-while(True):
+# Export data to csv file
+    # Path and name of file
+csvFile = r'/home/thomaz/MAS306_Drone_G12/Code/Camera/Results/markerTestResults.csv'
+    # (fileName, write/read, newline symbol set to nothing)
+with open(csvFile, 'w', newline='') as file:
     
-    frame = pipe.wait_for_frames() # waits for and collects all frames from camera (depth, color, etc)
-    color_frame = frame.get_color_frame()
-    color_image = numpy.asanyarray(color_frame.get_data())
+    # Create writer object
+    csvwriter = csv.writer(file)
 
-    # ------------------------------------ arucoPoseEstimation.py ------------------------------------
+    # Headers
+    csvwriter.writerow(['Dictionary', 'Rotation Vector', 'Translation Vector'])
 
     for dict in dictList:
-        arucoDictionary = aruco.getPredefinedDictionary(dict) # <-- Tip from chatGPT, Detector_get is old
-        # Identification
-        gray = cv2.cvtColor(color_image, cv2.COLOR_BGR2GRAY)   # Grayscale image
-        corners, ids, rejectedImagePoints = aruco.detectMarkers(gray, arucoDictionary, parameters=arucoParams)
 
+        # Fetch current dictionary
+        dictionary = aruco.getPredefinedDictionary(dict) # <-- Tip from chatGPT, Detector_get is old
+
+        # Import recording
+        recording = cv2.VideoCapture('recording.avi')
+
+        while(recording.isOpened()):
+            
+            # Extract frames
+            ret, frame = recording.read()        
+            
+            # Stop while loop if no more frames
+            if not ret:
+                break
+
+            # Identification
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)   # Grayscale image
+            corners, ids, rejectedImagePoints = aruco.detectMarkers(gray, dictionary, parameters=arucoParams)
+            
+            if len(corners) > 0:
+                for i in range(0, len(ids)):
+                    
+                    # Pose Estimate using ArUco
+                    rotVector, transVector, markerPoints = cv2.aruco.estimatePoseSingleMarkers(
+                        corners[i], markerSize, cameraMatrix=cameraMatrix, distCoeffs=distortionCoefficients)
+
+                    # Draw axes
+                    cv2.drawFrameAxes(frame, cameraMatrix=cameraMatrix,
+                                    distCoeffs=distortionCoefficients, rvec=rotVector, tvec=transVector, length=axesLength)
+
+
+            # Write to CSV file
+            csvwriter.writerow([dict, rotVector, transVector])
+
+            # Display Video
+            displayWindow = cv2.resize(frame, displaySize)    # Resize window
+            cv2.imshow('LiveReading', displayWindow)                # Display the current frame
         
-        if len(corners) > 0:
-            for i in range(0, len(ids)):
-                
-                rotVector, transVector, markerPoints = cv2.aruco.estimatePoseSingleMarkers(
-                    corners[i], markerSize, cameraMatrix=cameraMatrix, distCoeffs=distortionCoefficients)
-                
-                cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
-                                distCoeffs=distortionCoefficients, rvec=rotVector, tvec=transVector, length=axesLength)
-    
-    # ------------------------------------ arucoPoseEstimation.py ------------------------------------
-
-
-    # Display Video
-    displayWindow = cv2.resize(color_image, displaySize)    # Resize window
-    cv2.imshow('LiveReading', displayWindow)                # Display the current frame
-    
-    # Press Q to stop video playback
-    if cv2.waitKey(1) == ord('q'):
-        break
-
-pipe.stop()             # Stop recording
-cv2.destroyAllWindows() # Free resources 
-
+            # Press Q to stop video playback
+            if cv2.waitKey(1) == ord('q'):
+                break
+        
+        # Release playback after each dictionary
+        recording.release()
