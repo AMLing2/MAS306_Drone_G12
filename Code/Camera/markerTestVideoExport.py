@@ -1,13 +1,9 @@
-# --------------------------------------- Libraries ---------------------------------------
 import pyrealsense2 as rs   # stream configuration
 import cv2                  # Show video with OpenCV
 import cv2.aruco as aruco   # Simplification
 import os                   # Check file-extension
 import numpy                # Python Math
 import csv                  # Export to "Comma-Separated Values" file
-# --------------------------------------- Libraries ---------------------------------------
-
-#markerColor = (255, 255, 0) # Corner color is set to be contrast to border color
 
 font = cv2.FONT_HERSHEY_SIMPLEX
 fontColor = (200, 20, 200)
@@ -26,12 +22,24 @@ cameraMatrix = numpy.array([
 distortionCoefficients = numpy.array(
     [ 0.0, 0.0, 0.0, 0.0, 0.0]) # [k1, k2, p1, p2, k3]
 
-# Directory to read/write videos
+# ------------------ Import/Export Video Setup ------------------
+# Directory to save video 
 dir = r'/home/thomaz/Recordings'
 os.chdir(dir)
 
-# Set dictionary for the markers
-arucoParams     = aruco.DetectorParameters()
+# Four-Character Code (File format)
+fourcc = cv2.VideoWriter_fourcc(*'MJPG')
+
+# Image Transfer Rate
+fps = 60
+
+# Image size [pixels]
+w = 848 # Width
+h = 480 # Height
+# ------------------ Import/Export Video Setup ------------------
+
+# Create object for parameters
+arucoParams = aruco.DetectorParameters()
 
 # Set dictionary for the markers
 dictList = numpy.array([
@@ -47,69 +55,56 @@ dictList = numpy.array([
     aruco.DICT_ARUCO_MIP_36h12
 ])
 
-# Create pipeline and config object
-pipe = rs.pipeline()
-cfg = rs.config()
+# Video number for filename
+vidNr = 0
 
-# Size of window to display recording
-displaySize = (960, 540)
+# Iterate through dict list
+for dict in dictList:
 
+    # Start new recording
+    vidNr += 1
+    resultVid = cv2.VideoWriter(f'results_{vidNr}.avi', fourcc, fps, (w,h))
 
-# Export data to csv file
-    # Path and name of file
-csvFile = r'/home/thomaz/MAS306_Drone_G12/Code/Camera/Results/markerTestResults.csv'
-    # (fileName, write/read, newline symbol set to nothing)
-with open(csvFile, 'w', newline='') as file:
+    # Fetch current dictionary
+    dictionary = aruco.getPredefinedDictionary(dict) # <-- Tip from chatGPT, Detector_get is old
+
+    # Import recording
+    recording = cv2.VideoCapture('recording.avi')
+
+    while(recording.isOpened()):
+        
+        # Extract frames
+        ret, frame = recording.read()        
+        
+        # Stop while loop if no more frames
+        if not ret:
+            break
+
+        # Identification
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)   # Grayscale image
+        corners, ids, rejectedImagePoints = aruco.detectMarkers(gray, dictionary, parameters=arucoParams)
+        
+        if len(corners) > 0:
+            for i in range(0, len(ids)):
+                
+                # Pose Estimate using ArUco
+                rotVector, transVector, markerPoints = cv2.aruco.estimatePoseSingleMarkers(
+                    corners[i], markerSize, cameraMatrix=cameraMatrix, distCoeffs=distortionCoefficients)
+
+                # Draw axes
+                cv2.drawFrameAxes(frame, cameraMatrix=cameraMatrix,
+                                distCoeffs=distortionCoefficients, rvec=rotVector, tvec=transVector, length=axesLength)
+
+        # Display the current frame
+        cv2.imshow('Playback', frame)  # Display the current frame
+                
+        # Export results video
+        resultVid.write(frame)  # Incrementing filename
+
+        # Press Q to stop video playback
+        if cv2.waitKey(1) == ord('q'):
+            break
     
-    # Create writer object
-    csvwriter = csv.writer(file)
-
-    # Headers
-    csvwriter.writerow(['Dictionary', 'Rotation Vector', 'Translation Vector'])
-
-    for dict in dictList:
-
-        # Fetch current dictionary
-        dictionary = aruco.getPredefinedDictionary(dict) # <-- Tip from chatGPT, Detector_get is old
-
-        # Import recording
-        recording = cv2.VideoCapture('recording.avi')
-
-        while(recording.isOpened()):
-            
-            # Extract frames
-            ret, frame = recording.read()        
-            
-            # Stop while loop if no more frames
-            if not ret:
-                break
-
-            # Identification
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)   # Grayscale image
-            corners, ids, rejectedImagePoints = aruco.detectMarkers(gray, dictionary, parameters=arucoParams)
-            
-            if len(corners) > 0:
-                for i in range(0, len(ids)):
-                    
-                    # Pose Estimate using ArUco
-                    rotVector, transVector, markerPoints = cv2.aruco.estimatePoseSingleMarkers(
-                        corners[i], markerSize, cameraMatrix=cameraMatrix, distCoeffs=distortionCoefficients)
-
-                    # Draw axes
-                    cv2.drawFrameAxes(frame, cameraMatrix=cameraMatrix,
-                                    distCoeffs=distortionCoefficients, rvec=rotVector, tvec=transVector, length=axesLength)
-
-
-            # Write to CSV file
-            csvwriter.writerow([dict, rotVector, transVector])
-
-            # Display Video
-            displayWindow = cv2.resize(frame, displaySize)    # Resize window
-            cv2.imshow('LiveReading', displayWindow)                # Display the current frame
-        
-            # Press Q to stop video playback
-            if cv2.waitKey(1) == ord('q'):
-                break
-        
-        # Release playback after each dictionary
-        recording.release()
+    # Release playback after each dictionary
+    recording.release()
+    resultVid.release()

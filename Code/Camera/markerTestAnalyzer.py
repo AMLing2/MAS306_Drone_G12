@@ -27,8 +27,8 @@ distortionCoefficients = numpy.array(
 dir = r'/home/thomaz/Recordings'
 os.chdir(dir)
 
-# Set dictionary for the markers
-arucoParams     = aruco.DetectorParameters()
+# Create object for parameters
+arucoParams = aruco.DetectorParameters()
 
 # Set dictionary for the markers
 dictList = numpy.array([
@@ -43,10 +43,6 @@ dictList = numpy.array([
 	aruco.DICT_APRILTAG_36h11,
     aruco.DICT_ARUCO_MIP_36h12
 ])
-
-# Create pipeline and config object
-pipe = rs.pipeline()
-cfg = rs.config()
 
 # Size of window to display recording
 displaySize = (960, 540)
@@ -84,7 +80,7 @@ with open(csvFile, 'w', newline='') as file:
         # Fetch current dictionary
         dictionary = aruco.getPredefinedDictionary(dict) # <-- Tip from chatGPT, Detector_get is old
 
-        # Import recording
+        # Import recording for each dictionary
         recording = cv2.VideoCapture('recording.avi')
 
         while(recording.isOpened()):

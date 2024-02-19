@@ -26,6 +26,8 @@ _All source codes in this folder are for Intel Realsense D435 with stereovision,
 ### markerTestVideoExport.py
 - For playback and saving of video
 - Only one dict at a time, all at once in TestFiles folder
+- Saves video in local directory
+- Videos are TBA in final project video
 
 ### recordingCamera.py
 - For recording videos with Intel Realsense D435 Camera.
