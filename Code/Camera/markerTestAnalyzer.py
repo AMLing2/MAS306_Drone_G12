@@ -60,6 +60,9 @@ framesWithData  = []    # Array to store frames with data
 falsePositives  = []    # Array to store false positives
 computationTime = []    # Array for computation times
 
+# False positives detection tolerance - Maybe change with empirical testing
+falseTol = 0.1
+
 # Export data to csv file
     # Path and name of file
 csvFile = r'/home/thomaz/MAS306_Drone_G12/Code/Camera/Results/markerTestResults.csv'
@@ -75,8 +78,11 @@ with open(csvFile, 'w', newline='') as file:
     for dict in dictList:
         
         # Restart variables for relevant values
-        startTimer = time.time() # Start timer
-        curDataFrames = 0   # Frames with data for current dict
+        startTimer = time.time() # Start timer per dict
+        curDataFrames = 0        # Frames with data for current dict
+        curFalsePos = 0          # False positives for current dict
+        prevRotVec = [0, 0, 0]   # Restart rotation vector
+        prevTransVec = [0, 0, 0] # Restart translation vector
 
         # Fetch current dictionary
         dictionary = aruco.getPredefinedDictionary(dict) # <-- Tip from chatGPT, Detector_get is old
@@ -86,9 +92,15 @@ with open(csvFile, 'w', newline='') as file:
 
         while(recording.isOpened()):
             
+            # Total Frames extraction part 1
+            totalFrames = 0
+
             # Extract frames
-            ret, frame = recording.read()        
+            ret, frame = recording.read()
             
+            # Total Frames extraction part 2
+            totalFrames += 1
+
             # Stop while loop if no more frames
             if not ret:
                 break
@@ -103,7 +115,18 @@ with open(csvFile, 'w', newline='') as file:
                     # Pose Estimate using ArUco
                     rotVector, transVector, markerPoints = cv2.aruco.estimatePoseSingleMarkers(
                         corners[i], markerSize, cameraMatrix=cameraMatrix, distCoeffs=distortionCoefficients)
-                
+
+                    # Check for false positives
+                    if ( ( (prevRotVec - rotVector) > falseTol ).any() or
+                         ( (prevTransVec - transVector) > falseTol ).any() ):
+                        curFalsePos += 1
+
+                    prevRotVec = rotVector
+                    prevTransVec = transVector
+
+                        # This may be redundant if we detect false positives with too big difference between frames
+                    # if (len(ids) > 1):
+                    #     print("More than 1 marker")
 
                     # Draw axes
                     # cv2.drawFrameAxes(frame, cameraMatrix=cameraMatrix,
@@ -134,8 +157,12 @@ with open(csvFile, 'w', newline='') as file:
         # Number of Frames with Data
         framesWithData.append(curDataFrames)
 
+        # False Positives
+        falsePositives.append(curFalsePos)
+
         
 # Display relevant array values
 print("\nComputation Time:\n", computationTime)
 print("\nFrames With Data:\n", framesWithData)
 print("\nFalse Positives.\n", falsePositives)
+print("\nTotal Frames: ", totalFrames)

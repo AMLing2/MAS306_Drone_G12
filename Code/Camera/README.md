@@ -16,14 +16,17 @@ _All source codes in this folder are for Intel Realsense D435 with stereovision,
 - Live RGB and depth reading using pyrealsense2 library
 - from Nick DiFilippo: https://github.com/nickredsox/youtube/blob/master/Robotics/realsense.py
 
+### markerTestAnalyzer.py
+- For reading the recorded videos from recordingCamera.py
+- Save dicitonary, rotation and traslation vectors in results folder
+- Display computation time
+- Display number of frames with data
+- Display number of false positives
+
 ### recordingCamera.py
 - For recording videos with Intel Realsense D435 Camera.
 - File path is local directory
 - File format: .avi
-
-### recordingReader.py
-- For reading the recorded videos from recordingCamera.py
-- Save dicitonary, rotation and traslation vectors in results folder
 
 ### screenshotCamera.py
 - For capturing screenshots from the camera stream
