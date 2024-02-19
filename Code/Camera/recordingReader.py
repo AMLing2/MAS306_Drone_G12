@@ -3,7 +3,8 @@ import pyrealsense2 as rs   # stream configuration
 import cv2                  # Show video with OpenCV
 import cv2.aruco as aruco   # Simplification
 import os                   # Check file-extension
-import numpy
+import numpy                # Python Math
+import csv                  # Export to "Comma-Separated Values" file
 # --------------------------------------- Libraries ---------------------------------------
 
 #markerColor = (255, 255, 0) # Corner color is set to be contrast to border color
@@ -25,12 +26,9 @@ cameraMatrix = numpy.array([
 distortionCoefficients = numpy.array(
     [ 0.0, 0.0, 0.0, 0.0, 0.0]) # [k1, k2, p1, p2, k3]
 
-# Directory to save video 
+# Directory to read/write videos
 dir = r'/home/thomaz/Recordings'
 os.chdir(dir)
-
-# Import recording
-recording = cv2.VideoCapture('recording.avi')
 
 # Set dictionary for the markers
 arucoParams     = aruco.DetectorParameters()
@@ -56,34 +54,62 @@ cfg = rs.config()
 # Size of window to display recording
 displaySize = (960, 540)
 
-while(True):
 
-    ret, frame = recording.read()
+# Export data to csv file
+    # Path and name of file
+csvFile = r'/home/thomaz/MAS306_Drone_G12/Code/Camera/Results/markerTestResults.csv'
+    # (fileName, write/read, newline symbol set to nothing)
+with open(csvFile, 'w', newline='') as file:
+    
+    # Create writer object
+    csvwriter = csv.writer(file)
+
+    # Headers
+    csvwriter.writerow(['Dictionary', 'Rotation Vector', 'Translation Vector'])
 
     for dict in dictList:
-        arucoDictionary = aruco.getPredefinedDictionary(dict) # <-- Tip from chatGPT, Detector_get is old
+
+        # Fetch current dictionary
+        dictionary = aruco.getPredefinedDictionary(dict) # <-- Tip from chatGPT, Detector_get is old
+
+        # Import recording
+        recording = cv2.VideoCapture('recording.avi')
+
+        while(recording.isOpened()):
+            
+            # Extract frames
+            ret, frame = recording.read()        
+            
+            # Stop while loop if no more frames
+            if not ret:
+                break
+
+            # Identification
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)   # Grayscale image
+            corners, ids, rejectedImagePoints = aruco.detectMarkers(gray, dictionary, parameters=arucoParams)
+            
+            if len(corners) > 0:
+                for i in range(0, len(ids)):
+                    
+                    # Pose Estimate using ArUco
+                    rotVector, transVector, markerPoints = cv2.aruco.estimatePoseSingleMarkers(
+                        corners[i], markerSize, cameraMatrix=cameraMatrix, distCoeffs=distortionCoefficients)
+
+                    # Draw axes
+                    cv2.drawFrameAxes(frame, cameraMatrix=cameraMatrix,
+                                    distCoeffs=distortionCoefficients, rvec=rotVector, tvec=transVector, length=axesLength)
+
+
+            # Write to CSV file
+            csvwriter.writerow([dict, rotVector, transVector])
+
+            # Display Video
+            displayWindow = cv2.resize(frame, displaySize)    # Resize window
+            cv2.imshow('LiveReading', displayWindow)                # Display the current frame
         
-        # Identification
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)   # Grayscale image
-        corners, ids, rejectedImagePoints = aruco.detectMarkers(gray, arucoDictionary, parameters=arucoParams)
+            # Press Q to stop video playback
+            if cv2.waitKey(1) == ord('q'):
+                break
         
-        if len(corners) > 0:
-            for i in range(0, len(ids)):
-                
-                rotVector, transVector, markerPoints = cv2.aruco.estimatePoseSingleMarkers(
-                    corners[i], markerSize, cameraMatrix=cameraMatrix, distCoeffs=distortionCoefficients)
-                
-                cv2.drawFrameAxes(frame, cameraMatrix=cameraMatrix,
-                                distCoeffs=distortionCoefficients, rvec=rotVector, tvec=transVector, length=axesLength)
-
-
-    # Display Video
-    displayWindow = cv2.resize(frame, displaySize)    # Resize window
-    cv2.imshow('LiveReading', displayWindow)                # Display the current frame
-    
-    # Press Q to stop video playback
-    if cv2.waitKey(1) == ord('q'):
-        break
-
-# Release playback
-recording.release()
+        # Release playback after each dictionary
+        recording.release()

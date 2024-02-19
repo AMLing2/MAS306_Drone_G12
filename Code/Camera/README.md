@@ -19,12 +19,11 @@ _All source codes in this folder are for Intel Realsense D435 with stereovision,
 ### recordingCamera.py
 - For recording videos with Intel Realsense D435 Camera.
 - File path is local directory
-- File format: .bag
+- File format: .avi
 
 ### recordingReader.py
 - For reading the recorded videos from recordingCamera.py
-- File path is local directory
-- File format: .bag
+- Save dicitonary, rotation and traslation vectors in results folder
 
 ### screenshotCamera.py
 - For capturing screenshots from the camera stream
@@ -61,6 +60,10 @@ _All source codes in this folder are for Intel Realsense D435 with stereovision,
 ### RealSenseViewerIntrinsics.json
 - Listed intrinsic parameters from Intel.RealSense.Viewer.exe on Windows
 
+### markerTestResults.csv
+- List of results from recordingReader.py
+- Dictionary, rotation and translation vectors
+
 ---
 ---
 
@@ -70,3 +73,4 @@ _All source codes in this folder are for Intel Realsense D435 with stereovision,
 - <span style="color:grey">screenshotCamera.py - capture single frames
 - <span style="color:grey">.pkl files - Pickle files for calibration testing export
 - <span style="color:grey">cameraCalibration.py - Calibration testing.
+- <span style="color:grey">recordingReaderAll.py - Display all markers at once
