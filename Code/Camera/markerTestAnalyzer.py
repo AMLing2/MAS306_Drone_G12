@@ -57,7 +57,7 @@ falseTol = 0.085
 
 # Export data to csv file
     # Path and name of file
-csvFile = r'/home/thomaz/MAS306_Drone_G12/Code/Camera/Results/markerTestResults.csv'
+csvFile = r'/home/thomaz/MAS306_Drone_G12/Code/Camera/Results/markerTestResults4.csv'
     # (fileName, write/read, newline symbol set to nothing)
 with open(csvFile, 'w', newline='') as file:
     
@@ -81,7 +81,7 @@ with open(csvFile, 'w', newline='') as file:
         dictionary = aruco.getPredefinedDictionary(dict) # <-- Tip from chatGPT, Detector_get is old
 
         # Import recording for each dictionary
-        recording = cv2.VideoCapture('recording.avi')
+        recording = cv2.VideoCapture('recording4.avi')
 
         while(recording.isOpened()):
 

@@ -33,6 +33,7 @@ _All source codes in this folder are for Intel Realsense D435 with stereovision,
 - For recording videos with Intel Realsense D435 Camera.
 - File path is local directory
 - File format: .avi
+- Final Test is 4, more speed and more angles.
 
 ### screenshotCamera.py
 - For capturing screenshots from the camera stream
@@ -69,9 +70,11 @@ _All source codes in this folder are for Intel Realsense D435 with stereovision,
 ### RealSenseViewerIntrinsics.json
 - Listed intrinsic parameters from Intel.RealSense.Viewer.exe on Windows
 
-### markerTestResults.csv
+### markerTestResultsN.csv
 - List of results from recordingReader.py
 - Dictionary, rotation and translation vectors
+- N refers to the number, as there are multiple saved lists
+- Final Test is 4, more speed and more angles.
 
 ---
 ---

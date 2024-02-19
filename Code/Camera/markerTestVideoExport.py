@@ -63,13 +63,13 @@ for dict in dictList:
 
     # Start new recording
     vidNr += 1
-    resultVid = cv2.VideoWriter(f'results_{vidNr}.avi', fourcc, fps, (w,h))
+    resultVid = cv2.VideoWriter(f'resultsTest4_{vidNr}.avi', fourcc, fps, (w,h))
 
     # Fetch current dictionary
     dictionary = aruco.getPredefinedDictionary(dict) # <-- Tip from chatGPT, Detector_get is old
 
     # Import recording
-    recording = cv2.VideoCapture('recording.avi')
+    recording = cv2.VideoCapture('recording4.avi')
 
     while(recording.isOpened()):
         
