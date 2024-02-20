@@ -18,14 +18,14 @@ axesLength = 0.01
 
 markerSize = 0.05 # Length of ArUco marker sides [m]
 
-# From Calibration - Same with OpenCV and Intel Dynamic Tool
+# From Calibration - OpenCV
     # For 848x480
 # cameraMatrix = numpy.array([
 #     [613.037048339844,          0,         429.841949462891],    # [f_x, 0.0, c_x] used principal points 
 #     [  0,               612.738342285156,  237.866897583008],    # [0.0, f_y, c_y] as optical center points
 #     [  0,                       0,                1.0      ] ])  # [0.0, 0.0, 1.0]
 
-# From Calibration - Same with Intel Dynamic Tool and OpenCV and 
+# From Calibration - Intel Dynamic Tool
     # For 848x480
 cameraMatrix = numpy.array([
     [613.037048339844,          0,         429.841949462891],    # [f_x, 0.0, c_x] used principal points 
@@ -33,12 +33,19 @@ cameraMatrix = numpy.array([
     [  0,                       0,                1.0      ] ])  # [0.0, 0.0, 1.0]
 
     # Dist coeffs from SDK
-# distortionCoefficients = numpy.array(
-#     [ 0.0, 0.0, 0.0, 0.0, 0.0]) # [k1, k2, p1, p2, k3]
+distortionCoefficients = numpy.array(
+    [ 0.0, 0.0, 0.0, 0.0, 0.0]) # [k1, k2, p1, p2, k3]
 
     # Dist coeffs from calibration in OpenCV
-distortionCoefficients = numpy.array(
-    [ 0.21043186, -0.69360305, -0.00180299,  0.00226683,  0.65082012]) # [k1, k2, p1, p2, k3]
+# distortionCoefficients = numpy.array(
+#    [ 0.21043186, -0.69360305, -0.00180299,  0.00226683,  0.65082012]) # [k1, k2, p1, p2, k3]
+
+    # Calibration v2 opencv
+cameraMatrix = numpy.array([
+[608.76301751,   0.0,         439.37397121],
+[  0.0,         609.23981796, 232.71315263],
+[  0.0,           0.0,          1.0        ]])
+# distortionCoefficients = numpy.array([ 0.21043186, -0.69360305, -0.00180299,  0.00226683,  0.65082012])
 
 print("\nCamera Matrix\n", cameraMatrix)
 print("\nDistortion Coefficients\n", distortionCoefficients)
