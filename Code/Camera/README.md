@@ -57,6 +57,7 @@ _All source codes in this folder are for Intel Realsense D435 with stereovision,
 - screenshot_10 = depth z16 848x480 60fps colormapped
 - screenshot_11 = depth z16 848x480 60fps not mapped
 - screenshot_12-saved = depth z16 848x480 60fps not mapped
+- screenshot_13 = Dynamic Calibration Tool: Print Target
 
 
 ## Results

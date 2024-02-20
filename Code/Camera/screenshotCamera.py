@@ -18,7 +18,7 @@ num_items = len(items)
 pipe = rs.pipeline()
 config = rs.config()
 
-config.enable_stream(rs.stream.infrared, 848, 480, rs.format.y8, 30) # (streamType, xRes, yRes, format, fps)
+config.enable_stream(rs.stream.color, 848, 480, rs.format.bgr8, 60) # (streamType, xRes, yRes, format, fps)
 
 pipe.start(config)
 
@@ -28,8 +28,8 @@ while(True):
     frame = pipe.wait_for_frames()
 
     # Toggle these three lines when changing config from (depth,color,IR)
-    frame = frame.get_infrared_frame()
-    #frame = frame.get_color_frame()
+    #frame = frame.get_infrared_frame()
+    frame = frame.get_color_frame()
     #frame = frame.get_depth_frame()
 
     # Convert to numpy array
