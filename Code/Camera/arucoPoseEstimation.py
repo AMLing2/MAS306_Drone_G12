@@ -35,6 +35,7 @@ distortionCoefficients = numpy.array(
 
 print("\nCamera Matrix\n", cameraMatrix)
 print("\nDistortion Coefficients\n", distortionCoefficients)
+
 # ------------------- Constant variables for simple changes -------------------
 
 # Set dictionary for the markers
@@ -73,7 +74,7 @@ while(True):
             # magnitude = numpy.linalg.norm(transVector)
             # magnitude = round(magnitude, 4)
             # print("\nMagnitude: ", magnitude)
-
+            
             transVector = numpy.around(transVector, 4)
 
             print("\nTranslation Vector: ", transVector)
