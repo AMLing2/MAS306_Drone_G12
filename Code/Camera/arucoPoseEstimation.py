@@ -74,6 +74,8 @@ while(True):
             # magnitude = round(magnitude, 4)
             # print("\nMagnitude: ", magnitude)
 
+            transVector = numpy.around(transVector, 4)
+
             print("\nTranslation Vector: ", transVector)
     # ------------------------------------ Pose Estimation ------------------------------------
 
@@ -109,9 +111,13 @@ while(True):
     # Display image
     cv2.imshow('LiveReading', color_image)
 
+    pressedKey = cv2.waitKey(1)
+
     # Loop breaker
-    if cv2.waitKey(1) == ord('q'): # Press Q to stop
+    if pressedKey == ord('q'):      # Press Q to stop
         break
+    elif pressedKey == ord('p'):    # Press P to pause
+        cv2.waitKey(-1)
 
 pipe.stop()             # Stop recording
 cv2.destroyAllWindows() # Free resources 
