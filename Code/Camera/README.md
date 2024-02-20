@@ -12,6 +12,11 @@ _All source codes in this folder are for Intel Realsense D435 with stereovision,
 - Display axes on marker
 - Builds on arucoDetection.py
 
+### cameraCalibration.py
+- Calibrates camera from screenshots in calibrationCaps
+- Displays estimated camera matrix and distortion coefficients
+- Displays undistortion
+
 ### depthCameraTest.py
 - Live RGB and depth reading using pyrealsense2 library
 - from Nick DiFilippo: https://github.com/nickredsox/youtube/blob/master/Robotics/realsense.py
@@ -35,11 +40,11 @@ _All source codes in this folder are for Intel Realsense D435 with stereovision,
 - Final Test is 4, more speed and more angles.
 
 ### screenshotCamera.py
-- For capturing screenshots from the camera stream
-- Press S to capture the current frame
+- For capturing frames from the camera stream
+- Press S to take a screenshot
+- Press C to capture current frame for calibration 
 - Press Q to stop the stream
-- The name of the screenshot will be numbered from the amount of files in the Screenshots folder
-
+- Automatic directory change and numbering
 
 ## Screenshots
 
@@ -59,6 +64,10 @@ _All source codes in this folder are for Intel Realsense D435 with stereovision,
 - screenshot_12-saved = depth z16 848x480 60fps not mapped
 - screenshot_13 = Dynamic Calibration Tool: Print Target
 
+## calibrationCaps
+- Screenshots captured for calibration
+- from screenshotCamera.py ~ Remember to change save folder!
+- Saved based on frames
 
 ## Results
 
@@ -76,7 +85,5 @@ _All source codes in this folder are for Intel Realsense D435 with stereovision,
 ### <span style="color:grey">[Discontinued/Irrelevant] TestFiles
 
 - <span style="color:grey">Screenshots directory - old frames saved here
-- <span style="color:grey">screenshotCamera.py - capture single frames
 - <span style="color:grey">.pkl files - Pickle files for calibration testing export
-- <span style="color:grey">cameraCalibration.py - Calibration testing.
 - <span style="color:grey">recordingReaderAll.py - Display all markers at once

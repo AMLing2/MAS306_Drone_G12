@@ -64,15 +64,10 @@ ret, cameraMatrix, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints,
 
 img = cv.imread('calibrationCaps/screenshot_0.jpg')
 h,  w = img.shape[:2]
-newCameraMatrix, roi = cv.getOptimalNewCameraMatrix(cameraMatrix, dist, (w,h), 1, (w,h))
-
-cameraMatrixActual = np.array([
-    [613.037048339844,          0,         429.841949462891],    # [f_x, 0.0, c_x] used principal points 
-    [  0,               612.738342285156,  237.866897583008],    # [0.0, f_y, c_y] as optical center points
-    [  0,                       0,                1.0      ] ])  # [0.0, 0.0, 1.0]
+newCameraMatrix, roi = cv.getOptimalNewCameraMatrix(cameraMatrix, dist, (w,h), 1)
 
 # Undistort
-dst = cv.undistort(img, cameraMatrixActual, dist, None, newCameraMatrix)
+dst = cv.undistort(img, cameraMatrix, dist, None, newCameraMatrix)
 
 # crop the image
 x, y, w, h = roi

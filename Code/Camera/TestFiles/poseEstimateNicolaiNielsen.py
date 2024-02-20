@@ -96,7 +96,7 @@ arucoParams = cv2.aruco.DetectorParameters()
 #                            [  0.0,           0.0,           1.0        ]])
 
 # distortion = np.array(
-#     [ 0.21043186, -0.69360305, -0.00180299,  0.00226683,  0.65082012]) # [k1, k2, p1, p2, k3]
+#      [ 0.21043186, -0.69360305, -0.00180299,  0.00226683,  0.65082012]) # [k1, k2, p1, p2, k3]
 
 intrinsic_camera = np.array([
     [613.037048339844,          0,         429.841949462891],    # [f_x, 0.0, c_x] used principal points 

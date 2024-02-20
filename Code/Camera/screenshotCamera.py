@@ -3,17 +3,6 @@ import pyrealsense2 as rs   # RealSense wrapper
 import numpy                # Python math
 import os                   # For path
 
-# Directory to save image 
-dir = r'/home/thomaz/MAS306_Drone_G12/Code/Camera/calibrationCaps'  # Change this for screenshots or for calibration
-os.chdir(dir)
-
-# ---------- ChatGPT -----------------
-# Get the list of items (files and folders) inside the folder
-items = os.listdir(dir)
-# Count the number of items
-num_items = len(items)
-# ---------- ChatGPT -----------------
-
 # Depth Camera connection
 pipe = rs.pipeline()
 config = rs.config()
@@ -22,7 +11,17 @@ config.enable_stream(rs.stream.color, 848, 480, rs.format.bgr8, 60) # (streamTyp
 
 pipe.start(config)
 
-i = 0
+# Frame counter
+frameNr = 0
+
+# Get the current working directory
+curDir = os.getcwd()
+
+# Screenshot directory
+screenDir = os.path.join(curDir, 'Screenshots')
+
+# Calibration screenshots directory
+calibDir = os.path.join(curDir, 'calibrationCaps')
 
 while(True):
     
@@ -46,13 +45,28 @@ while(True):
     # Store key pressed during 1 [ms] delay
     keyPressed = cv2.waitKey(1)
 
-    # Check what key was pressed
-    if keyPressed == ord('s'):      # S to save frame
-        cv2.imwrite(filename=f"screenshot_frame{i}.jpg", img=image)  # Incrementing filename
+    # S to take screenshot
+    if keyPressed == ord('s'):
+        os.chdir(screenDir) # Change directory
+        # ---------- ChatGPT -----------------
+        # Get the list of items (files and folders) inside the folder
+        items = os.listdir(screenDir)
+        # Count the number of items
+        num_items = len(items)
+        # ---------- ChatGPT -----------------
+        cv2.imwrite(filename=f"screenshot_{num_items}.jpg", img=image)  # Incrementing filename
         print('Screenshot successful!')
-    elif keyPressed == ord('q'):    # Q to stop stream
+    
+    # C to capture for calibration
+    if keyPressed == ord('c'):
+        os.chdir(calibDir)  # Change this for screenshots or for calibrationr)
+        cv2.imwrite(filename=f"screenshot_frame{frameNr}.jpg", img=image)  # Incrementing filename
+        print('Calibration frame captured!')
+
+    # Q to stop stream
+    elif keyPressed == ord('q'):
         break
-    i += 1
+    frameNr += 1
 
 pipe.stop()             # Stop recording
 cv2.destroyAllWindows() # Free resources 

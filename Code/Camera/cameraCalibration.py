@@ -6,8 +6,6 @@
 import cv2
 import numpy
 import glob         # For importing images
-import pickle       # For export/import (of calibration results)
-import os           # For selecting which image to display
 
 # Don't need to import pyrealsense2 as we are using from screenshotCamera.py
 # --------------------------------------- Libraries ---------------------------------------
@@ -43,15 +41,15 @@ for image in images: # Iterates through images
     img = cv2.imread(image)                      # Read image from current index
     grey = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) # Convert to greyscale
 
-    ret, corners = cv2.findChessboardCorners(grey, chessVertices, corners=None) # none so Python auto-allocates memory for corners array
+    ret, corners = cv2.findChessboardCorners(grey, chessVertices, None) # none so Python auto-allocates memory for corners array
 
     # Want more accurate corner detection - subpixel algorithm
     if ret == True:
         
         # Store corners with whole- and subpixel coordinates
         worldPoints.append(worldPointsTemplate) # Expand list with the template
-        imagePoints.append(corners)             # Expand list with detected corners
         subPixelCorners = cv2.cornerSubPix(grey, corners, winSize, zeroZone, criteria)
+        imagePoints.append(corners)             # Expand list with detected corners
         
         # Display the current image with corner detection
         cv2.drawChessboardCorners(img, chessVertices, subPixelCorners, ret)
@@ -65,24 +63,16 @@ cv2.destroyAllWindows()
 # ================================================== Calibration  ==================================================
 
 # Get Camera Matrix and Distortion Coefficients from openCV method
-ret, cameraMatrix, distortionCoeffs, rVecs, tVecs = cv2.calibrateCamera(worldPoints, imagePoints, chessVertices, None, None) # None: auto-allocates memory
-
-# Export Results
-pickle.dump( (cameraMatrix, distortionCoeffs, rVecs, tVecs), open("calibrations.pkl", "wb")) # wb = Write Binary
-pickle.dump( (cameraMatrix)                                , open("cameraMatrix.pkl", "wb"))
-pickle.dump( (distortionCoeffs)                            , open("distortionCoefficients.pkl", "wb"))
+ret, cameraMatrix, distortionCoeffs, rVecs, tVecs = cv2.calibrateCamera(worldPoints, imagePoints, cameraRes, None, None) # None: auto-allocates memory
 
 # Display Results
 print("\nRMS re-projection error: ", ret) # [pixels]
 print("\nCamera Matrix:\n", cameraMatrix)
 print("\nDistortion Coefficients:\n", distortionCoeffs)
-print("\nRotation Vectors:\n", rVecs)
-print("\nTranslation Vectors:\n", tVecs)
+# print("\nRotation Vectors:\n", rVecs)
+# print("\nTranslation Vectors:\n", tVecs)
 
-# For selecting which image to display
-dir = r'/home/thomaz/MAS306_Drone_G12/Code/Camera/calibrationCaps'
-os.chdir(dir)
-#img = cv2.imread('screenshot_frameNr749.jpg') # <-------------------------- CHANGE IMAGE TO DISPLAY HERE
+img = cv2.imread('calibrationCaps/screenshot_0.jpg') # <-------------------------- CHANGE IMAGE TO DISPLAY HERE
 
 # Get Optimized Camera Matrix. (will reduce black borders from undistortion)
 width, height = img.shape[:2] # Extract only height and width, not color channel
@@ -90,15 +80,15 @@ newCameraMatrix, regionOfInterest = cv2.getOptimalNewCameraMatrix(cameraMatrix, 
 
 # --------------------------------------- Undistortion ---------------------------------------
 
-cameraMatrixActual = numpy.array([
-    [613.037048339844,          0,         429.841949462891],    # [f_x, 0.0, c_x] used principal points 
-    [  0,               612.738342285156,  237.866897583008],    # [0.0, f_y, c_y] as optical center points
-    [  0,                       0,                1.0      ] ])  # [0.0, 0.0, 1.0]
+# cameraMatrixActual = numpy.array([
+#     [613.037048339844,          0,         429.841949462891],    # [f_x, 0.0, c_x] used principal points 
+#     [  0,               612.738342285156,  237.866897583008],    # [0.0, f_y, c_y] as optical center points
+#     [  0,                       0,                1.0      ] ])  # [0.0, 0.0, 1.0]
 
-undistortedImg = cv2.undistort(img, cameraMatrixActual, distortionCoeffs, None, newCameraMatrix)
+undistortedImg = cv2.undistort(img, cameraMatrix, distortionCoeffs, None, newCameraMatrix)
 
-#x, y, width, height = regionOfInterest
-#undistortedImg = undistortedImg[ y:y+width, x:x+height ]
+x, y, width, height = regionOfInterest
+undistortedImgCrop = undistortedImg[ y:y+width, x:x+height ]
 #print("\nx:", x)
 #print("\ny:", y)
 #print("\nw:", width)
@@ -109,8 +99,8 @@ while(True):
     
     # Display Images
     cv2.imshow('Image: Unprocessed', img)
-    cv2.imshow('Image: Undistorted w/Camera Matrix', undistortedImg)
-    #cv2.imshow('Image: Undistorted w/Camera Matrix', undistortedImg)
+    cv2.imshow('Image: Undistorted, not cropped', undistortedImg)
+    cv2.imshow('Image: Undistorted, cropped', undistortedImgCrop)
     
     # Stop or save images
     keyPressed = cv2.waitKey(1)
