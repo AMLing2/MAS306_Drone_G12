@@ -30,6 +30,11 @@ cameraMatrix = numpy.array([
 #     [  0,         1378.661255,  535.200500],    # [0.0, f_y, c_y] as optical center points
 #     [  0,           0,           1.0      ] ])  # [0.0, 0.0, 1.0]
 
+# cameraMatrix = numpy.array([
+#     [608.76301751,   0.0,         439.37397121],
+#                            [  0.0,         609.23981796, 232.71315263],
+#                            [  0.0,           0.0,           1.0        ]])
+
 distortionCoefficients = numpy.array(
     [ 0.0, 0.0, 0.0, 0.0, 0.0]) # [k1, k2, p1, p2, k3]
 

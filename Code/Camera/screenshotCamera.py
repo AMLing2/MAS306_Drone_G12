@@ -4,7 +4,7 @@ import numpy                # Python math
 import os                   # For path
 
 # Directory to save image 
-dir = r'/home/thomaz/MAS306_Drone_G12/Code/Camera/Screenshots'
+dir = r'/home/thomaz/MAS306_Drone_G12/Code/Camera/calibrationCaps'  # Change this for screenshots or for calibration
 os.chdir(dir)
 
 # ---------- ChatGPT -----------------
@@ -21,6 +21,8 @@ config = rs.config()
 config.enable_stream(rs.stream.color, 848, 480, rs.format.bgr8, 60) # (streamType, xRes, yRes, format, fps)
 
 pipe.start(config)
+
+i = 0
 
 while(True):
     
@@ -46,10 +48,11 @@ while(True):
 
     # Check what key was pressed
     if keyPressed == ord('s'):      # S to save frame
-        cv2.imwrite(filename=f"screenshot_{num_items}.jpg", img=image)  # Incrementing filename
+        cv2.imwrite(filename=f"screenshot_frame{i}.jpg", img=image)  # Incrementing filename
         print('Screenshot successful!')
     elif keyPressed == ord('q'):    # Q to stop stream
         break
+    i += 1
 
 pipe.stop()             # Stop recording
 cv2.destroyAllWindows() # Free resources 

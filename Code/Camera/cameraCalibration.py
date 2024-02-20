@@ -4,7 +4,7 @@
 
 # --------------------------------------- Libraries ---------------------------------------
 import cv2
-import numpy as np
+import numpy
 import glob         # For importing images
 import pickle       # For export/import (of calibration results)
 import os           # For selecting which image to display
@@ -14,9 +14,9 @@ import os           # For selecting which image to display
 
 
 # Setup variables
-cameraRes = (1920, 1080) # [pixels] from datasheet
+cameraRes = (848, 480) # [pixels] from datasheet
 chessVertices = (13, 9)  # rows, columns
-chessSquareSize = 20     # [mm]
+chessSquareSize = 19     # [mm]
 imagePoints = []         # 2D
 worldPoints = []         # 3D list. Stores the chessboard template for calibration, expanding 
 iterStop = 30
@@ -24,7 +24,7 @@ cornerTolerance = 0.001
 alpha = 1                # Scaling parameter for New Camera Matrix. 0 = max undistortion, 1 = min undistortion
 
 # Load images
-images = glob.glob('Screenshots/*.jpg')
+images = glob.glob('calibrationCaps/*.jpg')
 
 # Termination Criteria for subpixels/corners
 criteria = ( (cv2.TERM_CRITERIA_EPS + cv2.TermCriteria_MAX_ITER), iterStop, cornerTolerance)
@@ -32,8 +32,8 @@ winSize = (11, 11)      # OpenCV: "Size(5,5) , then a (5∗2+1)×(5∗2+1) = 11�
 zeroZone = (-1, -1)     # Deadzone to avoid singularities. (-1,-1) = turned off
 
 # Initialization for World Points (3D) for chessboard. 
-worldPointsTemplate = np.zeros( ( (chessVertices[0]*chessVertices[1]), 3), np.float32 )        # Array (of zeros) with x,y,z coords for each vertex
-worldPointsTemplate[:, :2] = np.mgrid[ 0:chessVertices[0], 0:chessVertices[1]].T.reshape(-1,2) # Coords for vertices [x_n, y_n, 0]. z=0 since flat
+worldPointsTemplate = numpy.zeros( ( (chessVertices[0]*chessVertices[1]), 3), numpy.float32 )        # Array (of zeros) with x,y,z coords for each vertex
+worldPointsTemplate[:, :2] = numpy.mgrid[ 0:chessVertices[0], 0:chessVertices[1]].T.reshape(-1,2) # Coords for vertices [x_n, y_n, 0]. z=0 since flat
 worldPointsTemplate *= chessSquareSize                                                         # Convert to [mm]
 
 # ============================================ Corner Detection and Display ============================================
@@ -56,7 +56,7 @@ for image in images: # Iterates through images
         # Display the current image with corner detection
         cv2.drawChessboardCorners(img, chessVertices, subPixelCorners, ret)
         cv2.imshow('Current Image', img)
-        cv2.waitKey(20)   # Delay 2 [seconds]
+        cv2.waitKey(10)   # Delay 1 [second]
 
 cv2.destroyAllWindows()
 
@@ -80,7 +80,7 @@ print("\nRotation Vectors:\n", rVecs)
 print("\nTranslation Vectors:\n", tVecs)
 
 # For selecting which image to display
-dir = r'/home/thomaz/MAS306_Drone_G12/Code/Camera/Screenshots'
+dir = r'/home/thomaz/MAS306_Drone_G12/Code/Camera/calibrationCaps'
 os.chdir(dir)
 #img = cv2.imread('screenshot_frameNr749.jpg') # <-------------------------- CHANGE IMAGE TO DISPLAY HERE
 
@@ -90,7 +90,12 @@ newCameraMatrix, regionOfInterest = cv2.getOptimalNewCameraMatrix(cameraMatrix, 
 
 # --------------------------------------- Undistortion ---------------------------------------
 
-undistortedImg = cv2.undistort(img, cameraMatrix, distortionCoeffs, None, newCameraMatrix)
+cameraMatrixActual = numpy.array([
+    [613.037048339844,          0,         429.841949462891],    # [f_x, 0.0, c_x] used principal points 
+    [  0,               612.738342285156,  237.866897583008],    # [0.0, f_y, c_y] as optical center points
+    [  0,                       0,                1.0      ] ])  # [0.0, 0.0, 1.0]
+
+undistortedImg = cv2.undistort(img, cameraMatrixActual, distortionCoeffs, None, newCameraMatrix)
 
 #x, y, width, height = regionOfInterest
 #undistortedImg = undistortedImg[ y:y+width, x:x+height ]
@@ -110,7 +115,7 @@ while(True):
     # Stop or save images
     keyPressed = cv2.waitKey(1)
     if keyPressed == ord('s'):
-        screenshot = cv2.imwrite(filename=f"screenshot_frameNr{i}.jpg", img=color_image) # solution inspired by azro
+        screenshot = cv2.imwrite(filename=f"result_Calibration.jpg", img=undistortedImg) # solution inspired by azro
     elif keyPressed == ord('q'):
         break
     
