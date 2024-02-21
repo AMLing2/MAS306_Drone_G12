@@ -29,15 +29,6 @@ markerSize = 0.05 # Length of ArUco marker sides [m]
 distortionCoefficients = numpy.array(
     [ 0.0, 0.0, 0.0, 0.0, 0.0]) # [k1, k2, p1, p2, k3]
 
-    # Dist coeffs from calibration in OpenCV
-# cameraMatrix = numpy.array([
-#     [612.26176939,          0,         431.37426514],    # [f_x, 0.0, c_x] used principal points 
-#     [  0,               613.41494501,  234.71298161],    # [0.0, f_y, c_y] as optical center points
-#     [  0,                       0,                1.0      ] ])  # [0.0, 0.0, 1.0]
-
-# distortionCoefficients = numpy.array(
-#     [ 1.78047481e-01, -5.59443887e-01,  1.34320616e-04,  3.01102297e-04, 5.13710866e-01]) # [k1, k2, p1, p2, k3]
-
     # Calibration v2 opencv
 cameraMatrix = numpy.array([
 [608.76301751,   0.0,         439.37397121],
