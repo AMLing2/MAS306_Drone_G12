@@ -3,13 +3,18 @@
     # https://github.com/niconielsen32/CameraCalibration/blob/main/calibration.py
 
 # --------------------------------------- Libraries ---------------------------------------
-import cv2
-import numpy
+import cv2          # OpenCV
+import numpy        # Python Math
 import glob         # For importing images
+import os           # For export path
 
 # Don't need to import pyrealsense2 as we are using from screenshotCamera.py
 # --------------------------------------- Libraries ---------------------------------------
 
+# Get the current working directory
+curDir = os.getcwd()
+# Create object for result export
+resultDir = os.path.join(curDir, 'Results')
 
 # Setup variables
 cameraRes = (848, 480) # [pixels] from datasheet
@@ -74,25 +79,9 @@ print("\nDistortion Coefficients:\n", distortionCoeffs)
 
 img = cv2.imread('calibrationCaps/screenshot_0.jpg') # <-------------------------- CHANGE IMAGE TO DISPLAY HERE
 
-# Get Optimized Camera Matrix. (will reduce black borders from undistortion)
-width, height = img.shape[:2] # Extract only height and width, not color channel
-newCameraMatrix, regionOfInterest = cv2.getOptimalNewCameraMatrix(cameraMatrix, distortionCoeffs, (width, height), alpha)
+# --------------------------------------- Undistortion Display ---------------------------------------
 
-# --------------------------------------- Undistortion ---------------------------------------
-
-# cameraMatrixActual = numpy.array([
-#     [613.037048339844,          0,         429.841949462891],    # [f_x, 0.0, c_x] used principal points 
-#     [  0,               612.738342285156,  237.866897583008],    # [0.0, f_y, c_y] as optical center points
-#     [  0,                       0,                1.0      ] ])  # [0.0, 0.0, 1.0]
-
-undistortedImg = cv2.undistort(img, cameraMatrix, distortionCoeffs, None, newCameraMatrix)
-
-x, y, width, height = regionOfInterest
-undistortedImgCrop = undistortedImg[ y:y+width, x:x+height ]
-#print("\nx:", x)
-#print("\ny:", y)
-#print("\nw:", width)
-#print("\nh:", height)
+undistortedImg = cv2.undistort(img, cameraMatrix, distortionCoeffs, None)
 
 # Display images
 while(True):
@@ -100,17 +89,16 @@ while(True):
     # Display Images
     cv2.imshow('Image: Unprocessed', img)
     cv2.imshow('Image: Undistorted, not cropped', undistortedImg)
-    cv2.imshow('Image: Undistorted, cropped', undistortedImgCrop)
     
     # Stop or save images
     keyPressed = cv2.waitKey(1)
     if keyPressed == ord('s'):
-        screenshot = cv2.imwrite(filename=f"result_Calibration.jpg", img=undistortedImg) # solution inspired by azro
+        os.chdir(resultDir)
+        screenshot = cv2.imwrite(filename=f"calibrationResultOriginal.jpg", img=img)
+        screenshot = cv2.imwrite(filename=f"calibrationResultCropped.jpg", img=undistortedImg)
+        print('Successfully captured resulting images!')
     elif keyPressed == ord('q'):
         break
-    
-
-
 
 # --------------------------------------- Undistortion ---------------------------------------
 
