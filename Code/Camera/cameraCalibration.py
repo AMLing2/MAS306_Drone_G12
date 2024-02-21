@@ -72,7 +72,7 @@ print("\nDistortion Coefficients:\n", distortionCoeffs)
 # print("\nRotation Vectors:\n", rVecs)
 # print("\nTranslation Vectors:\n", tVecs)
 
-img = cv2.imread('calibrationCaps/screenshot_frame213.jpg') # <-------------------------- CHANGE IMAGE TO DISPLAY HERE
+img = cv2.imread('calibrationCaps/screenshot_0.jpg') # <-------------------------- CHANGE IMAGE TO DISPLAY HERE
 
 # Get Optimized Camera Matrix. (will reduce black borders from undistortion)
 width, height = img.shape[:2] # Extract only height and width, not color channel
