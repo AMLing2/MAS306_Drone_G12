@@ -383,3 +383,118 @@ Translation Vector:  [[[ 0.0168 -0.0015  0.4017]]]
 Translation Vector:  [[[ 0.0168 -0.0011  0.4018]]]
 
 Translation Vector:  [[[ 0.0168 -0.0011  0.4018]]]
+
+## OpenCV V2 matrix & OpenCV V2 coeffs
+
+- 160cm:
+Translation Vector:  [[[ 0.0571 -0.0071  1.5926]]]
+
+Translation Vector:  [[[ 0.0583 -0.0071  1.6024]]]
+
+Translation Vector:  [[[ 0.0595 -0.0071  1.6018]]]
+
+Translation Vector:  [[[ 0.06   -0.0077  1.5998]]]
+
+Translation Vector:  [[[ 0.0609 -0.0097  1.6025]]]
+
+- 140cm:
+Translation Vector:  [[[0.0885 0.0954 1.4192]]]
+
+Translation Vector:  [[[0.0877 0.095  1.4143]]]
+
+Translation Vector:  [[[0.0862 0.0954 1.419 ]]]
+
+Translation Vector:  [[[0.0852 0.0942 1.4117]]]
+
+Translation Vector:  [[[0.0841 0.0942 1.4186]]]
+
+- 120cm:
+Translation Vector:  [[[0.0526 0.0364 1.2147]]]
+
+Translation Vector:  [[[0.0526 0.0364 1.2147]]]
+
+Translation Vector:  [[[0.0536 0.0366 1.239 ]]]
+
+Translation Vector:  [[[0.0519 0.035  1.2133]]]
+
+Translation Vector:  [[[0.0509 0.0348 1.2132]]]
+
+- 80cm:
+Translation Vector:  [[[0.029  0.0202 0.8012]]]
+
+Translation Vector:  [[[0.029  0.0194 0.7996]]]
+
+Translation Vector:  [[[0.029  0.0191 0.798 ]]]
+
+Translation Vector:  [[[0.029  0.0191 0.798 ]]]
+
+Translation Vector:  [[[0.029  0.0194 0.7996]]]
+
+- 40cm:
+Translation Vector:  [[[0.0162 0.0088 0.3985]]]
+
+Translation Vector:  [[[0.0162 0.009  0.3993]]]
+
+Translation Vector:  [[[0.0162 0.0093 0.3994]]]
+
+Translation Vector:  [[[0.0168 0.0095 0.4012]]]
+
+Translation Vector:  [[[0.0169 0.0093 0.3995]]]
+
+
+## OpenCV V2 matrix & SDK coeffs
+
+- 160cm:
+Translation Vector:  [[[0.0271 0.0282 1.5939]]]
+
+Translation Vector:  [[[0.0265 0.0276 1.5934]]]
+
+Translation Vector:  [[[0.0266 0.027  1.6383]]]
+
+Translation Vector:  [[[0.0255 0.0258 1.6039]]]
+
+Translation Vector:  [[[0.0245 0.0256 1.5939]]]
+
+- 140cm:
+Translation Vector:  [[[0.0576 0.0991 1.41  ]]]
+
+Translation Vector:  [[[0.0558 0.0984 1.4099]]]
+
+Translation Vector:  [[[0.0552 0.0991 1.4099]]]
+
+Translation Vector:  [[[0.0552 0.0991 1.4099]]]
+
+Translation Vector:  [[[0.0551 0.0986 1.3885]]]
+
+- 120cm:
+Translation Vector:  [[[0.0319 0.1466 1.1877]]]
+
+Translation Vector:  [[[0.0329 0.1487 1.2202]]]
+
+Translation Vector:  [[[0.0332 0.1483 1.2166]]]
+
+Translation Vector:  [[[0.0332 0.1483 1.2166]]]
+
+Translation Vector:  [[[0.0338 0.1446 1.1876]]]
+
+- 80cm:
+Translation Vector:  [[[0.0232 0.0687 0.8   ]]]
+
+Translation Vector:  [[[0.0232 0.0687 0.8   ]]]
+
+Translation Vector:  [[[0.0223 0.068  0.8021]]]
+
+Translation Vector:  [[[0.0218 0.0674 0.8   ]]]
+
+Translation Vector:  [[[0.0218 0.0674 0.8   ]]]
+
+- 40cm:
+Translation Vector:  [[[0.0403 0.0076 0.3974]]]
+
+Translation Vector:  [[[0.0399 0.0081 0.3953]]]
+
+Translation Vector:  [[[0.0396 0.0084 0.3953]]]
+
+Translation Vector:  [[[0.0395 0.0085 0.3993]]]
+
+Translation Vector:  [[[0.0395 0.0085 0.3993]]]
