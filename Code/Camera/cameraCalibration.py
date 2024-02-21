@@ -54,7 +54,7 @@ for image in images: # Iterates through images
         # Display the current image with corner detection
         cv2.drawChessboardCorners(img, chessVertices, subPixelCorners, ret)
         cv2.imshow('Current Image', img)
-        cv2.waitKey(10)   # Delay 1 [second]
+        cv2.waitKey(250)   # Delay 250 [ms]
 
 cv2.destroyAllWindows()
 
