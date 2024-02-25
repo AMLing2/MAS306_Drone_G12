@@ -22,14 +22,13 @@ chessVertices = (13, 9)  # rows, columns
 chessSquareSize = 19     # [mm]
 imagePoints = []         # 2D
 worldPoints = []         # 3D list. Stores the chessboard template for calibration, expanding 
-iterStop = 30
-cornerTolerance = 0.001
-alpha = 1                # Scaling parameter for New Camera Matrix. 0 = max undistortion, 1 = min undistortion
 
 # Load images
 images = glob.glob('calibrationCaps/*.jpg')
 
 # Termination Criteria for subpixels/corners
+iterStop = 30
+cornerTolerance = 0.001
 criteria = ( (cv2.TERM_CRITERIA_EPS + cv2.TermCriteria_MAX_ITER), iterStop, cornerTolerance)
 winSize = (11, 11)      # OpenCV: "Size(5,5) , then a (5∗2+1)×(5∗2+1) = 11×11"
 zeroZone = (-1, -1)     # Deadzone to avoid singularities. (-1,-1) = turned off
