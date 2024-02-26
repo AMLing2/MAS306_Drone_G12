@@ -11,10 +11,14 @@ import numpy
 #markerColor = (255, 255, 0) # Corner color is set to be contrast to border color
 
 font = cv2.FONT_HERSHEY_SIMPLEX
-fontColor = (200, 20, 200)
+fontColor = (200, 20, 200) # bgr
 fontScale = 0.5
 fontThickness = 1
 axesLength = 0.01
+screenHeight = 480   # pixels
+screenWidth = 848    # pixels
+cColor = (0, 0, 120) # bgr
+cThick = 1           # pixels
 
 markerSize = 0.05 # Length of ArUco marker sides [m]
 
@@ -31,7 +35,7 @@ distortionCoefficients = numpy.array(
 
     # Calibration v2 opencv
 cameraMatrix = numpy.array([
-[608.76301751,   0.0,         439.37397121],
+[608.76301751,   0.0,         429.37397121],
 [  0.0,         609.23981796, 232.71315263],
 [  0.0,           0.0,          1.0        ]])
 # distortionCoefficients = numpy.array(
@@ -50,7 +54,7 @@ arucoDictionary = aruco.getPredefinedDictionary(aruco.DICT_6X6_50)
 pipe = rs.pipeline()
 config = rs.config()
 
-config.enable_stream(rs.stream.color, 848, 480, rs.format.bgr8, 60) # (streamType, xRes, yRes, format, fps)
+config.enable_stream(rs.stream.color, screenWidth, screenHeight, rs.format.bgr8, 60) # (streamType, xRes, yRes, format, fps)
 pipe.start(config)
 
 transVector = [0, 0, 0]
@@ -112,7 +116,11 @@ while(True):
             # Display on the image
             cv2.putText(color_image, IDtext,(topLeft[0], topLeft[1] - 15), font, fontScale, fontColor, fontThickness)
     # --------------------- ^ Display ID of marker, by pyImageSearch ^ ---------------------
-            
+
+    # Display crosshair horizontal then vertical        
+    color_image = cv2.line(color_image, (0, int(screenHeight/2)), (screenWidth, int(screenHeight/2)), cColor, cThick)
+    color_image = cv2.line(color_image, (int(screenWidth/2), 0), (int(screenWidth/2), screenHeight,), cColor, cThick)
+
     # Display image
     cv2.imshow('LiveReading', color_image)
 
