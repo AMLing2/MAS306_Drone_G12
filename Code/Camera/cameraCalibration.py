@@ -30,7 +30,7 @@ images = glob.glob('calibrationCaps/*.jpg')
 iterStop = 30
 cornerTolerance = 0.001
 criteria = ( (cv2.TERM_CRITERIA_EPS + cv2.TermCriteria_MAX_ITER), iterStop, cornerTolerance)
-winSize = (11, 11)      # OpenCV: "Size(5,5) , then a (5∗2+1)×(5∗2+1) = 11×11"
+winSize = (11, 11)      # OpenCV: "Size(5,5) , then a (5*2+1)x(5*2+1) = 11×11"
 zeroZone = (-1, -1)     # Deadzone to avoid singularities. (-1,-1) = turned off
 
 # Initialization for World Points (3D) for chessboard. 
@@ -52,11 +52,11 @@ for image in images: # Iterates through images
         
         # Store corners with whole- and subpixel coordinates
         worldPoints.append(worldPointsTemplate) # Expand list with the template
-        subPixelCorners = cv2.cornerSubPix(grey, corners, winSize, zeroZone, criteria)
+        cv2.cornerSubPix(grey, corners, winSize, zeroZone, criteria)
         imagePoints.append(corners)             # Expand list with detected corners
         
         # Display the current image with corner detection
-        cv2.drawChessboardCorners(img, chessVertices, subPixelCorners, ret)
+        cv2.drawChessboardCorners(img, chessVertices, corners, ret)
         cv2.imshow('Current Image', img)
         cv2.waitKey(250)   # Delay 250 [ms]
 
@@ -99,7 +99,7 @@ while(True):
     elif keyPressed == ord('q'):
         break
 
-# --------------------------------------- Undistortion ---------------------------------------
+# --------------------------------------- Undistortion Display ---------------------------------------
 
 
 # ================================================== Calibration  ==================================================
