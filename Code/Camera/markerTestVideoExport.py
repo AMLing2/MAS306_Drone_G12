@@ -65,7 +65,7 @@ for dict in dictList:
     resultVid = cv2.VideoWriter(f'resultsTestPostDepth_{vidNr}.avi', fourcc, fps, (w,h))
 
     # Fetch current dictionary
-    dictionary = aruco.getPredefinedDictionary(dict) # <-- Tip from chatGPT, Detector_get is old
+    dictionary = aruco.getPredefinedDictionary(dict)
 
     # Import recording
     recording = cv2.VideoCapture('recordingPostDepthTest.avi')

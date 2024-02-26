@@ -59,7 +59,7 @@ for dict in dictList:
     totalFrames = 0          # Total Frames extraction part 1
 
     # Fetch current dictionary
-    dictionary = aruco.getPredefinedDictionary(dict) # <-- Tip from chatGPT, Detector_get is old
+    dictionary = aruco.getPredefinedDictionary(dict)
 
     # Import recording for each dictionary
     recording = cv2.VideoCapture('recordingPostDepthTest.avi')
