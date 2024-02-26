@@ -48,7 +48,7 @@ print("\nDistortion Coefficients\n", distortionCoefficients)
 
 # Set dictionary for the markers
 arucoParams     = aruco.DetectorParameters()
-arucoDictionary = aruco.getPredefinedDictionary(aruco.DICT_6X6_50)
+arucoDictionary = aruco.getPredefinedDictionary(aruco.DICT_ARUCO_ORIGINAL)
 
 # Setup configuration and start pipeline stream
 pipe = rs.pipeline()

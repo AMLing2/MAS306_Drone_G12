@@ -12,15 +12,15 @@ fontThickness = 1
 axesLength = 0.01
 
 # Length of ArUco marker sides
-markerSize = 0.04 # [m]
+markerSize = 0.05 # [m]
 
-# Imported from Camera Calibration, hardcoded for testing first
-cameraMatrix = numpy.array([
-    [1379.333496,   0,         973.144470],     # [f_x, 0.0, c_x] used principal points 
-    [  0,         1378.661255,  535.200500],    # [0.0, f_y, c_y] as optical center points
-    [  0,           0,           1.0      ] ])  # [0.0, 0.0, 1.0]
+# Imported from Camera Calibration
 distortionCoefficients = numpy.array(
     [ 0.0, 0.0, 0.0, 0.0, 0.0]) # [k1, k2, p1, p2, k3]
+cameraMatrix = numpy.array([
+[608.76301751,   0.0,         429.37397121],
+[  0.0,         609.23981796, 232.71315263],
+[  0.0,           0.0,          1.0        ]])
 
 # Directory to read/write videos
 dir = r'/home/thomaz/Recordings'
@@ -48,27 +48,21 @@ displaySize = (960, 540)
 
 # Store relevant values
 framesWithData  = []    # Array to store frames with data
-falsePositives  = []    # Array to store false positives
 computationTime = []    # Array for computation times
 
-# False positives detection tolerance - Change with empirical testing
-falseTol = 0.085
 
 for dict in dictList:
 
     # Restart variables for relevant values
     startTimer = time.time() # Start timer per dict
     curDataFrames = 0        # Frames with data for current dict
-    curFalsePos = 0          # False positives for current dict
-    prevRotVec = [0, 0, 0]   # Restart rotation vector
-    prevTransVec = [0, 0, 0] # Restart translation vector
     totalFrames = 0          # Total Frames extraction part 1
 
     # Fetch current dictionary
     dictionary = aruco.getPredefinedDictionary(dict) # <-- Tip from chatGPT, Detector_get is old
 
     # Import recording for each dictionary
-    recording = cv2.VideoCapture('recording4.avi')
+    recording = cv2.VideoCapture('recordingPostDepthTest.avi')
 
     while(recording.isOpened()):
 
@@ -93,13 +87,6 @@ for dict in dictList:
                 rotVector, transVector, markerPoints = aruco.estimatePoseSingleMarkers(
                     corners[i], markerSize, cameraMatrix=cameraMatrix, distCoeffs=distortionCoefficients)
 
-                # Check for false positives - change in magnitude (Vector Norm |x|)
-                if ( ( (numpy.linalg.norm(prevTransVec) - numpy.linalg.norm(transVector)) > falseTol) ):
-                    curFalsePos += 1
-
-                prevRotVec = rotVector
-                prevTransVec = transVector
-            
             # Number of frames with data
             curDataFrames += 1
     
@@ -118,12 +105,8 @@ for dict in dictList:
     # Number of Frames with Data
     framesWithData.append(curDataFrames)
 
-    # False Positives
-    falsePositives.append(curFalsePos)
-
         
 # Display relevant array values
 print("\nComputation Time:\n", computationTime)
 print("\nFrames With Data:\n", framesWithData)
-print("\nFalse Positives.\n", falsePositives)
 print("\nTotal Frames: ", totalFrames)

@@ -19,7 +19,7 @@ w = 848 # Width
 h = 480 # Height
 
 # File Configuraiton for recording
-recording = cv2.VideoWriter('recording4.avi', fourcc, fps, (w,h))
+recording = cv2.VideoWriter('recordingPostDepthTest.avi', fourcc, fps, (w,h))
 # ------------------ Recording Setup ------------------
 
 # Depth Camera connection
