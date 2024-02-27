@@ -9,11 +9,7 @@ config = rs.config()
 height = 480
 width = 848
 fps = 60
-alpha = 0.3
-
-# Recursive Filter
-alpha = 0.5
-depthPrev = 0
+alpha = 0.15
 
 # Depth reading configuration
 cursor = (int(width/2), int(height/2))  # Pixels
@@ -27,8 +23,10 @@ os.chdir(r'/home/thomaz/MAS306_Drone_G12/Code/Camera/Screenshots')
 # Depth Stream
 config.enable_stream(rs.stream.depth, width, height, rs.format.z16, fps) # (streamType, xRes, yRes, format, fps)
 # Infrared Stream
-config.enable_stream(rs.stream.infrared, width, height, rs.format.y8, fps) # (streamType, xRes, yRes, format, fps)
+# config.enable_stream(rs.stream.infrared, width, height, rs.format.y8, fps) # (streamType, xRes, yRes, format, fps)
 pipe.start(config)
+
+last10Depth = []
 
 while(True):
     
@@ -41,13 +39,11 @@ while(True):
 
     # Read distance at cursor
     depth = image.item(cursor[1], cursor[0])
-    
-    # Recursive Filter
-    depth = depth*alpha + (1-alpha)*depthPrev
-    depth = round(depth, 2)
     print("\nDepth Reading: ", depth)
     print(" [mm]\n")
-    depthPrev = depth
+    last10Depth.append(depth)
+    if (len(last10Depth) > 10):
+        last10Depth.pop(0)
 
     # Add color coding
     image = cv2.applyColorMap(cv2.convertScaleAbs(image, alpha=alpha), cv2.COLORMAP_TURBO)
@@ -68,6 +64,8 @@ while(True):
 
     # P to pause
     elif pressedKey == ord('p'):    # Press P to pause
+        avgLast10 = sum(last10Depth)/len(last10Depth)
+        print(f"\nAverage Past 10 values: {avgLast10}\n")
         cv2.waitKey(-1)
 
     # Q to stop stream

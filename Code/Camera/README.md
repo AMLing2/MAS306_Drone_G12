@@ -17,6 +17,11 @@ _All source codes in this folder are for Intel Realsense D435 with stereovision,
 - Displays estimated camera matrix and distortion coefficients
 - Displays undistortion
 
+### depthCamera.py
+- Live reading of the stereo vision
+- Q for stop stream, P for pause
+- Average value past 10 frames
+
 ### depthCameraTest.py
 - Live RGB and depth reading using pyrealsense2 library
 - from Nick DiFilippo: https://github.com/nickredsox/youtube/blob/master/Robotics/realsense.py
