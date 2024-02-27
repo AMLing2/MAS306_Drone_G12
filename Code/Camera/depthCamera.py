@@ -11,6 +11,12 @@ width = 848
 fps = 60
 alpha = 0.3
 
+# Depth reading configuration
+cursor = (int(width/2), int(height/2))  # Pixels
+curSize = 3                             # Pixels
+curThick = 1                            # Pixels
+curColor = (255, 255, 255)              # bgr
+
 # Change directory for screenshot
 os.chdir(r'/home/thomaz/MAS306_Drone_G12/Code/Camera/Screenshots')
 
@@ -22,13 +28,21 @@ while(True):
     
     # Collect frames from camera
     frame = pipe.wait_for_frames()
-    frame = frame.get_depth_frame()
+    frame = frame.as_frameset().get_depth_frame()
 
     # Convert to numpy array
     image = numpy.asanyarray(frame.get_data())
 
+    # Read distance at cursor
+    depth = image.item(cursor[1], cursor[0])
+    print("\nDepth Reading: ", depth)
+    print(" [mm]\n")
+
     # Add color coding
     image = cv2.applyColorMap(cv2.convertScaleAbs(image, alpha=alpha), cv2.COLORMAP_TURBO)
+
+    # Display cursor
+    cv2.circle(image, cursor, curSize, curColor, thickness=curThick)
 
     # Display the current frame
     cv2.imshow('LiveReading', image)
