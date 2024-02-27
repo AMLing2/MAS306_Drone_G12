@@ -20,8 +20,10 @@ curColor = (255, 255, 255)              # bgr
 # Change directory for screenshot
 os.chdir(r'/home/thomaz/MAS306_Drone_G12/Code/Camera/Screenshots')
 
-# Start stream
+# Depth Stream
 config.enable_stream(rs.stream.depth, width, height, rs.format.z16, fps) # (streamType, xRes, yRes, format, fps)
+# Infrared Stream
+config.enable_stream(rs.stream.infrared, width, height, rs.format.y8, fps) # (streamType, xRes, yRes, format, fps)
 pipe.start(config)
 
 while(True):
