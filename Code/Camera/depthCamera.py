@@ -11,6 +11,10 @@ width = 848
 fps = 60
 alpha = 0.3
 
+# Recursive Filter
+alpha = 0.5
+depthPrev = 0
+
 # Depth reading configuration
 cursor = (int(width/2), int(height/2))  # Pixels
 curSize = 3                             # Pixels
@@ -37,8 +41,13 @@ while(True):
 
     # Read distance at cursor
     depth = image.item(cursor[1], cursor[0])
+    
+    # Recursive Filter
+    depth = depth*alpha + (1-alpha)*depthPrev
+    depth = round(depth, 2)
     print("\nDepth Reading: ", depth)
     print(" [mm]\n")
+    depthPrev = depth
 
     # Add color coding
     image = cv2.applyColorMap(cv2.convertScaleAbs(image, alpha=alpha), cv2.COLORMAP_TURBO)
