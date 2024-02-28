@@ -47,7 +47,6 @@ config.enable_stream(rs.stream.color, screenWidth, screenHeight, rs.format.bgr8,
 config.enable_stream(rs.stream.depth, screenWidth, screenHeight, rs.format.z16, fps) # (streamType, xRes, yRes, format, fps)
 pipe.start(config)
 
-transVector = [0, 0, 0]
 while(True):
     
     # Frame Collection
@@ -65,10 +64,8 @@ while(True):
     gray = cv2.cvtColor(color_image, cv2.COLOR_BGR2GRAY)   # Grayscale image
     corners, ids, rejectedImagePoints = aruco.detectMarkers(gray, arucoDictionary, parameters=arucoParams)
 
+    # Is marker detected?
     if len(corners) > 0:
-        
-        # Remove square brackets for text
-        ids = ids.flatten()
         
         # Iterate through list of markers
         for (markerCorner, markerID, numOfIDs) in zip(corners, ids, range(0, len(ids))):
