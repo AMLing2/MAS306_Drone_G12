@@ -2014,7 +2014,7 @@
     )
     (pin "1" (uuid a629b4d7-1eeb-4759-a225-0ec6251faab2))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "#PWR016") (unit 1)
         )
@@ -2040,7 +2040,7 @@
     (pin "1" (uuid fc462226-97c5-4548-8be7-58fe583426d9))
     (pin "2" (uuid b5e922f1-5988-4919-8275-275c9ffc0deb))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "J6") (unit 1)
         )
@@ -2065,7 +2065,7 @@
     )
     (pin "1" (uuid 8e0a5cda-dc33-4b47-ab4a-85d386060178))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "#PWR07") (unit 1)
         )
@@ -2091,7 +2091,7 @@
     (pin "2" (uuid 3fdc67cc-3f68-46c0-a4e6-0d8a92a242e8))
     (pin "1" (uuid 8ee912a7-e139-4bd5-91c3-e4cfe51361dd))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "C3") (unit 1)
         )
@@ -2116,7 +2116,7 @@
     )
     (pin "1" (uuid 7d16f5b9-5afa-4e90-84ff-d8cca9913a6d))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "#PWR03") (unit 1)
         )
@@ -2143,7 +2143,7 @@
     (pin "1" (uuid 26cf9e6d-8bdb-4f74-a132-8052a3a5e2d2))
     (pin "2" (uuid c105a575-91fa-4275-acd2-ef7c15154042))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "Q1") (unit 1)
         )
@@ -2169,7 +2169,7 @@
     (pin "2" (uuid 38b6c5f1-c7d9-4882-95b8-fc4ecbd2e5f4))
     (pin "1" (uuid c708cfb5-b50d-434c-a85b-9b817aa12181))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "C6") (unit 1)
         )
@@ -2195,7 +2195,7 @@
     (pin "2" (uuid 35e7efa3-87a9-40ac-ba7e-f32141969776))
     (pin "1" (uuid 588ae019-8a76-4b06-9f1d-198a532be196))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "R2") (unit 1)
         )
@@ -2220,7 +2220,7 @@
     )
     (pin "1" (uuid 4727fb76-37b8-4f6d-883c-71e134778daf))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "J10") (unit 1)
         )
@@ -2248,7 +2248,7 @@
     (pin "4" (uuid ab5fd813-c317-42c3-aff0-073cedff5cb1))
     (pin "1" (uuid fd11179b-dff0-455a-af30-518017450e10))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "J2") (unit 1)
         )
@@ -2273,7 +2273,7 @@
     )
     (pin "1" (uuid b7cb6481-e97f-463d-8ac6-2019a7702df2))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "#PWR05") (unit 1)
         )
@@ -2298,7 +2298,7 @@
     )
     (pin "1" (uuid b6f5bdda-3c31-4a65-8cb1-25ed819410dc))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "#PWR02") (unit 1)
         )
@@ -2323,7 +2323,7 @@
     )
     (pin "1" (uuid 710e60f9-5137-47df-82dd-135425f9d2d8))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "#PWR014") (unit 1)
         )
@@ -2348,7 +2348,7 @@
     )
     (pin "1" (uuid 75fcb351-108a-4b97-bf2f-4f653481749a))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "#PWR06") (unit 1)
         )
@@ -2373,7 +2373,7 @@
     )
     (pin "1" (uuid 70db9171-ea3b-4d6f-9895-084f33036e4f))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "#PWR01") (unit 1)
         )
@@ -2398,7 +2398,7 @@
     )
     (pin "1" (uuid b610f962-f44c-4247-a2f3-69afc09c7f03))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "#PWR018") (unit 1)
         )
@@ -2430,7 +2430,7 @@
     (pin "1" (uuid 7cf42966-4fad-45ce-90aa-716e53d1ff7e))
     (pin "2" (uuid 1598bb16-440c-4c77-b242-7d037fb38a63))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "D2") (unit 1)
         )
@@ -2456,7 +2456,7 @@
     (pin "1" (uuid 1da0f19b-93f2-45ee-ac03-112194e1e1d9))
     (pin "2" (uuid 7ee90a9a-01a1-4a9c-ba4c-939ddcd76ae5))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "C4") (unit 1)
         )
@@ -2482,7 +2482,7 @@
     (pin "1" (uuid 02808877-c43d-4517-aa43-466df06f3a34))
     (pin "2" (uuid ebdd9f63-9b22-4f64-9247-22c363b954d8))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "R1") (unit 1)
         )
@@ -2508,7 +2508,7 @@
     (pin "2" (uuid 31bf9177-39ea-425f-834e-b601e91b5a74))
     (pin "1" (uuid 103ab460-a660-421e-a9a0-048df174bcdd))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "C2") (unit 1)
         )
@@ -2538,7 +2538,7 @@
     (pin "5" (uuid 1ca24898-b8b5-4958-9bb5-e82be6e2f332))
     (pin "6" (uuid 0748c438-8f41-41b0-b7ba-af3182e6e554))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "J8") (unit 1)
         )
@@ -2566,7 +2566,7 @@
     (pin "4" (uuid 9f61ea9e-eb28-473f-bd27-1c00ab1ea73c))
     (pin "1" (uuid 2cc71c8c-b29b-4f76-a66d-416f1705bb4f))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "J4") (unit 1)
         )
@@ -2591,7 +2591,7 @@
     )
     (pin "1" (uuid 740d23e3-7295-4e5a-946c-df35d29b6ad3))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "#PWR022") (unit 1)
         )
@@ -2617,7 +2617,7 @@
     (pin "1" (uuid 7c0ea1ff-d362-4439-9f0b-6fd998c34602))
     (pin "2" (uuid 456d07e0-2a31-42de-b4b5-b7e8a2f24397))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "R4") (unit 1)
         )
@@ -2642,7 +2642,7 @@
     )
     (pin "1" (uuid ef9641ec-e5cb-4f20-be4f-d36fa8b8b99f))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "#PWR04") (unit 1)
         )
@@ -2667,7 +2667,7 @@
     )
     (pin "1" (uuid 9bddb05c-32b5-4452-92c4-6c8834c4f384))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "#PWR010") (unit 1)
         )
@@ -2692,7 +2692,7 @@
     )
     (pin "1" (uuid de298340-893d-4e96-a12d-a5364c74ccd5))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "#PWR012") (unit 1)
         )
@@ -2717,7 +2717,7 @@
     )
     (pin "1" (uuid 7c61b05a-1b44-4074-a48c-3e594e4e8e3e))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "#PWR017") (unit 1)
         )
@@ -2749,7 +2749,7 @@
     (pin "1" (uuid 9196e37d-630e-43b6-b0d5-f376d18412bb))
     (pin "2" (uuid a14fdf03-1311-45b0-b400-9a800057615d))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "D1") (unit 1)
         )
@@ -2774,7 +2774,7 @@
     )
     (pin "1" (uuid 70a244f2-5b9f-4241-a736-b92d9eeb3403))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "#PWR013") (unit 1)
         )
@@ -2799,7 +2799,7 @@
     )
     (pin "1" (uuid c3e279be-cf42-4061-938b-d7a2d6eb2e07))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "#PWR021") (unit 1)
         )
@@ -2825,7 +2825,7 @@
     (pin "1" (uuid 8fbe04d1-c9ec-4277-9fb0-3dd0a71a3ab4))
     (pin "2" (uuid 9ac2d75d-07ff-490a-927e-5679595b0264))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "C5") (unit 1)
         )
@@ -2851,7 +2851,7 @@
     (pin "2" (uuid 81d24657-4c01-41f0-8bcd-e5462d928836))
     (pin "1" (uuid 4b52ca0e-2cdd-4321-a13f-7f14733d549a))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "J3") (unit 1)
         )
@@ -2891,7 +2891,7 @@
     (pin "1" (uuid c93dd1f8-0b9d-4691-b491-8c456718047a))
     (pin "13" (uuid 44a3e7bb-0fc9-4b50-ad0e-5b641c9ba565))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "U2") (unit 1)
         )
@@ -2917,7 +2917,7 @@
     (pin "2" (uuid c41a5cc9-ba82-4703-be7a-10be13d52465))
     (pin "1" (uuid 77ce6499-563a-42a1-afa7-6411523de8d8))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "J1") (unit 1)
         )
@@ -2943,7 +2943,7 @@
     (pin "2" (uuid 1a3ede5a-82c5-4d27-ab11-0ffea5d150e8))
     (pin "1" (uuid ba482298-65de-40f1-b110-7ed64b19592b))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "R3") (unit 1)
         )
@@ -2983,7 +2983,7 @@
     (pin "4" (uuid e618be69-5712-4945-8ded-1d2a985adf8e))
     (pin "11" (uuid 220ea151-c51f-4baa-90b4-76b3b927fa29))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "U1") (unit 1)
         )
@@ -3009,7 +3009,7 @@
     (pin "2" (uuid 135eee3b-497d-48e3-818d-2643d8c82038))
     (pin "1" (uuid ba8d1979-edc9-42c0-bf4d-60b23cfea1ce))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "C1") (unit 1)
         )
@@ -3034,7 +3034,7 @@
     )
     (pin "1" (uuid 6d247aef-9449-449d-87fb-245f6fbaf0fc))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "#PWR015") (unit 1)
         )
@@ -3059,7 +3059,7 @@
     )
     (pin "1" (uuid c56a8fb3-607a-4eba-bd79-04eff1c11145))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "#PWR09") (unit 1)
         )
@@ -3087,7 +3087,7 @@
     (pin "4" (uuid 457e8c4c-2115-4330-bb4e-bdcef8fed648))
     (pin "3" (uuid 24ddb1b0-b1aa-49ee-a047-67870978115c))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "J7") (unit 1)
         )
@@ -3113,7 +3113,7 @@
     (pin "1" (uuid 1344a0e9-5cba-4348-bbf0-42028e07269e))
     (pin "2" (uuid f8d61101-ae8a-49b2-b38a-b4cfe5757429))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "F1") (unit 1)
         )
@@ -3139,7 +3139,7 @@
     (pin "2" (uuid 818affec-dd22-420d-bdf6-37445a9ecec1))
     (pin "1" (uuid ebd16434-500c-4dca-b477-6fbbc13fa075))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "J5") (unit 1)
         )
@@ -3164,7 +3164,7 @@
     )
     (pin "1" (uuid 22973042-b16d-4f88-a5e4-cc5e2e01d5c3))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "#PWR08") (unit 1)
         )
@@ -3189,7 +3189,7 @@
     )
     (pin "1" (uuid b28a306c-7e75-4579-b64e-644546010ba2))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "#PWR011") (unit 1)
         )
@@ -3231,7 +3231,7 @@
     (pin "17" (uuid 73da7bd4-8361-45ae-9795-acbb2865434a))
     (pin "18" (uuid 15911bd7-5e14-4d1a-b92e-7eb8abb91005))
     (instances
-      (project "arenaPCBv1"
+      (project "arenaPCBv2"
         (path "/aeb80c4e-8a5b-46ea-8e16-d30fa5558bce"
           (reference "J9") (unit 1)
         )
