@@ -8,12 +8,6 @@ import numpy
 # --------------------------------------- Libraries ---------------------------------------
 
 # ------------------- Constant variables for simple changes -------------------
-#markerColor = (255, 255, 0) # Corner color is set to be contrast to border color
-
-font = cv2.FONT_HERSHEY_SIMPLEX
-fontColor = (200, 20, 200) # bgr
-fontScale = 0.5
-fontThickness = 1
 axesLength = 0.01
 screenHeight = 480   # pixels
 screenWidth = 848    # pixels
@@ -23,24 +17,16 @@ cThick = 1           # pixels
 
 markerSize = 0.05 # Length of ArUco marker sides [m]
 
-    # -------------- ALL INTRINSICS ARE FOR 848x480 --------------------
-
-# From Software Development Kit
-# cameraMatrix = numpy.array([
-#     [613.037048339844,          0,         429.841949462891],    # [f_x, 0.0, c_x] used principal points 
-#     [  0,               612.738342285156,  237.866897583008],    # [0.0, f_y, c_y] as optical center points
-#     [  0,                       0,                1.0      ] ])  # [0.0, 0.0, 1.0]
-
+# vvv INTRINSICS ARE FOR 848x480 vvv
+    # Distortion Coefficients
 distortionCoefficients = numpy.array(
     [ 0.0, 0.0, 0.0, 0.0, 0.0]) # [k1, k2, p1, p2, k3]
 
-    # Calibration v2 opencv
+    # Intrinsic Camera Matrix
 cameraMatrix = numpy.array([
 [608.76301751,   0.0,         429.37397121],
 [  0.0,         609.23981796, 232.71315263],
 [  0.0,           0.0,          1.0        ]])
-# distortionCoefficients = numpy.array(
-#     [ 0.21043186, -0.69360305, -0.00180299,  0.00226683,  0.65082012]) # [k1, k2, p1, p2, k3]
 
 print("\nCamera Matrix\n", cameraMatrix)
 print("\nDistortion Coefficients\n", distortionCoefficients)
@@ -49,7 +35,7 @@ print("\nDistortion Coefficients\n", distortionCoefficients)
 
 # Set dictionary for the markers
 arucoParams     = aruco.DetectorParameters()
-arucoDictionary = aruco.getPredefinedDictionary(aruco.DICT_ARUCO_ORIGINAL)
+arucoDictionary = aruco.getPredefinedDictionary(aruco.DICT_6X6_50)
 
 # Setup configuration and start pipeline stream
 pipe = rs.pipeline()
@@ -73,80 +59,51 @@ while(True):
 
     # Depth Stream
     depth_frame = frame.as_frameset().get_depth_frame()    # Extract Depth frame
-    depth_image = numpy.asanyarray(depth_frame.get_data())       # Convert to NumPy array
+    depth_image = numpy.asanyarray(depth_frame.get_data()) # Convert to NumPy array
 
-    # Identification
+    # Marker Identification
     gray = cv2.cvtColor(color_image, cv2.COLOR_BGR2GRAY)   # Grayscale image
     corners, ids, rejectedImagePoints = aruco.detectMarkers(gray, arucoDictionary, parameters=arucoParams)
 
-    # ------------------------------------ Pose Estimation ------------------------------------
     if len(corners) > 0:
-        for i in range(0, len(ids)):
+        
+        # Remove square brackets for text
+        ids = ids.flatten()
+        
+        # Iterate through list of markers
+        for (markerCorner, markerID, numOfIDs) in zip(corners, ids, range(0, len(ids))):
             
+            # Pose reading
             rotVector, transVector, markerPoints = aruco.estimatePoseSingleMarkers(
-                corners[i], markerSize, cameraMatrix=cameraMatrix, distCoeffs=distortionCoefficients)
+                corners[numOfIDs], markerSize, cameraMatrix=cameraMatrix, distCoeffs=distortionCoefficients)
             
+            # Draw marker axes
             cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
                             distCoeffs=distortionCoefficients, rvec=rotVector, tvec=transVector, length=axesLength)
             
+            # Round and display translation vector
             transVector = numpy.around(transVector, 4)
-
             print("\nTranslation Vector: ", transVector)
-    # ------------------------------------ Pose Estimation ------------------------------------
-
-    # --------------------- v Display ID of marker, by pyImageSearch v ---------------------
-    if len(corners) > 0:    # So iteration makes sense
-        
-        ids = ids.flatten() # Remove square brackets for text
-        
-        for (markerCorner, markerID) in zip(corners, ids): # alias on left, so can iterate in parallel
+            
             # Extract corners
             corners = markerCorner.reshape(4,2)
             (topLeft, topRight, bottomRight, bottomLeft) = corners
             
-            # convert each of the (x, y)-coordinate pairs to integers
-            topRight    = (int(topRight[0]), int(topRight[1]))
-            bottomRight = (int(bottomRight[0]), int(bottomRight[1]))
-            bottomLeft  = (int(bottomLeft[0]), int(bottomLeft[1]))
-            topLeft     = (int(topLeft[0]), int(topLeft[1]))
+            # Print Current marker ID
+            print("Current ID: ", markerID)
+            
+            # Extract middle of marker
+            avgCorner_x = int((topLeft[0] + topRight[0] + bottomLeft[0] + bottomRight[0])/4)
+            avgCorner_y = int((topLeft[1] + topRight[1] + bottomLeft[1] + bottomRight[1])/4)
 
-            IDtext = f'ID: {markerID}'
+            # Extract depth distance at middle of marker
+            depthDist = depth_image.item(avgCorner_y, avgCorner_x)
 
-            # Display on the image
-            cv2.putText(color_image, IDtext,(topLeft[0], topLeft[1] - 15), font, fontScale, fontColor, fontThickness)
-    # --------------------- ^ Display ID of marker, by pyImageSearch ^ ---------------------
-
-        # # Marker middle x-coordinate
-        # if ( topRight[0] > bottomLeft[0] ):
-        #     markerMid_x = int(topRight[0] + (topRight[0]-bottomLeft[0])/2)
-        # elif ( topRight[0] < bottomLeft[0] ):
-        #     markerMid_x = int(bottomLeft[0] + (bottomLeft[0]-topRight[0])/2)
-
-        # # Marker middle y-coordinate
-        # if ( topRight[1] > bottomLeft[1] ):
-        #     markerMid_y = int(topRight[1] + (topRight[1]-bottomLeft[1])/2)
-        # elif ( topRight[1] < bottomLeft[1] ):
-        #     markerMid_y = int(bottomLeft[1] + (bottomLeft[1]-topRight[1])/2)
-
-            # avgCorner_x = (topLeft[0] + topRight[0] + bottomLeft[0] + bottomRight[0])/4
-            # avgCorner_y = (topLeft[1] + topRight[1] + bottomLeft[1] + bottomRight[1])/4
-
-            # print("Corner avg x: ", avgCorner_x)
-            # print("Corner avg y: ", avgCorner_y)
-
-            # Display crosshair horizontal then vertical        
-            color_image = cv2.line(color_image, (0, int(topRight[1])), (screenWidth, int(topRight[1])), cColor, cThick)
-            color_image = cv2.line(color_image, (int(topRight[0]), 0), (int(topRight[0]), screenHeight,), cColor, cThick)
-
-            # Extract depth distance at marker
-            depthDist = depth_image.item(int(topRight[1]), int(topRight[0]))
-
-            # # Display crosshair horizontal then vertical        
-            # color_image = cv2.line(color_image, (0, int(avgCorner_y)), (screenWidth, int(avgCorner_y)), cColor, cThick)
-            # color_image = cv2.line(color_image, (int(avgCorner_x), 0), (int(avgCorner_x), screenHeight,), cColor, cThick)
-
-            # # Extract depth distance at marker
-            # depthDist = depth_image.item(int(avgCorner_x), int(avgCorner_y))
+            # Display crosshair on Depth Stream
+                # Horizontal
+            depth_image = cv2.line(depth_image, (0, avgCorner_y), (screenWidth, avgCorner_y), cColor, cThick)
+                # Vertical
+            depth_image = cv2.line(depth_image, (avgCorner_x, 0), (avgCorner_x, screenHeight,), cColor, cThick)
 
             # Print Depth
             print("Depth Distance: ", depthDist)
@@ -158,9 +115,8 @@ while(True):
     cv2.imshow('ColorStream', color_image)
     cv2.imshow('DepthStream', depth_image)
 
-    pressedKey = cv2.waitKey(1)
-
     # Loop breaker
+    pressedKey = cv2.waitKey(1)
     if pressedKey == ord('q'):      # Press Q to stop
         break
     elif pressedKey == ord('p'):    # Press P to pause
