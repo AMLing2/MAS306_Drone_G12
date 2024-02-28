@@ -1,7 +1,0 @@
-[
-{
-  "directory": "/home/thomaz/MAS306_Drone_G12/Code/Camera/Cpp/build",
-  "command": "/usr/bin/c++ -DELPP_NO_DEFAULT_LOG_FILE -isystem /usr/include/opencv4 -g -o CMakeFiles/opencvTest.dir/poseMarkerDepth.cpp.o -c /home/thomaz/MAS306_Drone_G12/Code/Camera/Cpp/poseMarkerDepth.cpp",
-  "file": "/home/thomaz/MAS306_Drone_G12/Code/Camera/Cpp/poseMarkerDepth.cpp"
-}
-]

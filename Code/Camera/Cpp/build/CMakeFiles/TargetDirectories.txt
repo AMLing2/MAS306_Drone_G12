@@ -1,3 +1,0 @@
-/home/thomaz/MAS306_Drone_G12/Code/Camera/Cpp/build/CMakeFiles/opencvTest.dir
-/home/thomaz/MAS306_Drone_G12/Code/Camera/Cpp/build/CMakeFiles/edit_cache.dir
-/home/thomaz/MAS306_Drone_G12/Code/Camera/Cpp/build/CMakeFiles/rebuild_cache.dir
