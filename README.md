@@ -6,8 +6,10 @@
 <p style="text-align: center;"><i> Jan Laksesvela Haugstad </i></p>  -->
 
 ## Repository Structure
+- CAD ~ 3D modelling
 - Canvas ~ Gathered files scattered through modules and courses
 - Cheat Sheets ~ Summaries of markdown, git, etc.
+- CircuitDesign ~ Electronic circuit design
 - Code ~ Source Code main folder
 - Datasheets ~ Relevant datasheets
 - Figures ~ Temporary figures, finals are added in LaTeX.
