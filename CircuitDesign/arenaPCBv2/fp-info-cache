@@ -1,4 +1,18 @@
-22653486718812357
+22670579504109904
+2_bachelors_footprints
+B2B-ZR-SM4-TFT
+
+
+0
+4
+4
+2_bachelors_footprints
+B4B-ZR-SM4-TFT
+
+
+0
+6
+6
 2_bachelors_footprints
 CONN_B2B-ZRLFSN_JST
 
@@ -28,6 +42,41 @@ CONN_B6B_VH_JST
 6
 6
 2_bachelors_footprints
+CONN_BREAKOUT_BOARDS
+
+
+0
+16
+16
+2_bachelors_footprints
+CONN_MOLEX_18p_2.00mm
+
+
+0
+18
+18
+2_bachelors_footprints
+CONN_MTA_100_2
+
+3-647166-4 
+0
+2
+2
+2_bachelors_footprints
+CONN_MTA_100_4
+
+3-647166-4 
+0
+4
+4
+2_bachelors_footprints
+CONN_MTA_100_6
+
+3-647166-4 
+0
+6
+6
+2_bachelors_footprints
 FUSE_RXEF300_LTF
 
 RXEF300 
@@ -49,7 +98,21 @@ LP127
 2
 2
 2_bachelors_footprints
+PG-TDSON-8-6_INF
+
+BSC007N04LS6ATMA1 
+0
+9
+3
+2_bachelors_footprints
 S12GCH
+
+
+0
+2
+2
+2_bachelors_footprints
+TERMINAL_BLOCK_5081
 
 
 0
@@ -59,6 +122,13 @@ S12GCH
 conn2_1-1123723-2_TEC
 
 1-1123723-2 
+0
+2
+2
+2_bachelors_footprints
+led_header_p2.54_2pin
+
+
 0
 2
 2
