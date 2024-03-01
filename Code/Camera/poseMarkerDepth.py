@@ -1,5 +1,3 @@
-# PyImageSearch: https://pyimagesearch.com/2020/12/21/detecting-aruco-markers-with-opencv-and-python/
-
 # --------------------------------------- Libraries ---------------------------------------
 import cv2
 import cv2.aruco as aruco # For simplification
