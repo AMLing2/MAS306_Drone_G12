@@ -68,11 +68,11 @@ while(True):
     if len(corners) > 0:
         
         # Iterate through list of markers
-        for (markerCorner, markerID, numOfIDs) in zip(corners, ids, range(0, len(ids))):
-            
+        for (markerCorner, markerID) in zip(corners, ids):
+
             # Pose reading
             rotVector, transVector, markerPoints = aruco.estimatePoseSingleMarkers(
-                corners[numOfIDs], markerSize, cameraMatrix=cameraMatrix, distCoeffs=distortionCoefficients)
+                markerCorner, markerSize, cameraMatrix=cameraMatrix, distCoeffs=distortionCoefficients)
             
             # Draw marker axes
             cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
@@ -98,9 +98,9 @@ while(True):
 
             # Display crosshair on Depth Stream
                 # Horizontal
-            depth_image = cv2.line(depth_image, (0, avgCorner_y), (screenWidth, avgCorner_y), cColor, cThick)
+            cv2.line(depth_image, (0, avgCorner_y), (screenWidth, avgCorner_y), cColor, cThick)
                 # Vertical
-            depth_image = cv2.line(depth_image, (avgCorner_x, 0), (avgCorner_x, screenHeight,), cColor, cThick)
+            cv2.line(depth_image, (avgCorner_x, 0), (avgCorner_x, screenHeight,), cColor, cThick)
 
             # Print Depth
             print("Depth Distance: ", depthDist)
