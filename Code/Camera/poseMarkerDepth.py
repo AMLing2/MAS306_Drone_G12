@@ -57,7 +57,7 @@ while(True):
     color_image = numpy.asanyarray(color_frame.get_data()) # Convert to NumPy array
 
     # Depth Stream
-    depth_frame = frame.as_frameset().get_depth_frame()    # Extract Depth frame
+    depth_frame = frame.get_depth_frame()    # Extract Depth frame
     depth_image = numpy.asanyarray(depth_frame.get_data()) # Convert to NumPy array
 
     # Marker Identification

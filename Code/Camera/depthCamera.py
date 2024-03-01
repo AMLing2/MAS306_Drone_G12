@@ -32,7 +32,7 @@ while(True):
     
     # Collect frames from camera
     frame = pipe.wait_for_frames()
-    frame = frame.as_frameset().get_depth_frame()
+    frame = frame.get_depth_frame()
 
     # Convert to numpy array
     image = numpy.asanyarray(frame.get_data())
