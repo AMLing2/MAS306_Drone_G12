@@ -32,9 +32,9 @@ print("\nCamera Matrix\n", cameraMatrix)
 print("\nDistortion Coefficients\n", distortionCoefficients)
 
 # Angles [radians]
-a = pi/2
-b = pi/2
-c = 0
+a = pi/4
+b = -pi/4
+c = pi/4
 
 # Rotation Matrix
 yaw = numpy.array([

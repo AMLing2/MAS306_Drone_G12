@@ -38,6 +38,16 @@ _All source codes in this folder are for Intel Realsense D435 with stereovision,
 - Saves video in local directory
 - Videos are TBA in final project video, currently on google drive
 
+### poseMarkerDepth.py
+- Color and Depth Stream
+- Displays axes and crosshair on color and depth respectively
+- Reads rVec, tVec and depth
+
+### poseTransRot.py
+- Trimmed poseMarkerDepth and added rotation matrices
+- Rodrigues function for converting between vector and matrix
+- Pitch roll and yaw matrices
+
 ### recordingCamera.py
 - For recording videos with Intel Realsense D435 Camera.
 - File path is local directory
