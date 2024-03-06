@@ -1,32 +1,131 @@
 clc; clear; close all;
+% Reference Frame Simulation
 
-%% Reference Frame Simulation
+%% ================== CAMERA ORIGIN ================== 
 
-arenaCenter = [0.0 0.0 0.0];
-camera = [0.0 0.0 1.2];
+height = 1;
+sides = 0.9;
 
-rVec = [2.39290834, 0.6210523, -0.26670166];
-tVec = [-0.2497, -0.0591, 0.8337];
+% ------ Rotation matrices ------------
+% Angles [radians]
+a = 0;
+b = pi;
+c = 0;
 
-camera_drone = tVec - camera;
-camera_arena = arenaCenter - camera;
-arena_drone = camera_drone - camera_arena;
+yaw = [cos(a), -sin(a), 0;
+       sin(a),  cos(a), 0;
+       0,         0,    1];
 
-% Convert the rotation vector to a rotation matrix
-%R_drone_to_cam = [ 0.99410564  0.10825669  0.00587067;
- %                  0.08566473 -0.75115132 -0.65454812;
-  %                -0.06644945  0.65119289 -0.75599755];
+pitch = [cos(b), 0, sin(b);
+         0, 1, 0;
+         -sin(b), 0, cos(b)];
 
-% Plot Arena center & Camera
-plot3(arenaCenter(1), arenaCenter(2), arenaCenter(3), 'ko')
-hold on; grid on
-plot3(camera(1), camera(2), camera(3), 'kp')
+roll = [1, 0, 0;
+        0, cos(c), -sin(c);
+        0, sin(c), cos(c)];
+% ------ Rotation matrices ------------
 
-plot3([arenaCenter(1) arena_drone(1)], [arenaCenter(2) arena_drone(2)], ...
-      [arenaCenter(3) arena_drone(3)], 'p-r')
+arenaCenter2 = [0 0 height];
+arenaOrientation2 = eye(3)*pitch;
+camera2 = [0 0 0];
+cameraOrientation2 = eye(3);
+
+% Translation Drone
+tVec = [-0.1973 -0.0402  0.5268];
+% Orientation Drone
+droneMat2 = [ 0.99258427  0.12052626  0.01580802;
+             0.1150138  -0.88907301 -0.44308126;
+            -0.03934845  0.44161363 -0.89634207];
+
+figure(Name="CameraOrigin")
+
+% Plot Camera
+poseplot(cameraOrientation2, camera2, ScaleFactor=0.05)
+hold on
+
+% Plot Arena Center
+poseplot(arenaOrientation2, arenaCenter2, ScaleFactor=0.05)
+
+% Plot Drone
+poseplot(droneMat2, tVec, ScaleFactor=0.05)
 
 % Box will be 30x30x120 [cm] for simulation
-xlim([-0.15 0.15])
-ylim([-0.15 0.15])
-zlim([0 1.2])
+xlim([-sides/2 sides/2])
+ylim([-sides/2 sides/2])
+zlim([-0.1 height+0.1])
 
+legend("Camera", "Arena Center", "Drone")
+title("Top/Origin = Camera")
+xlabel("X-axis")
+ylabel("Y-axis")
+zlabel("Z-axis")
+
+hold off
+
+%% ================== ARENA ORIGIN ================== 
+
+height = 1;
+sides = 0.9;
+
+% ------ Rotation matrices ------------
+% Angles [radians]
+a = 0;
+b = pi;
+c = 0;
+
+yaw = [cos(a), -sin(a), 0;
+       sin(a),  cos(a), 0;
+       0,         0,    1];
+
+pitch = [cos(b), 0, sin(b);
+         0, 1, 0;
+         -sin(b), 0, cos(b)];
+
+roll = [1, 0, 0;
+        0, cos(c), -sin(c);
+        0, sin(c), cos(c)];
+% ------ Rotation matrices ------------
+
+arenaCenter2 = [0 0 0];
+arenaOrientation2 = eye(3);
+camera2 = [0 0 height];
+cameraOrientation2 = eye(3)*pitch;
+
+tVec = [-0.1973 -0.0402  0.5268];
+
+camera_drone2 = tVec - camera2;
+camera_arena2 = arenaCenter2 - camera2;
+arena_drone2 = camera_drone2 - camera_arena2;
+
+% Convert the rotation vector to a rotation matrix
+droneMat2 = [ 0.99258427  0.12052626  0.01580802;
+             0.1150138  -0.88907301 -0.44308126;
+            -0.03934845  0.44161363 -0.89634207];
+droneOrientation2 = droneMat2 * pitch;
+
+figure(Name="ArenaOrigin")
+
+% Plot Camera
+poseplot(cameraOrientation2, camera2, ScaleFactor=0.05)
+hold on
+
+% Plot Arena Center
+poseplot(arenaOrientation2, arenaCenter2, ScaleFactor=0.05)
+
+% Plot Drone
+poseplot(droneOrientation2, arena_drone2, ScaleFactor=0.05)
+
+% Box will be 30x30x120 [cm] for simulation
+xlim([-sides/2 sides/2])
+ylim([-sides/2 sides/2])
+zlim([-0.1 height+0.1])
+
+legend("Camera","Arena Center","Drone")
+title("Top/Origin = Arena Center")
+xlabel("X-axis")
+ylabel("Y-axis")
+zlabel("Z-axis")
+
+% Reverse Z-axis numbers
+zt = get(gca, 'ZTick');
+set(gca, 'ZTick',zt, 'ZTickLabel',fliplr(zt))
