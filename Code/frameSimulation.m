@@ -33,10 +33,14 @@ cameraOrientation = eye(3);
 
 % Translation Drone
 tVec = [-0.1973 -0.0402  0.5268];
+tVec = [-0.0034  0.02    0.6376];
 % Orientation Drone
 droneMat = [ 0.99258427  0.12052626  0.01580802;
              0.1150138  -0.88907301 -0.44308126;
             -0.03934845  0.44161363 -0.89634207];
+droneMat = [ 0.99460037  0.05461334 -0.08824673;
+             0.0357113  -0.97851045 -0.20308127;
+            -0.09744129  0.1988333  -0.97517717];
 
 figure(Name="CameraOrigin")
 
@@ -55,7 +59,7 @@ camera_arena = arenaCenter - camera;
 arena_drone = tVec - camera_arena;
 arena_droneOrientation = arenaOrientation*droneMat;
 % Plot Drone ref Arena
-poseplot(arena_droneOrientation, (arena_drone+camera_arena), ScaleFactor=0.05)
+% poseplot(arena_droneOrientation, (arena_drone+camera_arena), ScaleFactor=0.05)
 
 % Box will be 30x30x120 [cm] for simulation
 xlim([-sides/2 sides/2])
