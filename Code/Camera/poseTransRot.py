@@ -30,11 +30,11 @@ cameraMatrix = numpy.array([
 
 print("\nCamera Matrix\n", cameraMatrix)
 print("\nDistortion Coefficients\n", distortionCoefficients)
-
+ 
 # Angles [radians]
-a = pi/4
-b = -pi/4
-c = pi/4
+a = pi/2
+b = pi
+c = 0
 
 # Rotation Matrix
 yaw = numpy.array([
@@ -102,7 +102,7 @@ while(True):
             
             # Extract Rotation Matrix
             rMat, _ = cv2.Rodrigues(rotVector)
-            # print("Rotation Matrix: ", rMat)
+            print("Rotation Matrix: ", rMat)
             
             # Rotate marker display
             axes = rMat @ yawPitchRoll
@@ -112,6 +112,10 @@ while(True):
             print("rotVector: ", rotVector)
 
             # Draw marker axes
+            cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
+                            distCoeffs=distortionCoefficients, rvec=rotVector, tvec=transVector, length=axesLength)
+            
+            # Draw rotated axes
             cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
                             distCoeffs=distortionCoefficients, rvec=axes, tvec=transVector, length=axesLength)
             
