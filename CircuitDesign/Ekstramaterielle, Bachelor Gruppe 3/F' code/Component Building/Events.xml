@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- GPS Tutorial: RPI/Barometer/Events.xml
+
+This defines two events, one at activity hi level to report that lock has been acquired, and one at warning hi level to
+indicate lock lost.
+-->
+<events>
+    <event id="0" name="Baro_Acquired" severity="ACTIVITY_HI" format_string="acquired">
+        <comment>A notification on Barometer lock acquired</comment>
+    </event>
+    <event id="1" name="Baro_lost" severity="WARNING_HI" format_string="lock lost">
+        <comment>A warning on Barometer lock lost</comment>
+    </event>
+</events>

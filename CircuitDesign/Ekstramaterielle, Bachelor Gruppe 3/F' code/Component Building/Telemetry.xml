@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- GPS Tutorial: RPI/Barometer/Telemetry.xml
+
+This defines three telemetry channels to report basic barometer information.
+-->
+<telemetry>
+    <channel id="0" name="Pressure" data_type="F32" abbrev="Barometer-0000">
+        <comment>The current measured pressure</comment>
+    </channel>
+    <channel id="1" name="Celcius" data_type="F32" abbrev="Barometer-0001">
+        <comment>The current temperature in C</comment>
+    </channel>
+    <channel id="2" name="Fahrenheit" data_type="F32" abbrev="Barometer-0002">
+        <comment>The current temperature in F</comment>
+    </channel>
+</telemetry>

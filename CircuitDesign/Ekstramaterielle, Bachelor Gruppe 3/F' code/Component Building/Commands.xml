@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- GPS Tutorial: RPI/Barometer/Commands.xml // Changed from the tutorial script
+
+<commands>
+    <!-- Define a single command that runs asynchronously on the component's own thread. The opcode "0" is relative to
+    the GPS component's command space.  The mnemonic is the string a user will use to refer to this command. -->
+    <command kind="async" opcode="0" mnemonic="Barometer_status" >
+        <comment>A command to force a lock status reporting.</comment>
+    </command>
+</commands>
