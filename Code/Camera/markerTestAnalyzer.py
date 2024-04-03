@@ -54,7 +54,7 @@ computationTime = []    # Array for computation times
 for dict in dictList:
 
     # Restart variables for relevant values
-    startTimer = time.time() # Start timer per dict
+    startTimer = time.perf_counter() # Start timer per dict
     curDataFrames = 0        # Frames with data for current dict
     totalFrames = 0          # Total Frames extraction part 1
 
@@ -98,7 +98,7 @@ for dict in dictList:
     recording.release()
 
     # Computation Time
-    endTimer = time.time()              # Time of loop stop
+    endTimer = time.perf_counter()              # Time of loop stop
     currentTime = endTimer - startTimer # Time difference
     computationTime.append(currentTime) # Increment array
 
