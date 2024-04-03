@@ -22,6 +22,10 @@ winSize = (11, 11)      # OpenCV: "Size(5,5) , then a (5*2+1)x(5*2+1) = 11×11"
 zeroZone = (-1, -1)     # Deadzone to avoid singularities. (-1,-1) = turned off
 
 markerSize = 0.05 # Length of ArUco marker sides [m]
+markerPoints = numpy.array([[-markerSize / 2, markerSize / 2, 0],
+                              [markerSize / 2, markerSize / 2, 0],
+                              [markerSize / 2, -markerSize / 2, 0],
+                              [-markerSize / 2, -markerSize / 2, 0]], dtype=numpy.float32)
 
 # vvv INTRINSICS ARE FOR 848x480 vvv
     # Distortion Coefficients
@@ -85,9 +89,9 @@ with open('RotationMatrixArena', 'w') as f:
                 cv2.cornerSubPix(gray, markerCorner, winSize, zeroZone, criteria)
 
                 # Pose reading
-                rotVector, transVector, markerPoints = aruco.estimatePoseSingleMarkers(
-                    markerCorner, markerSize, cameraMatrix=cameraMatrix, distCoeffs=distortionCoefficients)
-                #ret, rotVector, transVector = cv2.solvePnp(markerCo)
+#                rotVector, transVector, markerPoints = aruco.estimatePoseSingleMarkers(
+#                    markerCorner, markerSize, cameraMatrix=cameraMatrix, distCoeffs=distortionCoefficients)
+                ret, rotVector, transVector = cv2.solvePnP(markerPoints, markerCorner, cameraMatrix, distortionCoefficients, useExtrinsicGuess=True)
 
 
                 # Draw marker axes
