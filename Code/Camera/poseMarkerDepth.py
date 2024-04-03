@@ -14,6 +14,13 @@ fps = 60             # pixels
 cColor = (0, 0, 120) # bgr
 cThick = 1           # pixels
 
+# Subpixel detection variables
+iterStop = 30
+cornerTolerance = 0.001
+criteria = ( (cv2.TERM_CRITERIA_EPS + cv2.TermCriteria_MAX_ITER), iterStop, cornerTolerance)
+winSize = (11, 11)      # OpenCV: "Size(5,5) , then a (5*2+1)x(5*2+1) = 11×11"
+zeroZone = (-1, -1)     # Deadzone to avoid singularities. (-1,-1) = turned off
+
 markerSize = 0.05 # Length of ArUco marker sides [m]
 
 # vvv INTRINSICS ARE FOR 848x480 vvv
@@ -45,6 +52,8 @@ config.enable_stream(rs.stream.color, screenWidth, screenHeight, rs.format.bgr8,
 # Depth Stream
 config.enable_stream(rs.stream.depth, screenWidth, screenHeight, rs.format.z16, fps) # (streamType, xRes, yRes, format, fps)
 pipe.start(config)
+
+
 with open('RotationMatrixArena', 'w') as f:
 
     # Set writing variable for simplicity
@@ -73,10 +82,14 @@ with open('RotationMatrixArena', 'w') as f:
             # Iterate through list of markers
             for (markerCorner, markerID) in zip(corners, ids):
 
+                cv2.cornerSubPix(gray, markerCorner, winSize, zeroZone, criteria)
+
                 # Pose reading
                 rotVector, transVector, markerPoints = aruco.estimatePoseSingleMarkers(
                     markerCorner, markerSize, cameraMatrix=cameraMatrix, distCoeffs=distortionCoefficients)
-                
+                #ret, rotVector, transVector = cv2.solvePnp(markerCo)
+
+
                 # Draw marker axes
                 cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
                                 distCoeffs=distortionCoefficients, rvec=rotVector, tvec=transVector, length=axesLength)
