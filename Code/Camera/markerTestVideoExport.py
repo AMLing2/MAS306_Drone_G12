@@ -7,7 +7,7 @@ font = cv2.FONT_HERSHEY_SIMPLEX
 fontColor = (200, 20, 200)
 fontScale = 0.5
 fontThickness = 1
-axesLength = 0.01
+axesLength = 0.05
 
 # Length of ArUco marker sides
 markerSize = 0.04 # [m]
@@ -61,13 +61,13 @@ for dict in dictList:
 
     # Start new recording
     vidNr += 1
-    resultVid = cv2.VideoWriter(f'resultsTestPostDepth_{vidNr}.avi', fourcc, fps, (w,h))
+    resultVid = cv2.VideoWriter(f'resultsDictTestArena1_{vidNr}.avi', fourcc, fps, (w,h))
 
     # Fetch current dictionary
     dictionary = aruco.getPredefinedDictionary(dict)
 
     # Import recording
-    recording = cv2.VideoCapture('recordingPostDepthTest.avi')
+    recording = cv2.VideoCapture('dictTestArena1.avi')
 
     while(recording.isOpened()):
         
