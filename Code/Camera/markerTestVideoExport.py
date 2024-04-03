@@ -1,4 +1,3 @@
-import pyrealsense2 as rs   # stream configuration
 import cv2                  # Show video with OpenCV
 import cv2.aruco as aruco   # Simplification
 import os                   # Check file-extension
