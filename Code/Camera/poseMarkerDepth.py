@@ -88,6 +88,7 @@ with open('RotationMatrixArena', 'w') as f:
 
                 # Extract rotation matrix
                 rotMat, _ = cv2.Rodrigues(rotVector)
+                rotMat = rotMat.flatten()
                 print("\nRotation Matrix: ", rotMat)
                 write.writerow(rotMat)
                 
