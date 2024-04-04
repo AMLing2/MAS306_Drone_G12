@@ -22,10 +22,6 @@ winSize = (11, 11)      # OpenCV: "Size(5,5) , then a (5*2+1)x(5*2+1) = 11×11"
 zeroZone = (-1, -1)     # Deadzone to avoid singularities. (-1,-1) = turned off
 
 markerSize = 0.05 # Length of ArUco marker sides [m]
-markerPoints = numpy.array([[-markerSize / 2, markerSize / 2, 0],
-                              [markerSize / 2, markerSize / 2, 0],
-                              [markerSize / 2, -markerSize / 2, 0],
-                              [-markerSize / 2, -markerSize / 2, 0]], dtype=numpy.float32)
 
 # vvv INTRINSICS ARE FOR 848x480 vvv
     # Distortion Coefficients
@@ -57,9 +53,8 @@ config.enable_stream(rs.stream.color, screenWidth, screenHeight, rs.format.bgr8,
 config.enable_stream(rs.stream.depth, screenWidth, screenHeight, rs.format.z16, fps) # (streamType, xRes, yRes, format, fps)
 pipe.start(config)
 
-rotVector = [-1.57667675, 2.11985489,  0.60132021]
 
-with open('RotationMatrixArena', 'w') as f:
+with open('rotVectorArena', 'w') as f:
 
     # Set writing variable for simplicity
     write = csv.writer(f)
@@ -87,13 +82,13 @@ with open('RotationMatrixArena', 'w') as f:
             # Iterate through list of markers
             for (markerCorner, markerID) in zip(corners, ids):
 
-                #cv2.cornerSubPix(gray, markerCorner, winSize, zeroZone, criteria)
+                cv2.cornerSubPix(gray, markerCorner, winSize, zeroZone, criteria)
 
                 # Pose reading
-#                rotVector, transVector, markerPoints = aruco.estimatePoseSingleMarkers(
-#                    markerCorner, markerSize, cameraMatrix=cameraMatrix, distCoeffs=distortionCoefficients)
-                ret, rotVector, transVector = cv2.solvePnP(markerPoints, markerCorner, cameraMatrix, 
-                                                           distortionCoefficients, useExtrinsicGuess=False, flags=cv2.SOLVEPNP_ITERATIVE)
+                rotVector, transVector, markerPoints = aruco.estimatePoseSingleMarkers(
+                    markerCorner, markerSize, cameraMatrix=cameraMatrix, distCoeffs=distortionCoefficients)
+                #ret, rotVector, transVector = cv2.solvePnp(markerCo)
+                #rotVector = abs(rotVector)
 
 
                 # Draw marker axes
@@ -109,7 +104,7 @@ with open('RotationMatrixArena', 'w') as f:
                 rotMat, _ = cv2.Rodrigues(rotVector)
                 rotMat = rotMat.flatten()
                 print("\nRotation Matrix: ", rotMat)
-                write.writerow(rotMat)
+                write.writerow(rotVector)
                 
                 # Extract corners
                 corners = markerCorner.reshape(4,2)
