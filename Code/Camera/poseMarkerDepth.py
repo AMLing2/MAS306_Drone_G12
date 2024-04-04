@@ -4,6 +4,7 @@ import cv2.aruco as aruco # For simplification
 import pyrealsense2 as rs
 import numpy
 import csv
+import math
 # --------------------------------------- Libraries ---------------------------------------
 
 # ------------------- Constant variables for simple changes -------------------
@@ -53,6 +54,8 @@ config.enable_stream(rs.stream.color, screenWidth, screenHeight, rs.format.bgr8,
 config.enable_stream(rs.stream.depth, screenWidth, screenHeight, rs.format.z16, fps) # (streamType, xRes, yRes, format, fps)
 pipe.start(config)
 
+prevRotVec = numpy.array([[0.0, 0.0, 0.0]])
+prevSign = [0,0,0]
 
 with open('rotVectorArena', 'w') as f:
 
@@ -89,7 +92,15 @@ with open('rotVectorArena', 'w') as f:
                     markerCorner, markerSize, cameraMatrix=cameraMatrix, distCoeffs=distortionCoefficients)
                 #ret, rotVector, transVector = cv2.solvePnp(markerCo)
                 #rotVector = abs(rotVector)
+                #if (((prevRotVec) ^ (rotVector)) < 0):
+                #    rotVector = -rotVector
 
+                curSign = [1 if x>0 else -1 if x<0 else 0 for x in rotVector.flatten()]
+                
+                print("\nCurrent sign: ", curSign)
+
+                if (curSign != prevSign):
+                    rotVector = prevRotVec
 
                 # Draw marker axes
                 cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
@@ -128,6 +139,9 @@ with open('rotVectorArena', 'w') as f:
 
                 # Print Depth
                 print("Depth Distance: ", depthDist)
+
+        prevRotVec = rotVector
+        prevSign = curSign
 
         # Depth Stream: Add color map
         depth_image = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.15), cv2.COLORMAP_TURBO)
