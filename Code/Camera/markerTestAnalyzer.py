@@ -42,9 +42,6 @@ dictList = numpy.array([
     aruco.DICT_ARUCO_MIP_36h12
 ])
 
-# Size of window to display recording
-displaySize = (960, 540)
-
 # Store relevant values
 framesWithData  = []    # Array to store frames with data
 computationTime = []    # Array for computation times

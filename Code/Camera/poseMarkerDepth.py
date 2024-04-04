@@ -45,7 +45,7 @@ print("\nDistortion Coefficients\n", distortionCoefficients)
 
 # Set dictionary for the markers
 arucoParams     = aruco.DetectorParameters()
-arucoDictionary = aruco.getPredefinedDictionary(aruco.DICT_6X6_50)
+arucoDictionary = aruco.getPredefinedDictionary(aruco.DICT_5X5_50)
 
 # Setup configuration and start pipeline stream
 pipe = rs.pipeline()
@@ -57,6 +57,7 @@ config.enable_stream(rs.stream.color, screenWidth, screenHeight, rs.format.bgr8,
 config.enable_stream(rs.stream.depth, screenWidth, screenHeight, rs.format.z16, fps) # (streamType, xRes, yRes, format, fps)
 pipe.start(config)
 
+rotVector = [-1.57667675, 2.11985489,  0.60132021]
 
 with open('RotationMatrixArena', 'w') as f:
 
@@ -86,12 +87,13 @@ with open('RotationMatrixArena', 'w') as f:
             # Iterate through list of markers
             for (markerCorner, markerID) in zip(corners, ids):
 
-                cv2.cornerSubPix(gray, markerCorner, winSize, zeroZone, criteria)
+                #cv2.cornerSubPix(gray, markerCorner, winSize, zeroZone, criteria)
 
                 # Pose reading
 #                rotVector, transVector, markerPoints = aruco.estimatePoseSingleMarkers(
 #                    markerCorner, markerSize, cameraMatrix=cameraMatrix, distCoeffs=distortionCoefficients)
-                ret, rotVector, transVector = cv2.solvePnP(markerPoints, markerCorner, cameraMatrix, distortionCoefficients, useExtrinsicGuess=True)
+                ret, rotVector, transVector = cv2.solvePnP(markerPoints, markerCorner, cameraMatrix, 
+                                                           distortionCoefficients, useExtrinsicGuess=False, flags=cv2.SOLVEPNP_ITERATIVE)
 
 
                 # Draw marker axes
@@ -136,8 +138,8 @@ with open('RotationMatrixArena', 'w') as f:
         depth_image = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.15), cv2.COLORMAP_TURBO)
 
         # Display image
-        cv2.imshow('ColorStream', color_image)
         cv2.imshow('DepthStream', depth_image)
+        cv2.imshow('ColorStream', color_image)
 
         # Loop breaker
         pressedKey = cv2.waitKey(1)
