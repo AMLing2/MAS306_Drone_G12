@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package dronePosSingle;
+
+message dronePosition {
+	float x = 1;
+	float y = 2;
+	float z = 3;
+	float dx = 4;
+	float dy = 5;
+	float dz = 6;
+	float theta = 7;
+	float phi = 8;
+	float psi = 9;
+	float dtheta = 10;
+	float dphi = 11;
+	float dpsi =12;
+}
