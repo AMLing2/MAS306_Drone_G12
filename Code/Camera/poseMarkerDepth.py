@@ -4,7 +4,6 @@ import cv2.aruco as aruco # For simplification
 import pyrealsense2 as rs
 import numpy
 import csv
-import math
 # --------------------------------------- Libraries ---------------------------------------
 
 # ------------------- Constant variables for simple changes -------------------
@@ -54,10 +53,20 @@ config.enable_stream(rs.stream.color, screenWidth, screenHeight, rs.format.bgr8,
 config.enable_stream(rs.stream.depth, screenWidth, screenHeight, rs.format.z16, fps) # (streamType, xRes, yRes, format, fps)
 pipe.start(config)
 
-prevRotVec = numpy.array([[0.0, 0.0, 0.0]])
-prevSign = [0,0,0]
+# Workaround from MATLAB <-- github
+swapAxes = numpy.array([
+    [1, 0, 0],
+    [0, 0, 1],
+    [0, -1, 0]
+])
+flipAxes = numpy.array([
+    [1, -1, 1],
+    [1, -1, 1],
+    [-1, 1, -1]
+])
 
-with open('rotVectorArena', 'w') as f:
+
+with open('RotationMatrixArena', 'w') as f:
 
     # Set writing variable for simplicity
     write = csv.writer(f)
@@ -90,18 +99,7 @@ with open('rotVectorArena', 'w') as f:
                 # Pose reading
                 rotVector, transVector, markerPoints = aruco.estimatePoseSingleMarkers(
                     markerCorner, markerSize, cameraMatrix=cameraMatrix, distCoeffs=distortionCoefficients)
-                #ret, rotVector, transVector = cv2.solvePnp(markerCo)
-                #rotVector = abs(rotVector)
-                #if (((prevRotVec) ^ (rotVector)) < 0):
-                #    rotVector = -rotVector
-
-                curSign = [1 if x>0 else -1 if x<0 else 0 for x in rotVector.flatten()]
-                
-                print("\nCurrent sign: ", curSign)
-
-                if (curSign != prevSign):
-                    rotVector = prevRotVec
-
+        
                 # Draw marker axes
                 cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
                                 distCoeffs=distortionCoefficients, rvec=rotVector, tvec=transVector, length=axesLength)
@@ -109,14 +107,49 @@ with open('rotVectorArena', 'w') as f:
                 # Round and display translation vector
                 transVector = numpy.around(transVector, 4)
                 print("\nTranslation Vector: ", transVector)
+                
                 print("\nRotation Vector: ", rotVector)
 
                 # Extract rotation matrix
                 rotMat, _ = cv2.Rodrigues(rotVector)
-                rotMat = rotMat.flatten()
+                #rotMat = rotMat.flatten()
                 print("\nRotation Matrix: ", rotMat)
-                write.writerow(rotVector.flatten())
+                #write.writerow(rotMat)
                 
+                # workaround for rotation vector
+                rotMat = numpy.dot(rotMat,swapAxes)
+                rotMat = rotMat * flipAxes
+                tNorm = transVector / numpy.linalg.norm(transVector)
+                tNorm = tNorm.flatten()
+                #print("\nTnorm: ", tNorm)
+                forward = numpy.array([0, 0, 1])
+                #print("\nFOrward: ", forward)
+                ax = numpy.cross(tNorm, forward)
+                ax = ax.flatten()
+                #print("\nAx: ", ax)
+                
+                #angle = -2 * numpy.arccos(forward*tNorm)
+                angle = -2 * numpy.arccos(numpy.dot(forward, tNorm))
+                print("\nAngle: ", angle)
+                axisNorm = numpy.linalg.norm(ax)
+                if axisNorm != 0:
+                    ax /= axisNorm
+
+                sina = numpy.sin(angle/2)
+                #ekkes = ax[1]
+                M = numpy.array([
+                [numpy.cos(angle / 2), ax[0] * sina, ax[1] * sina, ax[2] * sina],
+                [0, numpy.cos(angle / 2), -ax[2] * sina, ax[1] * sina],
+                [0, ax[2] * sina, numpy.cos(angle / 2), -ax[0] * sina],
+                [0, -ax[1] * sina, ax[0] * sina, numpy.cos(angle / 2)]])
+    
+                RotR = M[:3, :3]
+                print("\nRotR: ", RotR)
+                rotMat = numpy.dot(RotR, rotMat)
+                rotMat = numpy.dot(rotMat, swapAxes)
+                print("\nRotation Matrix new: ", rotMat)
+                cv2.Rodrigues(rotMat, rotVector)
+
                 # Extract corners
                 corners = markerCorner.reshape(4,2)
                 (topLeft, topRight, bottomRight, bottomLeft) = corners
@@ -139,9 +172,6 @@ with open('rotVectorArena', 'w') as f:
 
                 # Print Depth
                 print("Depth Distance: ", depthDist)
-
-        prevRotVec = rotVector
-        prevSign = curSign
 
         # Depth Stream: Add color map
         depth_image = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.15), cv2.COLORMAP_TURBO)
