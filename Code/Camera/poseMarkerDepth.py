@@ -104,7 +104,7 @@ with open('rotVectorArena', 'w') as f:
                 rotMat, _ = cv2.Rodrigues(rotVector)
                 rotMat = rotMat.flatten()
                 print("\nRotation Matrix: ", rotMat)
-                write.writerow(rotVector)
+                write.writerow(rotVector.flatten())
                 
                 # Extract corners
                 corners = markerCorner.reshape(4,2)
