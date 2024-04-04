@@ -4,6 +4,7 @@ import cv2.aruco as aruco # For simplification
 import pyrealsense2 as rs
 import numpy
 import csv
+from math import pi
 # --------------------------------------- Libraries ---------------------------------------
 
 # ------------------- Constant variables for simple changes -------------------
@@ -29,10 +30,14 @@ distortionCoefficients = numpy.array(
     [ 0.0, 0.0, 0.0, 0.0, 0.0]) # [k1, k2, p1, p2, k3]
 
     # Intrinsic Camera Matrix
+fx = 608.76301751
+fy = 609.23981796
+cx = 429.37397121
+cy = 232.71315263
 cameraMatrix = numpy.array([
-[608.76301751,   0.0,         429.37397121],
-[  0.0,         609.23981796, 232.71315263],
-[  0.0,           0.0,          1.0        ]])
+[ fx,   0.0, cx ],
+[ 0.0,  fy,  cy ],
+[ 0.0,  0.0, 1.0]])
 
 print("\nCamera Matrix\n", cameraMatrix)
 print("\nDistortion Coefficients\n", distortionCoefficients)
@@ -53,20 +58,20 @@ config.enable_stream(rs.stream.color, screenWidth, screenHeight, rs.format.bgr8,
 config.enable_stream(rs.stream.depth, screenWidth, screenHeight, rs.format.z16, fps) # (streamType, xRes, yRes, format, fps)
 pipe.start(config)
 
-# Workaround from MATLAB <-- github
-swapAxes = numpy.array([
-    [1, 0, 0],
-    [0, 0, 1],
-    [0, -1, 0]
-])
-flipAxes = numpy.array([
-    [1, -1, 1],
-    [1, -1, 1],
-    [-1, 1, -1]
+roundNr = 0
+
+rotVector = numpy.array([0.0, 0.0, 0.0])
+rVecDiff = rotVector
+
+br = 0.027
+points3D = numpy.asarray([
+    [-br,  br, 0.0],
+    [-br, -br, 0.0],
+    [ br,  br, 0.0],
+    [ br, -br, 0.0]
 ])
 
-
-with open('RotationMatrixArena', 'w') as f:
+with open('diffAngle', 'w') as f:
 
     # Set writing variable for simplicity
     write = csv.writer(f)
@@ -94,15 +99,15 @@ with open('RotationMatrixArena', 'w') as f:
             # Iterate through list of markers
             for (markerCorner, markerID) in zip(corners, ids):
 
-                cv2.cornerSubPix(gray, markerCorner, winSize, zeroZone, criteria)
+                #cv2.cornerSubPix(gray, markerCorner, winSize, zeroZone, criteria) # Actually better w/o subpixel coords
 
                 # Pose reading
                 rotVector, transVector, markerPoints = aruco.estimatePoseSingleMarkers(
                     markerCorner, markerSize, cameraMatrix=cameraMatrix, distCoeffs=distortionCoefficients)
         
                 # Draw marker axes
-                cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
-                                distCoeffs=distortionCoefficients, rvec=rotVector, tvec=transVector, length=axesLength)
+                #cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
+                #                distCoeffs=distortionCoefficients, rvec=rotVector, tvec=transVector, length=axesLength)
                 
                 # Round and display translation vector
                 transVector = numpy.around(transVector, 4)
@@ -115,47 +120,65 @@ with open('RotationMatrixArena', 'w') as f:
                 #rotMat = rotMat.flatten()
                 print("\nRotation Matrix: ", rotMat)
                 #write.writerow(rotMat)
-                
-                # workaround for rotation vector
-                rotMat = numpy.dot(rotMat,swapAxes)
-                rotMat = rotMat * flipAxes
-                tNorm = transVector / numpy.linalg.norm(transVector)
-                tNorm = tNorm.flatten()
-                #print("\nTnorm: ", tNorm)
-                forward = numpy.array([0, 0, 1])
-                #print("\nFOrward: ", forward)
-                ax = numpy.cross(tNorm, forward)
-                ax = ax.flatten()
-                #print("\nAx: ", ax)
-                
-                #angle = -2 * numpy.arccos(forward*tNorm)
-                angle = -2 * numpy.arccos(numpy.dot(forward, tNorm))
-                print("\nAngle: ", angle)
-                axisNorm = numpy.linalg.norm(ax)
-                if axisNorm != 0:
-                    ax /= axisNorm
 
-                sina = numpy.sin(angle/2)
-                #ekkes = ax[1]
-                M = numpy.array([
-                [numpy.cos(angle / 2), ax[0] * sina, ax[1] * sina, ax[2] * sina],
-                [0, numpy.cos(angle / 2), -ax[2] * sina, ax[1] * sina],
-                [0, ax[2] * sina, numpy.cos(angle / 2), -ax[0] * sina],
-                [0, -ax[1] * sina, ax[0] * sina, numpy.cos(angle / 2)]])
-    
-                RotR = M[:3, :3]
-                print("\nRotR: ", RotR)
-                rotMat = numpy.dot(RotR, rotMat)
-                rotMat = numpy.dot(rotMat, swapAxes)
-                print("\nRotation Matrix new: ", rotMat)
-                cv2.Rodrigues(rotMat, rotVector)
+                #if (roundNr == 0):
+                #    prevRotMat = rotMat
+                #else:
+                #    #rotDiff = rotMat . rotMat^rotVector
+                #    rotDiff = numpy.dot(prevRotMat, numpy.transpose(rotMat))
+                #    cv2.Rodrigues(rotDiff, rVecDiff)
+                #    diffAngle = numpy.linalg.norm(rVecDiff)
+                #    write.writerow(numpy.array([diffAngle]))
+                #    print("\ndiffAngle: ", diffAngle)
+                #    #print("\nRotDiff: ", rotDiff)
+                #    if (diffAngle > pi):
+                #        rotVector = prevRotVector
+                    
 
                 # Extract corners
                 corners = markerCorner.reshape(4,2)
                 (topLeft, topRight, bottomRight, bottomLeft) = corners
+
+                # Extract depth in all corner pixel coords
+                depthCorners = numpy.array([
+                    depth_image.item(int(topLeft[1]),         int(topLeft[0])),
+                    depth_image.item(int(topRight[1]),       int(topRight[0])),
+                    depth_image.item(int(bottomRight[1]), int(bottomRight[0])),
+                    depth_image.item(int(bottomLeft[1]),   int(bottomLeft[0]))
+                ])
+                print("\ndepthCorners: ", depthCorners)
+
+                a = numpy.array([topLeft[1], topLeft[0], depthCorners[0]])
+                b = numpy.array([bottomLeft[1], bottomLeft[0], depthCorners[3]])
+                c = numpy.array([topRight[1], topRight[0], depthCorners[1]])
+
+                ab = b - a
+                ac = c - a
+                n = numpy.cross(ab,ac)
+                print("\nNormal Vector: ", n)
+
+                for corner in corners:
+                    x = int(corner[0])
+                    y = int(corner[1])
+                    depth = depth_image[y, x] / 1000.0 + 0.00001
+                    if(depth != 0):
+                        X = (x - cx) * depth / fx
+                        Y = (y - cy) * depth / fy
+                        
+                        
+                #        Z = computeZ(n, d, X, Y)
+                        
+                #        all_depth_points = all_depth_points + [[X, Y, Z]]
+
+                cv2.solvePnPRefineLM(points3D, corners, cameraMatrix=cameraMatrix, 
+                                     distCoeffs=distortionCoefficients, rvec=rotVector, tvec=transVector)
+
+                # Draw marker axes
+                cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
+                                distCoeffs=distortionCoefficients, rvec=rotVector, tvec=transVector, length=axesLength)
                 
                 # Print Current marker ID
-                print("Current ID: ", markerID)
+                print("\nCurrent ID: ", markerID)
                 
                 # Extract middle of marker
                 avgCorner_x = int((topLeft[0] + topRight[0] + bottomLeft[0] + bottomRight[0])/4)
@@ -179,6 +202,9 @@ with open('RotationMatrixArena', 'w') as f:
         # Display image
         cv2.imshow('DepthStream', depth_image)
         cv2.imshow('ColorStream', color_image)
+
+        roundNr = roundNr+1
+        prevRotVector = rotVector
 
         # Loop breaker
         pressedKey = cv2.waitKey(1)
