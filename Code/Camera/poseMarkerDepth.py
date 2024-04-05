@@ -9,7 +9,7 @@ from numpy import sin, cos
 # --------------------------------------- Libraries ---------------------------------------
 
 # ------------------- Constant variables for simple changes -------------------
-axesLength = 0.05
+axesLength = 0.1
 screenHeight = 480   # pixels
 screenWidth = 848    # pixels
 fps = 60             # pixels
@@ -28,6 +28,9 @@ markerPoints = numpy.array([[-markerSize / 2, markerSize / 2, 0],
                               [markerSize / 2, markerSize / 2, 0],
                               [markerSize / 2, -markerSize / 2, 0],
                               [-markerSize / 2, -markerSize / 2, 0]], dtype=numpy.float32)
+
+defaultRightCorner = numpy.array([((markerSize/2)*(1+1-1)/3)*1000, 
+                                  ((markerSize/2)*(1+1-1)/3)*1000, 0.0])
 
 # vvv INTRINSICS ARE FOR 848x480 vvv
     # Distortion Coefficients
@@ -51,7 +54,7 @@ print("\nDistortion Coefficients\n", distortionCoefficients)
 
 # Set dictionary for the markers
 arucoParams     = aruco.DetectorParameters()
-arucoDictionary = aruco.getPredefinedDictionary(aruco.DICT_5X5_50)
+arucoDictionary = aruco.getPredefinedDictionary(aruco.DICT_APRILTAG_16h5)
 
 # Setup configuration and start pipeline stream
 pipe = rs.pipeline()
@@ -61,6 +64,7 @@ config = rs.config()
 config.enable_stream(rs.stream.color, screenWidth, screenHeight, rs.format.bgr8, fps) # (streamType, xRes, yRes, format, fps)
 # Depth Stream
 config.enable_stream(rs.stream.depth, screenWidth, screenHeight, rs.format.z16, fps) # (streamType, xRes, yRes, format, fps)
+#config.enable_stream(rs.stream.infrared, screenWidth, screenHeight, rs.format.y8, fps) # (streamType, xRes, yRes, format, fps)
 pipe.start(config)
 
 roundNr = 0
@@ -102,13 +106,14 @@ roll = numpy.array([
 
 yawPitchRoll = yaw @ pitch @ roll
 
-rotVectors = numpy.array([])
-transVectors = rotVectors
+rotVectors = []
+transVectors = []
 reprojError = 0
+angleError = 0
 
 round = 0
 
-with open('reprojError', 'w') as f:
+with open('angleError', 'w') as f:
 
     # Set writing variable for simplicity
     write = csv.writer(f)
@@ -147,24 +152,52 @@ with open('reprojError', 'w') as f:
                 #print("\nCornerMarker: ", markerCorner)
 
                 # SolvePnPGeneric for extracting all possible vectors
-                if (round < 5):
-                    retVal, rotVectors, transVectors = cv2.solvePnP(
-                    markerPoints, markerCorner, cameraMatrix, distortionCoefficients, rvec=rotVectors, tvec=transVectors)
+                if (round < 25):
+                    retVal, rotVectors, transVectors, reprojError = cv2.solvePnPGeneric(
+                    markerPoints, markerCorner, cameraMatrix, distortionCoefficients, rvecs=rotVectors, tvecs=transVectors, reprojectionError=reprojError)
                 else:
-                    retVal, rotVectors, transVectors = cv2.solvePnP(
-                    objectPoints=markerPoints, imagePoints=markerCorner, cameraMatrix=cameraMatrix, distCoeffs=distortionCoefficients,
-                    useExtrinsicGuess=True, flags=cv2.SOLVEPNP_ITERATIVE, rvec=rotVectors, tvec=transVectors)
+                    print("\n------------ 25 has passed --------")
+                    retVal, rotVectors, transVectors, reprojError = cv2.solvePnPGeneric(
+                    markerPoints, markerCorner, cameraMatrix, distortionCoefficients, rvecs=rotVectors, tvecs=transVectors, reprojectionError=reprojError,
+                    useExtrinsicGuess=True, flags=cv2.SOLVEPNP_ITERATIVE, rvec=rotVector, tvec=transVector)
+
+                print("\nRotation Vectors: ", rotVectors)
+                print("\nTranslation Vectors: ", transVectors)
 
                 # Extract guess
                 rotVector = rotVectors[0]
                 transVector = transVectors[0]
 
-                # Extract rotation matrix
+                if round > 5:
+                    prevRotMat, _ = cv2.Rodrigues(prevRotVector)
+                    rotMat, _ = cv2.Rodrigues(rotVector)
+                    rotMatDiff = numpy.dot(prevRotMat, rotMat.T) # previously rotMatDiff
+                    #rotMatDiffSum = R[0,1] + R[0,2] + R[1,0] + R[1,2] + R[2,0] + R[2,1]
+                    #write.writerow([rotMatDiffSum, rotMatDiffSum])
+                    #if rotMatDiffSum > 0.001:
+                    #    rotVector = prevRotVector
+                     #   print("\nDifference in rotmat: ", sum(rotMatDiffSum))
+                    angleError = numpy.rad2deg(numpy.arccos((numpy.trace(rotMatDiff)-1)/2))
+                    write.writerow([angleError, angleError])
+
+                #if angleError > pi: # degrees
+                #    rotVector = prevRotVector
+
+                ## Extract rotation matrix
                 #rotMat, _ = cv2.Rodrigues(rotVector)
-                #rotMat = rotMat.flatten()
+                ##rotMat = rotMat.flatten()
                 #print("\nRotation Matrix: ", rotMat)
                 #write.writerow(rotMat)
-
+#
+                #z_axis = rotMat[:, 2]
+#
+                ## Check the sign of the Z-axis
+                #if (z_axis[1] > 0) and round < 5:
+                #    print("\nUpside Down!")
+                #    #rotVector = prevRotVector
+                #elif z_axis[1] < 0:
+                #    print("\nRight side up!")
+#
                 # Flip if flip                
 #                if (numpy.linalg.det(rotMat)):
 #                    R = rotMat @ yawPitchRoll
@@ -173,15 +206,11 @@ with open('reprojError', 'w') as f:
                 #print("\nRotation Vectors length: ", len(rotVectors))
                 print("\nReprojection Error: ", reprojError)
 
-                write.writerow([reprojError, reprojError])
-                
-                #print("\nRotation Vectors: ", rotVectors)
-                #print("\nTranslation Vectors: ", transVectors)
-
+                #write.writerow([reprojError, reprojError])
 
                 # Draw marker axes
                 cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
-                                distCoeffs=distortionCoefficients, rvec=rotVectors, tvec=transVectors, length=axesLength)
+                                distCoeffs=distortionCoefficients, rvec=rotVector, tvec=transVector, length=axesLength)
                 
                 # Round and display translation vector
                 transVector = numpy.around(transVector, 4)
@@ -282,6 +311,7 @@ with open('reprojError', 'w') as f:
             cv2.waitKey(-1)
 
         round = round+1
+        prevRotVector = rotVector
 
 pipe.stop()             # Stop recording
 cv2.destroyAllWindows() # Free resources 
