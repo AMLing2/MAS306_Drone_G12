@@ -23,6 +23,10 @@ winSize = (11, 11)      # OpenCV: "Size(5,5) , then a (5*2+1)x(5*2+1) = 11×11"
 zeroZone = (-1, -1)     # Deadzone to avoid singularities. (-1,-1) = turned off
 
 markerSize = 0.05 # Length of ArUco marker sides [m]
+markerPoints = numpy.array([[-markerSize / 2, markerSize / 2, 0],
+                              [markerSize / 2, markerSize / 2, 0],
+                              [markerSize / 2, -markerSize / 2, 0],
+                              [-markerSize / 2, -markerSize / 2, 0]], dtype=numpy.float32)
 
 # vvv INTRINSICS ARE FOR 848x480 vvv
     # Distortion Coefficients
@@ -60,18 +64,24 @@ pipe.start(config)
 
 roundNr = 0
 
-rotVector = numpy.array([0.0, 0.0, 0.0])
-rVecDiff = rotVector
+#rotVector = numpy.array([0.0, 0.0, 0.0])
+#rVecDiff = rotVector
 
-br = 0.027
-points3D = numpy.asarray([
-    [-br,  br, 0.0],
-    [-br, -br, 0.0],
-    [ br,  br, 0.0],
-    [ br, -br, 0.0]
-])
+#br = 0.027
+#points3D = numpy.asarray([
+#    [-br,  br, 0.0],
+#    [-br, -br, 0.0],
+#    [ br,  br, 0.0],
+#    [ br, -br, 0.0]
+#])
 
-with open('diffAngle', 'w') as f:
+rotVectors = []
+transVectors = []
+reprojError = 0
+
+round = 0
+
+with open('reprojError', 'w') as f:
 
     # Set writing variable for simplicity
     write = csv.writer(f)
@@ -92,6 +102,8 @@ with open('diffAngle', 'w') as f:
         # Marker Identification
         gray = cv2.cvtColor(color_image, cv2.COLOR_BGR2GRAY)   # Grayscale image
         corners, ids, rejectedImagePoints = aruco.detectMarkers(gray, arucoDictionary, parameters=arucoParams)
+        
+        #print("\nCorners: ", corners)
 
         # Is marker detected?
         if len(corners) > 0:
@@ -102,12 +114,35 @@ with open('diffAngle', 'w') as f:
                 #cv2.cornerSubPix(gray, markerCorner, winSize, zeroZone, criteria) # Actually better w/o subpixel coords
 
                 # Pose reading
-                rotVector, transVector, markerPoints = aruco.estimatePoseSingleMarkers(
-                    markerCorner, markerSize, cameraMatrix=cameraMatrix, distCoeffs=distortionCoefficients)
+#                rotVector, transVector, markerPoints = aruco.estimatePoseSingleMarkers(
+#                    markerCorner, markerSize, cameraMatrix=cameraMatrix, distCoeffs=distortionCoefficients)
         
+                #print("\nCornerMarker: ", markerCorner)
+
+                # SolvePnPGeneric for extracting all possible vectors
+                if (round < 5):
+                    retVal, rotVectors, transVectors, reprojError = cv2.solvePnPGeneric(
+                    markerPoints, markerCorner, cameraMatrix, distortionCoefficients, rvecs=rotVectors, tvecs=transVectors, reprojectionError=reprojError)
+                else:
+                    retVal, rotVectors, transVectors, reprojError = cv2.solvePnPGeneric(
+                    markerPoints, markerCorner, cameraMatrix, distortionCoefficients, rvecs=rotVectors, tvecs=transVectors, reprojectionError=reprojError,
+                    useExtrinsicGuess=True, flags=cv2.SOLVEPNP_ITERATIVE, rvec=rotVector, tvec=transVector)
+
+                rotVector = rotVectors[0]
+                transVector = transVectors[0]
+                
+                #print("\nRotation Vectors length: ", len(rotVectors))
+                print("\nReprojection Error: ", reprojError)
+
+                write.writerow([reprojError, reprojError])
+                
+                #print("\nRotation Vectors: ", rotVectors)
+                #print("\nTranslation Vectors: ", transVectors)
+
+
                 # Draw marker axes
-                #cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
-                #                distCoeffs=distortionCoefficients, rvec=rotVector, tvec=transVector, length=axesLength)
+                cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
+                                distCoeffs=distortionCoefficients, rvec=rotVector, tvec=transVector, length=axesLength)
                 
                 # Round and display translation vector
                 transVector = numpy.around(transVector, 4)
@@ -133,52 +168,51 @@ with open('diffAngle', 'w') as f:
                 #    #print("\nRotDiff: ", rotDiff)
                 #    if (diffAngle > pi):
                 #        rotVector = prevRotVector
-                    
+
+#                # Extract depth in all corner pixel coords
+#                depthCorners = numpy.array([
+#                    depth_image.item(int(topLeft[1]),         int(topLeft[0])),
+#                    depth_image.item(int(topRight[1]),       int(topRight[0])),
+#                    depth_image.item(int(bottomRight[1]), int(bottomRight[0])),
+#                    depth_image.item(int(bottomLeft[1]),   int(bottomLeft[0]))
+#                ])
+#                print("\ndepthCorners: ", depthCorners)
+#
+#                a = numpy.array([topLeft[1], topLeft[0], depthCorners[0]])
+#                b = numpy.array([bottomLeft[1], bottomLeft[0], depthCorners[3]])
+#                c = numpy.array([topRight[1], topRight[0], depthCorners[1]])
+#
+#                ab = b - a
+#                ac = c - a
+#                n = numpy.cross(ab,ac)
+#                print("\nNormal Vector: ", n)
+#
+#                for corner in corners:
+#                    x = int(corner[0])
+#                    y = int(corner[1])
+#                    depth = depth_image[y, x] / 1000.0 + 0.00001
+#                    if(depth != 0):
+#                        X = (x - cx) * depth / fx
+#                        Y = (y - cy) * depth / fy
+#                        
+#                        
+#                #        Z = computeZ(n, d, X, Y)
+#                        
+#                #        all_depth_points = all_depth_points + [[X, Y, Z]]
+#
+#                cv2.solvePnPRefineLM(points3D, corners, cameraMatrix=cameraMatrix, 
+#                                     distCoeffs=distortionCoefficients, rvec=rotVector, tvec=transVector)
+#
+#                # Draw marker axes
+#                cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
+#                                distCoeffs=distortionCoefficients, rvec=rotVector, tvec=transVector, length=axesLength)
+                
+                # Print Current marker ID
+                print("\nCurrent ID: ", markerID)
 
                 # Extract corners
                 corners = markerCorner.reshape(4,2)
                 (topLeft, topRight, bottomRight, bottomLeft) = corners
-
-                # Extract depth in all corner pixel coords
-                depthCorners = numpy.array([
-                    depth_image.item(int(topLeft[1]),         int(topLeft[0])),
-                    depth_image.item(int(topRight[1]),       int(topRight[0])),
-                    depth_image.item(int(bottomRight[1]), int(bottomRight[0])),
-                    depth_image.item(int(bottomLeft[1]),   int(bottomLeft[0]))
-                ])
-                print("\ndepthCorners: ", depthCorners)
-
-                a = numpy.array([topLeft[1], topLeft[0], depthCorners[0]])
-                b = numpy.array([bottomLeft[1], bottomLeft[0], depthCorners[3]])
-                c = numpy.array([topRight[1], topRight[0], depthCorners[1]])
-
-                ab = b - a
-                ac = c - a
-                n = numpy.cross(ab,ac)
-                print("\nNormal Vector: ", n)
-
-                for corner in corners:
-                    x = int(corner[0])
-                    y = int(corner[1])
-                    depth = depth_image[y, x] / 1000.0 + 0.00001
-                    if(depth != 0):
-                        X = (x - cx) * depth / fx
-                        Y = (y - cy) * depth / fy
-                        
-                        
-                #        Z = computeZ(n, d, X, Y)
-                        
-                #        all_depth_points = all_depth_points + [[X, Y, Z]]
-
-                cv2.solvePnPRefineLM(points3D, corners, cameraMatrix=cameraMatrix, 
-                                     distCoeffs=distortionCoefficients, rvec=rotVector, tvec=transVector)
-
-                # Draw marker axes
-                cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
-                                distCoeffs=distortionCoefficients, rvec=rotVector, tvec=transVector, length=axesLength)
-                
-                # Print Current marker ID
-                print("\nCurrent ID: ", markerID)
                 
                 # Extract middle of marker
                 avgCorner_x = int((topLeft[0] + topRight[0] + bottomLeft[0] + bottomRight[0])/4)
@@ -212,6 +246,8 @@ with open('diffAngle', 'w') as f:
             break
         elif pressedKey == ord('p'):    # Press P to pause
             cv2.waitKey(-1)
+
+        round = round+1
 
 pipe.stop()             # Stop recording
 cv2.destroyAllWindows() # Free resources 
