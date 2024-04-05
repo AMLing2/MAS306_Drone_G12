@@ -5,6 +5,7 @@ import pyrealsense2 as rs
 import numpy
 import csv
 from math import pi
+from numpy import sin, cos
 # --------------------------------------- Libraries ---------------------------------------
 
 # ------------------- Constant variables for simple changes -------------------
@@ -75,8 +76,34 @@ roundNr = 0
 #    [ br, -br, 0.0]
 #])
 
-rotVectors = []
-transVectors = []
+# Angles [radians]
+a = pi/2
+b = pi
+c = 0
+
+# Rotation Matrix
+yaw = numpy.array([
+    [cos(a), -sin(a), 0],
+    [sin(a),  cos(a), 0],
+    [0,         0,    1]
+])
+
+pitch = numpy.array([
+    [cos(b), 0, sin(b)],
+    [0, 1, 0],
+    [-sin(b), 0, cos(b)]
+])
+
+roll = numpy.array([
+    [1, 0, 0],
+    [0, cos(c), -sin(c)],
+    [0, sin(c), cos(c)]
+])
+
+yawPitchRoll = yaw @ pitch @ roll
+
+rotVectors = numpy.array([])
+transVectors = rotVectors
 reprojError = 0
 
 round = 0
@@ -121,15 +148,27 @@ with open('reprojError', 'w') as f:
 
                 # SolvePnPGeneric for extracting all possible vectors
                 if (round < 5):
-                    retVal, rotVectors, transVectors, reprojError = cv2.solvePnPGeneric(
-                    markerPoints, markerCorner, cameraMatrix, distortionCoefficients, rvecs=rotVectors, tvecs=transVectors, reprojectionError=reprojError)
+                    retVal, rotVectors, transVectors = cv2.solvePnP(
+                    markerPoints, markerCorner, cameraMatrix, distortionCoefficients, rvec=rotVectors, tvec=transVectors)
                 else:
-                    retVal, rotVectors, transVectors, reprojError = cv2.solvePnPGeneric(
-                    markerPoints, markerCorner, cameraMatrix, distortionCoefficients, rvecs=rotVectors, tvecs=transVectors, reprojectionError=reprojError,
-                    useExtrinsicGuess=True, flags=cv2.SOLVEPNP_ITERATIVE, rvec=rotVector, tvec=transVector)
+                    retVal, rotVectors, transVectors = cv2.solvePnP(
+                    objectPoints=markerPoints, imagePoints=markerCorner, cameraMatrix=cameraMatrix, distCoeffs=distortionCoefficients,
+                    useExtrinsicGuess=True, flags=cv2.SOLVEPNP_ITERATIVE, rvec=rotVectors, tvec=transVectors)
 
+                # Extract guess
                 rotVector = rotVectors[0]
                 transVector = transVectors[0]
+
+                # Extract rotation matrix
+                #rotMat, _ = cv2.Rodrigues(rotVector)
+                #rotMat = rotMat.flatten()
+                #print("\nRotation Matrix: ", rotMat)
+                #write.writerow(rotMat)
+
+                # Flip if flip                
+#                if (numpy.linalg.det(rotMat)):
+#                    R = rotMat @ yawPitchRoll
+#                    rotVector, _ = cv2.Rodrigues(R)
                 
                 #print("\nRotation Vectors length: ", len(rotVectors))
                 print("\nReprojection Error: ", reprojError)
@@ -142,7 +181,7 @@ with open('reprojError', 'w') as f:
 
                 # Draw marker axes
                 cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
-                                distCoeffs=distortionCoefficients, rvec=rotVector, tvec=transVector, length=axesLength)
+                                distCoeffs=distortionCoefficients, rvec=rotVectors, tvec=transVectors, length=axesLength)
                 
                 # Round and display translation vector
                 transVector = numpy.around(transVector, 4)
@@ -150,11 +189,6 @@ with open('reprojError', 'w') as f:
                 
                 print("\nRotation Vector: ", rotVector)
 
-                # Extract rotation matrix
-                rotMat, _ = cv2.Rodrigues(rotVector)
-                #rotMat = rotMat.flatten()
-                print("\nRotation Matrix: ", rotMat)
-                #write.writerow(rotMat)
 
                 #if (roundNr == 0):
                 #    prevRotMat = rotMat
