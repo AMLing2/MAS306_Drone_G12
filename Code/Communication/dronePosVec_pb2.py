@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x11\x64ronePosVec.proto\x12\x0b\x64ronePosVec\"\xb5\x01\n\rdronePosition\x12,\n\ndeviceType\x18\x01 \x01(\x0e\x32\x18.dronePosVec.dataDevices\x12\x14\n\x08position\x18\x02 \x03(\x02\x42\x02\x10\x01\x12\x17\n\x0bpositionDot\x18\x03 \x03(\x02\x42\x02\x10\x01\x12\x16\n\nmatrixSize\x18\x04 \x03(\rB\x02\x10\x01\x12\x15\n\trotMatrix\x18\x05 \x03(\x02\x42\x02\x10\x01\x12\x18\n\x0crotMatrixDot\x18\x06 \x03(\x02\x42\x02\x10\x01*<\n\x0b\x64\x61taDevices\x12\x0b\n\x07IMUonly\x10\x00\x12\x0e\n\nCameraOnly\x10\x01\x12\x10\n\x0cKalmanFilter\x10\x02\x62\x06proto3'
+  serialized_pb=b'\n\x11\x64ronePosVec.proto\x12\x0b\x64ronePosVec\"\xb5\x01\n\rdronePosition\x12,\n\ndeviceType\x18\x01 \x01(\x0e\x32\x18.dronePosVec.dataDevices\x12\x14\n\x08position\x18\x02 \x03(\x02\x42\x02\x10\x01\x12\x17\n\x0bpositionDot\x18\x03 \x03(\x02\x42\x02\x10\x01\x12\x16\n\nmatrixSize\x18\x04 \x03(\rB\x02\x10\x01\x12\x15\n\trotMatrix\x18\x05 \x03(\x02\x42\x02\x10\x01\x12\x18\n\x0crotMatrixDot\x18\x06 \x03(\x02\x42\x02\x10\x01\"R\n\x0c\x64roneControl\x12\x0f\n\x07motorFL\x18\x01 \x01(\x02\x12\x0f\n\x07motorFR\x18\x02 \x01(\x02\x12\x0f\n\x07motorBL\x18\x03 \x01(\x02\x12\x0f\n\x07motorBR\x18\x04 \x01(\x02\"B\n\rdataTransfers\x12\n\n\x02ID\x18\x01 \x01(\x05\x12\x0b\n\x03msg\x18\x02 \x01(\t\x12\n\n\x02IP\x18\x03 \x01(\t\x12\x0c\n\x04port\x18\x04 \x01(\r*<\n\x0b\x64\x61taDevices\x12\x0b\n\x07IMUonly\x10\x00\x12\x0e\n\nCameraOnly\x10\x01\x12\x10\n\x0cKalmanFilter\x10\x02\x62\x06proto3'
 )
 
 _DATADEVICES = _descriptor.EnumDescriptor(
@@ -48,8 +48,8 @@ _DATADEVICES = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=218,
-  serialized_end=278,
+  serialized_start=370,
+  serialized_end=430,
 )
 _sym_db.RegisterEnumDescriptor(_DATADEVICES)
 
@@ -126,8 +126,116 @@ _DRONEPOSITION = _descriptor.Descriptor(
   serialized_end=216,
 )
 
+
+_DRONECONTROL = _descriptor.Descriptor(
+  name='droneControl',
+  full_name='dronePosVec.droneControl',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='motorFL', full_name='dronePosVec.droneControl.motorFL', index=0,
+      number=1, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='motorFR', full_name='dronePosVec.droneControl.motorFR', index=1,
+      number=2, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='motorBL', full_name='dronePosVec.droneControl.motorBL', index=2,
+      number=3, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='motorBR', full_name='dronePosVec.droneControl.motorBR', index=3,
+      number=4, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=218,
+  serialized_end=300,
+)
+
+
+_DATATRANSFERS = _descriptor.Descriptor(
+  name='dataTransfers',
+  full_name='dronePosVec.dataTransfers',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='ID', full_name='dronePosVec.dataTransfers.ID', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='msg', full_name='dronePosVec.dataTransfers.msg', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='IP', full_name='dronePosVec.dataTransfers.IP', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='port', full_name='dronePosVec.dataTransfers.port', index=3,
+      number=4, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=302,
+  serialized_end=368,
+)
+
 _DRONEPOSITION.fields_by_name['deviceType'].enum_type = _DATADEVICES
 DESCRIPTOR.message_types_by_name['dronePosition'] = _DRONEPOSITION
+DESCRIPTOR.message_types_by_name['droneControl'] = _DRONECONTROL
+DESCRIPTOR.message_types_by_name['dataTransfers'] = _DATATRANSFERS
 DESCRIPTOR.enum_types_by_name['dataDevices'] = _DATADEVICES
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -137,6 +245,20 @@ dronePosition = _reflection.GeneratedProtocolMessageType('dronePosition', (_mess
   # @@protoc_insertion_point(class_scope:dronePosVec.dronePosition)
   })
 _sym_db.RegisterMessage(dronePosition)
+
+droneControl = _reflection.GeneratedProtocolMessageType('droneControl', (_message.Message,), {
+  'DESCRIPTOR' : _DRONECONTROL,
+  '__module__' : 'dronePosVec_pb2'
+  # @@protoc_insertion_point(class_scope:dronePosVec.droneControl)
+  })
+_sym_db.RegisterMessage(droneControl)
+
+dataTransfers = _reflection.GeneratedProtocolMessageType('dataTransfers', (_message.Message,), {
+  'DESCRIPTOR' : _DATATRANSFERS,
+  '__module__' : 'dronePosVec_pb2'
+  # @@protoc_insertion_point(class_scope:dronePosVec.dataTransfers)
+  })
+_sym_db.RegisterMessage(dataTransfers)
 
 
 _DRONEPOSITION.fields_by_name['position']._options = None

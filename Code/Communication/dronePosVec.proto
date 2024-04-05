@@ -16,6 +16,20 @@ enum dataDevices {
 	CameraOnly = 1;
 	KalmanFilter = 2;
 }
+
+message droneControl{ //this goes from -1 to 1
+	float motorFL = 1;
+	float motorFR = 2;
+	float motorBL = 3;
+	float motorBR = 4;
+}
+
+message dataTransfers{
+	int32 ID = 1;
+	string msg = 2;
+	string IP = 3;
+	uint32 port = 4;
+}
 /*
 message rotationMatrix{
 	repeated float matrix = 1 [packed=true];
