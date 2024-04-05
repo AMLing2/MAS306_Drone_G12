@@ -16,7 +16,7 @@ class ServSocket:
 		self.sockIP = IP
 		self.port = port
 		self.sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM) #unsure if using AF_INET
-		self.sock.bind((self.localIP,self.port))
+		self.sock.bind((self.sockIP,self.port))
 
 	def connect(self,addressPort):
 		self.sock.connect(addressPort)
@@ -24,11 +24,15 @@ class ServSocket:
 	def gethostname(self):
 		self.sock.getsockname()
 
-	def getclient(self):
+	def getclient(self):#before connect
 		return self.sock.recvfrom(self.buffersize)
 
-	def send(self,msg):
-		self.sock.send(msg)		
+	def send(self,msg):#after connect
+		self.sock.send(msg)
+
+	def recv(self):
+		return self.sock.recv(self.buffersize)
+
 
 def DroneServer(q):
 	dServSock = ServSocket(publicIP,20002)
@@ -36,16 +40,32 @@ def DroneServer(q):
 	print("listening to drone input on: " + str(dServSock.sockIP)+":" + str(dServSock.port))
 	try:
 		dServSock.sock.settimeout(10.0) #must be called before recv or it might not work
-		droneAddress = (dServSock.getclient())[1]
+		droneAddress = (dServSock.getclient())[1] # acts similar to sock.listen but for udp i guess
 	except:
 	 	print("timeout 1")
 	if droneAddress == None:
 		print("failed to get data from drone")
+		q.put("fail 1")
 	else:
 		print("drone address: "+str(droneAddress))
-		print("connecting to drone")
+		print("connecting to drone") #this should be in a new client
 		dServSock.connect(droneAddress)
-	q.put("hi")
+		dServSock.send(str.encode("hiii1, listening back"))
+		stringRecv = dServSock.recv()
+		if not stringRecv == None:
+			print("msg recivied:" + str(stringRecv))
+			q.put("success 1")
+		else:
+			q.put("fail 2")
+		i = 0
+		print("starting sending:")
+		while (i <= 10):
+			startT = time.time_ns()
+			dServSock.send(str.encode("asdasd" + str(i)))
+			print(dServSock.recv())
+			i += 1
+			print("time taken: " + str((time.time_ns()-startT)/1000000))
+		print("process done")
 
 def pbInit():
 	dp.deviceType = 0;
@@ -66,11 +86,16 @@ if __name__ == '__main__'	:
 	q = mp.Queue()
 	pDrone = mp.Process(target=DroneServer,args=(q,))
 	pDrone.start()
-	time.sleep(15)
+	time.sleep(25)
 	print(q.get())
 	print("closing drone server process")
 	print("time: " + str(time.time() - time_start))
 	pDrone.join()
+
+
+
+
+
 
 if False: #remove later, used as block comment
 	pbstring = pbInit()
