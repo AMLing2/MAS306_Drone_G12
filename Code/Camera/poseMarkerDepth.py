@@ -54,7 +54,7 @@ print("\nDistortion Coefficients\n", distortionCoefficients)
 
 # Set dictionary for the markers
 arucoParams     = aruco.DetectorParameters()
-arucoDictionary = aruco.getPredefinedDictionary(aruco.DICT_APRILTAG_16h5)
+arucoDictionary = aruco.getPredefinedDictionary(aruco.DICT_5X5_50)
 
 # Setup configuration and start pipeline stream
 pipe = rs.pipeline()
@@ -109,11 +109,11 @@ yawPitchRoll = yaw @ pitch @ roll
 rotVectors = []
 transVectors = []
 reprojError = 0
-angleError = 0
+#angleError = 0
 
 round = 0
 
-with open('angleError', 'w') as f:
+with open('angleErrorDeltas', 'w') as f:
 
     # Set writing variable for simplicity
     write = csv.writer(f)
@@ -152,14 +152,14 @@ with open('angleError', 'w') as f:
                 #print("\nCornerMarker: ", markerCorner)
 
                 # SolvePnPGeneric for extracting all possible vectors
-                if (round < 25):
+                if (roundNr < 25):
                     retVal, rotVectors, transVectors, reprojError = cv2.solvePnPGeneric(
-                    markerPoints, markerCorner, cameraMatrix, distortionCoefficients, rvecs=rotVectors, tvecs=transVectors, reprojectionError=reprojError)
+                        markerPoints, markerCorner, cameraMatrix, distortionCoefficients, rvecs=rotVectors, tvecs=transVectors, reprojectionError=reprojError)
                 else:
                     print("\n------------ 25 has passed --------")
                     retVal, rotVectors, transVectors, reprojError = cv2.solvePnPGeneric(
-                    markerPoints, markerCorner, cameraMatrix, distortionCoefficients, rvecs=rotVectors, tvecs=transVectors, reprojectionError=reprojError,
-                    useExtrinsicGuess=True, flags=cv2.SOLVEPNP_ITERATIVE, rvec=rotVector, tvec=transVector)
+                        markerPoints, markerCorner, cameraMatrix, distortionCoefficients, rvecs=rotVectors, tvecs=transVectors, reprojectionError=reprojError,
+                        useExtrinsicGuess=False, flags=cv2.SOLVEPNP_IPPE_SQUARE, rvec=rotVector, tvec=transVector)
 
                 print("\nRotation Vectors: ", rotVectors)
                 print("\nTranslation Vectors: ", transVectors)
@@ -168,45 +168,35 @@ with open('angleError', 'w') as f:
                 rotVector = rotVectors[0]
                 transVector = transVectors[0]
 
-                if round > 5:
+                if len(rotVectors) > 1:
+                    # Extract prevous vector (SINGLE)
                     prevRotMat, _ = cv2.Rodrigues(prevRotVector)
-                    rotMat, _ = cv2.Rodrigues(rotVector)
-                    rotMatDiff = numpy.dot(prevRotMat, rotMat.T) # previously rotMatDiff
-                    #rotMatDiffSum = R[0,1] + R[0,2] + R[1,0] + R[1,2] + R[2,0] + R[2,1]
-                    #write.writerow([rotMatDiffSum, rotMatDiffSum])
-                    #if rotMatDiffSum > 0.001:
-                    #    rotVector = prevRotVector
-                     #   print("\nDifference in rotmat: ", sum(rotMatDiffSum))
-                    angleError = numpy.rad2deg(numpy.arccos((numpy.trace(rotMatDiff)-1)/2))
-                    write.writerow([angleError, angleError])
 
-                #if angleError > pi: # degrees
-                #    rotVector = prevRotVector
+                    # delta Rotation 0
+                    rotMat0, _ = cv2.Rodrigues(rotVectors[0])
+                    rotMatDiff0 = numpy.dot(prevRotMat, rotMat0.T) # previously rotMatDiff
+                    rotVecDiff0, _ = cv2.Rodrigues(rotMatDiff0)
+                    # delta Rotation 1
+                    rotMat1, _ = cv2.Rodrigues(rotVectors[1])
+                    rotMatDiff1 = numpy.dot(prevRotMat, rotMat1.T) # previously rotMatDiff
+                    rotVecDiff1, _ = cv2.Rodrigues(rotMatDiff1)
+                    
+                    # Angles between current solutions and prevous vector
+                    angleError0 = numpy.linalg.norm(rotVecDiff0)
+                    angleError1 = numpy.linalg.norm(rotVecDiff1)
 
-                ## Extract rotation matrix
-                #rotMat, _ = cv2.Rodrigues(rotVector)
-                ##rotMat = rotMat.flatten()
-                #print("\nRotation Matrix: ", rotMat)
-                #write.writerow(rotMat)
-#
-                #z_axis = rotMat[:, 2]
-#
-                ## Check the sign of the Z-axis
-                #if (z_axis[1] > 0) and round < 5:
-                #    print("\nUpside Down!")
-                #    #rotVector = prevRotVector
-                #elif z_axis[1] < 0:
-                #    print("\nRight side up!")
-#
-                # Flip if flip                
-#                if (numpy.linalg.det(rotMat)):
-#                    R = rotMat @ yawPitchRoll
-#                    rotVector, _ = cv2.Rodrigues(R)
-                
+                    if angleError0 < angleError1:
+                        rotVector = rotVectors[0]
+                        print("\nTwo solutions, chose 0")
+                    else:
+                        rotVector = rotVectors[1]
+                        print("\nTwo solutions, chose 1")
+                    
+                    #angleError = numpy.rad2deg(numpy.arccos((numpy.trace(rotMatDiff)-1)/2))
+                    #write.writerow([angleError, angleError])
+
                 #print("\nRotation Vectors length: ", len(rotVectors))
                 print("\nReprojection Error: ", reprojError)
-
-                #write.writerow([reprojError, reprojError])
 
                 # Draw marker axes
                 cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
@@ -215,60 +205,11 @@ with open('angleError', 'w') as f:
                 # Round and display translation vector
                 transVector = numpy.around(transVector, 4)
                 print("\nTranslation Vector: ", transVector)
-                
-                print("\nRotation Vector: ", rotVector)
+                print("\nRotation Vector: ", rotVector) # Rotation vector
 
-
-                #if (roundNr == 0):
-                #    prevRotMat = rotMat
-                #else:
-                #    #rotDiff = rotMat . rotMat^rotVector
-                #    rotDiff = numpy.dot(prevRotMat, numpy.transpose(rotMat))
-                #    cv2.Rodrigues(rotDiff, rVecDiff)
-                #    diffAngle = numpy.linalg.norm(rVecDiff)
-                #    write.writerow(numpy.array([diffAngle]))
-                #    print("\ndiffAngle: ", diffAngle)
-                #    #print("\nRotDiff: ", rotDiff)
-                #    if (diffAngle > pi):
-                #        rotVector = prevRotVector
-
-#                # Extract depth in all corner pixel coords
-#                depthCorners = numpy.array([
-#                    depth_image.item(int(topLeft[1]),         int(topLeft[0])),
-#                    depth_image.item(int(topRight[1]),       int(topRight[0])),
-#                    depth_image.item(int(bottomRight[1]), int(bottomRight[0])),
-#                    depth_image.item(int(bottomLeft[1]),   int(bottomLeft[0]))
-#                ])
-#                print("\ndepthCorners: ", depthCorners)
-#
-#                a = numpy.array([topLeft[1], topLeft[0], depthCorners[0]])
-#                b = numpy.array([bottomLeft[1], bottomLeft[0], depthCorners[3]])
-#                c = numpy.array([topRight[1], topRight[0], depthCorners[1]])
-#
-#                ab = b - a
-#                ac = c - a
-#                n = numpy.cross(ab,ac)
-#                print("\nNormal Vector: ", n)
-#
-#                for corner in corners:
-#                    x = int(corner[0])
-#                    y = int(corner[1])
-#                    depth = depth_image[y, x] / 1000.0 + 0.00001
-#                    if(depth != 0):
-#                        X = (x - cx) * depth / fx
-#                        Y = (y - cy) * depth / fy
-#                        
-#                        
-#                #        Z = computeZ(n, d, X, Y)
-#                        
-#                #        all_depth_points = all_depth_points + [[X, Y, Z]]
-#
-#                cv2.solvePnPRefineLM(points3D, corners, cameraMatrix=cameraMatrix, 
-#                                     distCoeffs=distortionCoefficients, rvec=rotVector, tvec=transVector)
-#
-#                # Draw marker axes
-#                cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
-#                                distCoeffs=distortionCoefficients, rvec=rotVector, tvec=transVector, length=axesLength)
+                # Draw marker axes
+                cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
+                                distCoeffs=distortionCoefficients, rvec=rotVector, tvec=transVector, length=axesLength)
                 
                 # Print Current marker ID
                 print("\nCurrent ID: ", markerID)
@@ -293,6 +234,8 @@ with open('angleError', 'w') as f:
                 # Print Depth
                 print("Depth Distance: ", depthDist)
 
+                prevRotVector = rotVector
+
         # Depth Stream: Add color map
         depth_image = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.15), cv2.COLORMAP_TURBO)
 
@@ -301,7 +244,6 @@ with open('angleError', 'w') as f:
         cv2.imshow('ColorStream', color_image)
 
         roundNr = roundNr+1
-        prevRotVector = rotVector
 
         # Loop breaker
         pressedKey = cv2.waitKey(1)
@@ -309,9 +251,6 @@ with open('angleError', 'w') as f:
             break
         elif pressedKey == ord('p'):    # Press P to pause
             cv2.waitKey(-1)
-
-        round = round+1
-        prevRotVector = rotVector
 
 pipe.stop()             # Stop recording
 cv2.destroyAllWindows() # Free resources 
