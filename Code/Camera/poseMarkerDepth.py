@@ -4,6 +4,7 @@ import cv2.aruco as aruco # For simplification
 import pyrealsense2 as rs
 import numpy
 import csv
+import time
 # --------------------------------------- Libraries ---------------------------------------
 
 # ------------------- Constant variables for simple changes -------------------
@@ -14,14 +15,8 @@ fps = 60             # pixels
 cColor = (0, 0, 120) # bgr
 cThick = 1           # pixels
 
-# Subpixel detection variables
-iterStop = 30
-cornerTolerance = 0.001
-criteria = ( (cv2.TERM_CRITERIA_EPS + cv2.TermCriteria_MAX_ITER), iterStop, cornerTolerance)
-winSize = (11, 11)      # OpenCV: "Size(5,5) , then a (5*2+1)x(5*2+1) = 11×11"
-zeroZone = (-1, -1)     # Deadzone to avoid singularities. (-1,-1) = turned off
-
-markerSize = 0.05 # Length of ArUco marker sides [m]
+# Physical marker sizes
+markerSize = 0.05 # Marker sides [m]
 markerPoints = numpy.array([[-markerSize / 2, markerSize / 2, 0],
                               [markerSize / 2, markerSize / 2, 0],
                               [markerSize / 2, -markerSize / 2, 0],
@@ -65,17 +60,18 @@ config.enable_stream(rs.stream.depth, screenWidth, screenHeight, rs.format.z16, 
 #config.enable_stream(rs.stream.infrared, screenWidth, screenHeight, rs.format.y8, fps) # (streamType, xRes, yRes, format, fps)
 pipe.start(config)
 
-roundNr = 0
 rotVectors = []
 transVectors = []
 reprojError = 0
 
-with open('reprojErrors', 'w') as f:
+with open('frameTimer', 'w') as f:
 
     # Set writing variable for simplicity
     write = csv.writer(f)
 
     while(True):
+
+        startTime = time.perf_counter()
         
         # Frame Collection
         frame = pipe.wait_for_frames()          # collect frames from camera (depth, color, etc)
@@ -98,48 +94,26 @@ with open('reprojErrors', 'w') as f:
             # Iterate through list of markers
             for (markerCorner, markerID) in zip(corners, ids):
 
-
-                #cv2.cornerSubPix(gray, markerCorner, winSize, zeroZone, criteria) # Actually better w/o subpixel coords
-
-                # Pose reading
-                #rotVector, transVector, markerPoints = aruco.estimatePoseSingleMarkers(
-                #    markerCorner, markerSize, cameraMatrix=cameraMatrix, distCoeffs=distortionCoefficients)
-                #print("\nCornerMarker: ", markerCorner)
-
-
                 # SolvePnPGeneric for extracting all possible vectors
-                if (roundNr < 1):
-                    retVal, rotVectors, transVectors, reprojError = cv2.solvePnPGeneric(
-                        markerPoints, markerCorner, cameraMatrix, distortionCoefficients, rvecs=rotVectors, tvecs=transVectors, reprojectionError=reprojError)
-                else:
-                    print("\n------------ 1 has passed --------")
-                    retVal, rotVectors, transVectors, reprojError = cv2.solvePnPGeneric(
-                        markerPoints, markerCorner, cameraMatrix, distortionCoefficients, rvecs=rotVectors, tvecs=transVectors, reprojectionError=reprojError,
-                        useExtrinsicGuess=False, flags=cv2.SOLVEPNP_IPPE, rvec=rotVector, tvec=transVector)
+                retVal, rotVectors, transVectors, reprojError = cv2.solvePnPGeneric(
+                    markerPoints, markerCorner, cameraMatrix, distortionCoefficients, rvecs=rotVectors, tvecs=transVectors, reprojectionError=reprojError,
+                    useExtrinsicGuess=False, flags=cv2.SOLVEPNP_IPPE)
 
+                # Print current vectors
                 print("\nRotation Vectors: ", rotVectors)
                 print("\nTranslation Vectors: ", transVectors)
 
-                # Extract guess
-                rotVector = rotVectors[0]
-                transVector = transVectors[0]
-
-                #print("\nRotation Vectors length: ", len(rotVectors))
+                # Reprojection Error Logging
                 print("\nReprojection Error: ", reprojError)
-                write.writerow(reprojError)
+                #write.writerow(reprojError)
 
                 # Draw marker axes
                 cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
-                                distCoeffs=distortionCoefficients, rvec=rotVector, tvec=transVector, length=axesLength)
-                
-                # Round and display translation vector
-                transVector = numpy.around(transVector, 4)
-                print("\nTranslation Vector: ", transVector)
-                print("\nRotation Vector: ", rotVector) # Rotation vector
+                                distCoeffs=distortionCoefficients, rvec=rotVectors[0], tvec=transVectors[0], length=axesLength)
 
                 # Draw marker axes
                 cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
-                                distCoeffs=distortionCoefficients, rvec=rotVector, tvec=transVector, length=axesLength)
+                                distCoeffs=distortionCoefficients, rvec=rotVectors[0], tvec=transVectors[0], length=axesLength)
                 
                 # Print Current marker ID
                 print("\nCurrent ID: ", markerID)
@@ -155,17 +129,8 @@ with open('reprojErrors', 'w') as f:
                 # Extract depth distance at middle of marker
                 depthDist = depth_image.item(avgCorner_y, avgCorner_x)
 
-                # Display crosshair on Depth Stream
-                    # Horizontal
-                cv2.line(depth_image, (0, avgCorner_y), (screenWidth, avgCorner_y), cColor, cThick)
-                    # Vertical
-                cv2.line(depth_image, (avgCorner_x, 0), (avgCorner_x, screenHeight,), cColor, cThick)
-
                 # Print Depth
                 print("Depth Distance: ", depthDist)
-
-                prevRotVector = rotVector
-                roundNr = roundNr+1
 
         # Depth Stream: Add color map
         depth_image = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.15), cv2.COLORMAP_TURBO)
@@ -181,5 +146,10 @@ with open('reprojErrors', 'w') as f:
         elif pressedKey == ord('p'):    # Press P to pause
             cv2.waitKey(-1)
 
+        endTime = time.perf_counter()
+        diffTime = endTime - startTime
+        print("\nThis frame [seconds]: ", diffTime)
+        write.writerow([diffTime, diffTime])
+
 pipe.stop()             # Stop recording
-cv2.destroyAllWindows() # Free resources 
+cv2.destroyAllWindows() # Free resources
