@@ -3,7 +3,6 @@ import cv2
 import cv2.aruco as aruco # For simplification
 import pyrealsense2 as rs
 import numpy
-import csv
 import time
 # --------------------------------------- Libraries ---------------------------------------
 
@@ -64,92 +63,90 @@ rotVectors = []
 transVectors = []
 reprojError = 0
 
-with open('frameTimer', 'w') as f:
+while(True):
 
-    # Set writing variable for simplicity
-    write = csv.writer(f)
+    startTime = time.time_ns()
+    
+    # Frame Collection
+    frame = pipe.wait_for_frames()          # collect frames from camera (depth, color, etc)
+    
+    # Color Stream
+    color_frame = frame.get_color_frame()                  # Extract Color frame
+    color_image = numpy.asanyarray(color_frame.get_data()) # Convert to NumPy array
 
-    while(True):
+    # Depth Stream
+    depth_frame = frame.get_depth_frame()    # Extract Depth frame
+    depth_image = numpy.asanyarray(depth_frame.get_data()) # Convert to NumPy array
 
-        startTime = time.time_ns()
+    # Marker Identification
+    gray = cv2.cvtColor(color_image, cv2.COLOR_BGR2GRAY)   # Grayscale image
+    corners, ids, rejectedImagePoints = aruco.detectMarkers(gray, arucoDictionary, parameters=arucoParams)
+
+    # Is marker detected?
+    if len(corners) > 0:
         
-        # Frame Collection
-        frame = pipe.wait_for_frames()          # collect frames from camera (depth, color, etc)
-        
-        # Color Stream
-        color_frame = frame.get_color_frame()                  # Extract Color frame
-        color_image = numpy.asanyarray(color_frame.get_data()) # Convert to NumPy array
+        # Iterate through list of markers
+        for (markerCorner, markerID) in zip(corners, ids):
 
-        # Depth Stream
-        depth_frame = frame.get_depth_frame()    # Extract Depth frame
-        depth_image = numpy.asanyarray(depth_frame.get_data()) # Convert to NumPy array
+            # SolvePnPGeneric for extracting all possible vectors
+            retVal, rotVectors, transVectors, reprojError = cv2.solvePnPGeneric(
+                markerPoints, markerCorner, cameraMatrix, distortionCoefficients, rvecs=rotVectors, tvecs=transVectors, reprojectionError=reprojError,
+                useExtrinsicGuess=False, flags=cv2.SOLVEPNP_IPPE)
 
-        # Marker Identification
-        gray = cv2.cvtColor(color_image, cv2.COLOR_BGR2GRAY)   # Grayscale image
-        corners, ids, rejectedImagePoints = aruco.detectMarkers(gray, arucoDictionary, parameters=arucoParams)
+            # Print current vectors
+            print("\nRotation Vectors: ", rotVectors)
+            print("\nTranslation Vectors: ", transVectors)
 
-        # Is marker detected?
-        if len(corners) > 0:
+            # Reprojection Error Logging
+            print("\nReprojection Error: ", reprojError)
+            #write.writerow(reprojError)
+
+            # Draw marker axes
+            cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
+                            distCoeffs=distortionCoefficients, rvec=rotVectors[0], tvec=transVectors[0], length=axesLength)
+
+            # Draw marker axes
+            cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
+                            distCoeffs=distortionCoefficients, rvec=rotVectors[0], tvec=transVectors[0], length=axesLength)
             
-            # Iterate through list of markers
-            for (markerCorner, markerID) in zip(corners, ids):
+            # Print Current marker ID
+            print("\nCurrent ID: ", markerID)
 
-                # SolvePnPGeneric for extracting all possible vectors
-                retVal, rotVectors, transVectors, reprojError = cv2.solvePnPGeneric(
-                    markerPoints, markerCorner, cameraMatrix, distortionCoefficients, rvecs=rotVectors, tvecs=transVectors, reprojectionError=reprojError,
-                    useExtrinsicGuess=False, flags=cv2.SOLVEPNP_IPPE)
+            # Extract corners
+            corners = markerCorner.reshape(4,2)
+            (topLeft, topRight, bottomRight, bottomLeft) = corners
 
-                # Print current vectors
-                print("\nRotation Vectors: ", rotVectors)
-                print("\nTranslation Vectors: ", transVectors)
+            # Extract middle of marker
+            avgCorner_x = int((topLeft[0] + topRight[0] + bottomLeft[0] + bottomRight[0])/4)
+            avgCorner_y = int((topLeft[1] + topRight[1] + bottomLeft[1] + bottomRight[1])/4)
 
-                # Reprojection Error Logging
-                print("\nReprojection Error: ", reprojError)
-                #write.writerow(reprojError)
+            # Extract depth distance at middle of marker
+            depthDist = depth_image.item(avgCorner_y, avgCorner_x)
 
-                # Draw marker axes
-                cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
-                                distCoeffs=distortionCoefficients, rvec=rotVectors[0], tvec=transVectors[0], length=axesLength)
+            # Print Depth
+            print("Depth Distance: ", depthDist)
 
-                # Draw marker axes
-                cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
-                                distCoeffs=distortionCoefficients, rvec=rotVectors[0], tvec=transVectors[0], length=axesLength)
-                
-                # Print Current marker ID
-                print("\nCurrent ID: ", markerID)
+    # Depth Stream: Add color map
+    depth_image = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.15), cv2.COLORMAP_TURBO)
 
-                # Extract corners
-                corners = markerCorner.reshape(4,2)
-                (topLeft, topRight, bottomRight, bottomLeft) = corners
+    # Display image
+    cv2.imshow('DepthStream', depth_image)
+    cv2.imshow('ColorStream', color_image)
 
-                # Extract middle of marker
-                avgCorner_x = int((topLeft[0] + topRight[0] + bottomLeft[0] + bottomRight[0])/4)
-                avgCorner_y = int((topLeft[1] + topRight[1] + bottomLeft[1] + bottomRight[1])/4)
+    # Loop breaker
+    pressedKey = cv2.waitKey(1)
+    if pressedKey == ord('q'):      # Press Q to stop
+        break
+    elif pressedKey == ord('p'):    # Press P to pause
+        cv2.waitKey(-1)
 
-                # Extract depth distance at middle of marker
-                depthDist = depth_image.item(avgCorner_y, avgCorner_x)
+    endTime = time.time_ns()
+    diffTime = endTime - startTime
+    print("\nThis frame [ns]: ", diffTime)
+    print("\nTimestamp [ns]: ", startTime)
 
-                # Print Depth
-                print("Depth Distance: ", depthDist)
-
-        # Depth Stream: Add color map
-        depth_image = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.15), cv2.COLORMAP_TURBO)
-
-        # Display image
-        cv2.imshow('DepthStream', depth_image)
-        cv2.imshow('ColorStream', color_image)
-
-        # Loop breaker
-        pressedKey = cv2.waitKey(1)
-        if pressedKey == ord('q'):      # Press Q to stop
-            break
-        elif pressedKey == ord('p'):    # Press P to pause
-            cv2.waitKey(-1)
-
-        endTime = time.time_ns()
-        diffTime = endTime - startTime
-        #print("\nThis frame [seconds]: ", diffTime)
-        write.writerow([diffTime, diffTime])
+    # Variabler for Adrian export:
+        # startTime, rotVectors, transVectors[0], depthDist, markerID
 
 pipe.stop()             # Stop recording
 cv2.destroyAllWindows() # Free resources
