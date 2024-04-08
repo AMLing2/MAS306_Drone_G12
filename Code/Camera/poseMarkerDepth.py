@@ -71,7 +71,7 @@ with open('frameTimer', 'w') as f:
 
     while(True):
 
-        startTime = time.perf_counter()
+        startTime = time.time_ns()
         
         # Frame Collection
         frame = pipe.wait_for_frames()          # collect frames from camera (depth, color, etc)
@@ -146,9 +146,9 @@ with open('frameTimer', 'w') as f:
         elif pressedKey == ord('p'):    # Press P to pause
             cv2.waitKey(-1)
 
-        endTime = time.perf_counter()
+        endTime = time.time_ns()
         diffTime = endTime - startTime
-        print("\nThis frame [seconds]: ", diffTime)
+        #print("\nThis frame [seconds]: ", diffTime)
         write.writerow([diffTime, diffTime])
 
 pipe.stop()             # Stop recording
