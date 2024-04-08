@@ -4,8 +4,6 @@ import cv2.aruco as aruco # For simplification
 import pyrealsense2 as rs
 import numpy
 import csv
-from math import pi
-from numpy import sin, cos
 # --------------------------------------- Libraries ---------------------------------------
 
 # ------------------- Constant variables for simple changes -------------------
@@ -68,52 +66,11 @@ config.enable_stream(rs.stream.depth, screenWidth, screenHeight, rs.format.z16, 
 pipe.start(config)
 
 roundNr = 0
-
-#rotVector = numpy.array([0.0, 0.0, 0.0])
-#rVecDiff = rotVector
-
-#br = 0.027
-#points3D = numpy.asarray([
-#    [-br,  br, 0.0],
-#    [-br, -br, 0.0],
-#    [ br,  br, 0.0],
-#    [ br, -br, 0.0]
-#])
-
-# Angles [radians]
-a = pi/2
-b = pi
-c = 0
-
-# Rotation Matrix
-yaw = numpy.array([
-    [cos(a), -sin(a), 0],
-    [sin(a),  cos(a), 0],
-    [0,         0,    1]
-])
-
-pitch = numpy.array([
-    [cos(b), 0, sin(b)],
-    [0, 1, 0],
-    [-sin(b), 0, cos(b)]
-])
-
-roll = numpy.array([
-    [1, 0, 0],
-    [0, cos(c), -sin(c)],
-    [0, sin(c), cos(c)]
-])
-
-yawPitchRoll = yaw @ pitch @ roll
-
 rotVectors = []
 transVectors = []
 reprojError = 0
-#angleError = 0
 
-round = 0
-
-with open('angleErrorDeltas', 'w') as f:
+with open('reprojErrors', 'w') as f:
 
     # Set writing variable for simplicity
     write = csv.writer(f)
@@ -134,8 +91,6 @@ with open('angleErrorDeltas', 'w') as f:
         # Marker Identification
         gray = cv2.cvtColor(color_image, cv2.COLOR_BGR2GRAY)   # Grayscale image
         corners, ids, rejectedImagePoints = aruco.detectMarkers(gray, arucoDictionary, parameters=arucoParams)
-        
-        #print("\nCorners: ", corners)
 
         # Is marker detected?
         if len(corners) > 0:
@@ -143,13 +98,14 @@ with open('angleErrorDeltas', 'w') as f:
             # Iterate through list of markers
             for (markerCorner, markerID) in zip(corners, ids):
 
+
                 #cv2.cornerSubPix(gray, markerCorner, winSize, zeroZone, criteria) # Actually better w/o subpixel coords
 
                 # Pose reading
-#                rotVector, transVector, markerPoints = aruco.estimatePoseSingleMarkers(
-#                    markerCorner, markerSize, cameraMatrix=cameraMatrix, distCoeffs=distortionCoefficients)
-        
+                #rotVector, transVector, markerPoints = aruco.estimatePoseSingleMarkers(
+                #    markerCorner, markerSize, cameraMatrix=cameraMatrix, distCoeffs=distortionCoefficients)
                 #print("\nCornerMarker: ", markerCorner)
+
 
                 # SolvePnPGeneric for extracting all possible vectors
                 if (roundNr < 25):
@@ -159,7 +115,7 @@ with open('angleErrorDeltas', 'w') as f:
                     print("\n------------ 25 has passed --------")
                     retVal, rotVectors, transVectors, reprojError = cv2.solvePnPGeneric(
                         markerPoints, markerCorner, cameraMatrix, distortionCoefficients, rvecs=rotVectors, tvecs=transVectors, reprojectionError=reprojError,
-                        useExtrinsicGuess=False, flags=cv2.SOLVEPNP_IPPE_SQUARE, rvec=rotVector, tvec=transVector)
+                        useExtrinsicGuess=False, flags=cv2.SOLVEPNP_IPPE, rvec=rotVector, tvec=transVector)
 
                 print("\nRotation Vectors: ", rotVectors)
                 print("\nTranslation Vectors: ", transVectors)
@@ -168,35 +124,9 @@ with open('angleErrorDeltas', 'w') as f:
                 rotVector = rotVectors[0]
                 transVector = transVectors[0]
 
-                if len(rotVectors) > 1:
-                    # Extract prevous vector (SINGLE)
-                    prevRotMat, _ = cv2.Rodrigues(prevRotVector)
-
-                    # delta Rotation 0
-                    rotMat0, _ = cv2.Rodrigues(rotVectors[0])
-                    rotMatDiff0 = numpy.dot(prevRotMat, rotMat0.T) # previously rotMatDiff
-                    rotVecDiff0, _ = cv2.Rodrigues(rotMatDiff0)
-                    # delta Rotation 1
-                    rotMat1, _ = cv2.Rodrigues(rotVectors[1])
-                    rotMatDiff1 = numpy.dot(prevRotMat, rotMat1.T) # previously rotMatDiff
-                    rotVecDiff1, _ = cv2.Rodrigues(rotMatDiff1)
-                    
-                    # Angles between current solutions and prevous vector
-                    angleError0 = numpy.linalg.norm(rotVecDiff0)
-                    angleError1 = numpy.linalg.norm(rotVecDiff1)
-
-                    if angleError0 < angleError1:
-                        rotVector = rotVectors[0]
-                        print("\nTwo solutions, chose 0")
-                    else:
-                        rotVector = rotVectors[1]
-                        print("\nTwo solutions, chose 1")
-                    
-                    #angleError = numpy.rad2deg(numpy.arccos((numpy.trace(rotMatDiff)-1)/2))
-                    #write.writerow([angleError, angleError])
-
                 #print("\nRotation Vectors length: ", len(rotVectors))
                 print("\nReprojection Error: ", reprojError)
+                write.writerow(reprojError)
 
                 # Draw marker axes
                 cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
@@ -217,7 +147,7 @@ with open('angleErrorDeltas', 'w') as f:
                 # Extract corners
                 corners = markerCorner.reshape(4,2)
                 (topLeft, topRight, bottomRight, bottomLeft) = corners
-                
+
                 # Extract middle of marker
                 avgCorner_x = int((topLeft[0] + topRight[0] + bottomLeft[0] + bottomRight[0])/4)
                 avgCorner_y = int((topLeft[1] + topRight[1] + bottomLeft[1] + bottomRight[1])/4)
