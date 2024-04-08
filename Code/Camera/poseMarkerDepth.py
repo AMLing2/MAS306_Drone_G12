@@ -108,14 +108,14 @@ with open('reprojErrors', 'w') as f:
 
 
                 # SolvePnPGeneric for extracting all possible vectors
-                if (roundNr < 25):
+                if (roundNr < 1):
                     retVal, rotVectors, transVectors, reprojError = cv2.solvePnPGeneric(
                         markerPoints, markerCorner, cameraMatrix, distortionCoefficients, rvecs=rotVectors, tvecs=transVectors, reprojectionError=reprojError)
                 else:
-                    print("\n------------ 25 has passed --------")
+                    print("\n------------ 1 has passed --------")
                     retVal, rotVectors, transVectors, reprojError = cv2.solvePnPGeneric(
                         markerPoints, markerCorner, cameraMatrix, distortionCoefficients, rvecs=rotVectors, tvecs=transVectors, reprojectionError=reprojError,
-                        useExtrinsicGuess=False, flags=cv2.SOLVEPNP_IPPE, rvec=rotVector, tvec=transVector)
+                        useExtrinsicGuess=True, flags=cv2.SOLVEPNP_ITERATIVE, rvec=rotVector, tvec=transVector)
 
                 print("\nRotation Vectors: ", rotVectors)
                 print("\nTranslation Vectors: ", transVectors)
@@ -165,6 +165,7 @@ with open('reprojErrors', 'w') as f:
                 print("Depth Distance: ", depthDist)
 
                 prevRotVector = rotVector
+                roundNr = roundNr+1
 
         # Depth Stream: Add color map
         depth_image = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.15), cv2.COLORMAP_TURBO)
@@ -172,8 +173,6 @@ with open('reprojErrors', 'w') as f:
         # Display image
         cv2.imshow('DepthStream', depth_image)
         cv2.imshow('ColorStream', color_image)
-
-        roundNr = roundNr+1
 
         # Loop breaker
         pressedKey = cv2.waitKey(1)
