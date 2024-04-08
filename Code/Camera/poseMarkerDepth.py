@@ -115,7 +115,7 @@ with open('reprojErrors', 'w') as f:
                     print("\n------------ 1 has passed --------")
                     retVal, rotVectors, transVectors, reprojError = cv2.solvePnPGeneric(
                         markerPoints, markerCorner, cameraMatrix, distortionCoefficients, rvecs=rotVectors, tvecs=transVectors, reprojectionError=reprojError,
-                        useExtrinsicGuess=True, flags=cv2.SOLVEPNP_ITERATIVE, rvec=rotVector, tvec=transVector)
+                        useExtrinsicGuess=False, flags=cv2.SOLVEPNP_IPPE, rvec=rotVector, tvec=transVector)
 
                 print("\nRotation Vectors: ", rotVectors)
                 print("\nTranslation Vectors: ", transVectors)
