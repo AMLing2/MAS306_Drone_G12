@@ -58,7 +58,7 @@ for dict in dictList:
     dictionary = aruco.getPredefinedDictionary(dict)
 
     # Import recording for each dictionary
-    recording = cv2.VideoCapture('recordingPostDepthTest.avi')
+    recording = cv2.VideoCapture('dictTestArena2.avi')
 
     while(recording.isOpened()):
 

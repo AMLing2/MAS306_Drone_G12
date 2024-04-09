@@ -12,11 +12,14 @@ dp = dronePosVec_pb2.dronePosition()
 
 class ServSocket:
 	buffersize = 1024
+	droneAddress = None
+
 	def __init__(self,IP,port):
 		self.sockIP = IP
 		self.port = port
 		self.sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM) #unsure if using AF_INET
 		self.sock.bind((self.sockIP,self.port))
+		self.globalTimer = time.time_ns() #system timer is set here
 
 	def connect(self,addressPort):
 		self.sock.connect(addressPort)
@@ -32,31 +35,51 @@ class ServSocket:
 
 	def recv(self):
 		return self.sock.recv(self.buffersize)
+	
+	def droneConnect(self):
+		print("listening to drone input on: " + str(self.sockIP)+":" + str(self.port))
+		self.sock.settimeout(10.0) #must be called before recv or it might not work
+		try:
+			self.droneAddress = (self.getclient())[1] # acts similar to sock.listen but for udp i guess
+		except:
+			print("timeout 1")
+			return 1
+		if self.droneAddress == None:
+			print("failed to get data from drone")
+			return 2
+		else:
+			print("drone address: "+str(self.droneAddress))
+			print("connecting to drone") #this should be in a new client
+			self.connect(self.droneAddress)
+			self.send(str.encode("connection established, listening back"))
+
+			stringRecv = self.recv() #bad maybe
+			if not stringRecv == None:
+				print("msg recivied:" + str(stringRecv)) #sucess
+			else:
+				return 3
+
+		return 0 # 0 = successfull
+
+	def cTimerSync(self): #sync client's timer to global
+		print("starting client timer sync process")
+		self.send(self.globalTimer.to_bytes(8,'big')) #64 bits, big endian, maybe use protobuf?
+		syncInterval = 10000000 #10ms
+		expectedResponse =  time_ns() + syncInterval - ((time.time_ns() - globalTimer) % syncInterval)
+		clientRespone = self.recv()
+		offset = clientResponse - expectedResponse
+		print("client - server timer offset: " + str(offset))
+		self.send(offset.to_bytes(8,'big'))
 
 
 def DroneServer(q):
 	dServSock = ServSocket(publicIP,20002)
-	droneAddress = None
-	print("listening to drone input on: " + str(dServSock.sockIP)+":" + str(dServSock.port))
-	try:
-		dServSock.sock.settimeout(10.0) #must be called before recv or it might not work
-		droneAddress = (dServSock.getclient())[1] # acts similar to sock.listen but for udp i guess
-	except:
-	 	print("timeout 1")
-	if droneAddress == None:
-		print("failed to get data from drone")
-		q.put("fail 1")
-	else:
-		print("drone address: "+str(droneAddress))
-		print("connecting to drone") #this should be in a new client
-		dServSock.connect(droneAddress)
-		dServSock.send(str.encode("hiii1, listening back"))
-		stringRecv = dServSock.recv()
-		if not stringRecv == None:
-			print("msg recivied:" + str(stringRecv))
-			q.put("success 1")
-		else:
-			q.put("fail 2")
+	print(dServSock.droneConnect())
+	#for i in range(3) #add in future maybe
+		#if not connectError == 0:
+
+
+	if False: #block comment
 		i = 0
 		print("starting sending:")
 		while (i <= 10):
@@ -65,7 +88,10 @@ def DroneServer(q):
 			print(dServSock.recv())
 			i += 1
 			print("time taken: " + str((time.time_ns()-startT)/1000000))
-		print("process done")
+
+	if q.empty():
+		q.put(0)
+	print("process done")
 
 def pbInit():
 	dp.deviceType = 0;
@@ -86,6 +112,7 @@ if __name__ == '__main__'	:
 	q = mp.Queue()
 	pDrone = mp.Process(target=DroneServer,args=(q,))
 	pDrone.start()
+	print("starting sleep")
 	time.sleep(25)
 	print(q.get())
 	print("closing drone server process")

@@ -25,11 +25,20 @@ message droneControl{ //this goes from -1 to 1
 }
 
 message dataTransfers{
-	int32 ID = 1;
-	string msg = 2;
-	string IP = 3;
-	uint32 port = 4;
+	int32 ID = 1; //useless?
+	transferType type = 3;
+	string msg = 4;
+	int64 timeSync_ns = 5;
+	string IP = 6;
+	uint32 port = 7;
 }
+
+enum transferType {
+	timeSync = 0;
+	socketInfo = 1;
+	stateChange = 2;
+}
+
 /*
 message rotationMatrix{
 	repeated float matrix = 1 [packed=true];

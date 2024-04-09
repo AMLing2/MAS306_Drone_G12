@@ -61,13 +61,13 @@ for dict in dictList:
 
     # Start new recording
     vidNr += 1
-    resultVid = cv2.VideoWriter(f'resultsDictTestArena1_{vidNr}.avi', fourcc, fps, (w,h))
+    resultVid = cv2.VideoWriter(f'resultsDictTestArena2_{vidNr}.avi', fourcc, fps, (w,h))
 
     # Fetch current dictionary
     dictionary = aruco.getPredefinedDictionary(dict)
 
     # Import recording
-    recording = cv2.VideoCapture('dictTestArena1.avi')
+    recording = cv2.VideoCapture('dictTestArena2.avi')
 
     while(recording.isOpened()):
         

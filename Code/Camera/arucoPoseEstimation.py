@@ -29,7 +29,6 @@ markerSize = 0.05 # Length of ArUco marker sides [m]
 #     [613.037048339844,          0,         429.841949462891],    # [f_x, 0.0, c_x] used principal points 
 #     [  0,               612.738342285156,  237.866897583008],    # [0.0, f_y, c_y] as optical center points
 #     [  0,                       0,                1.0      ] ])  # [0.0, 0.0, 1.0]
-
 distortionCoefficients = numpy.array(
     [ 0.0, 0.0, 0.0, 0.0, 0.0]) # [k1, k2, p1, p2, k3]
 
@@ -78,10 +77,6 @@ while(True):
             
             cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
                             distCoeffs=distortionCoefficients, rvec=rotVector, tvec=transVector, length=axesLength)
-            
-            # magnitude = numpy.linalg.norm(transVector)
-            # magnitude = round(magnitude, 4)
-            # print("\nMagnitude: ", magnitude)
             
             transVector = numpy.around(transVector, 4)
 

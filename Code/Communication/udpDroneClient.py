@@ -2,8 +2,9 @@ import dronePosVec_pb2
 import socket
 import time
 import numpy as np
-from threading import Thread
+import threading as tr
 import queue
+import multiprocessing as mp
 
 localIP = "127.0.0.1"
 localPort = 20001
@@ -11,8 +12,13 @@ dp = dronePosVec_pb2.dronePosition()
 dt = dronePosVec_pb2.dataTransfers()
 
 class ClientSocket:
+	motorRead = 0 #would be better as an enum, gives method to break thread externally
+	imuSend = 0 
+	globalTimer = 0
+	timerOffset = 0 #unsure how good this is
 	buffersize = 1024
-	def __init__(self):
+	def __init__(self,serverAddress):
+		self.serverAddress = serverAddress
 		self.sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM) #unsure if using AF_INET
 		#self.sock.bind((localIP,localPort))
 
@@ -33,6 +39,33 @@ class ClientSocket:
 
 	def recv(self):
 		return self.sock.recv(self.buffersize)
+
+	def dserverConnect(self):
+		stringRecv = None
+		for i in range(10):
+			self.initSend(self.serverAddress,pbstring) #pbstring should be more local
+			try:
+				self.sock.settimeout(3.0)
+				stringRecv = self.initRecv() #inital send
+				print("string recieved: " + str(stringRecv))
+			except:
+				print("timeout, retrying " + str(i))
+			if not stringRecv == None:
+			 break
+		if stringRecv == None:
+			return 1 #failure to send
+		print("connecting to:" + str(stringRecv[1]))
+		self.connect(stringRecv[1])
+		self.send(pbstring) #connection msg
+		return 0 #sucess
+
+	def sSyncTimer(): #sync local timer from server
+		syncInterval = 10000000 #10ms
+		time.sleep_ns(syncInterval - ((time.time_ns() - globalTimer) % syncInterval) #sleep until sync time
+		responseTime = time.time_ns()
+		self.send(responseTime.to_bytes(8,'big'))
+		self.offset = self.recv() #decode from bytes to int
+
 
 def pbInit():
 	dt.ID = 2 #2 = drone
@@ -55,61 +88,66 @@ def motorListen(droneSocket,qMotor):
 	print("motorListen thread up")
 	droneSocket.sock.settimeout(None)
 	while(True):
-		try:
-			qMotor.put(droneSocket.recv())
-		except:
-			print("motor reciever timed out")
-			qMotor.put(0)
+		if droneSocket.motorRead == 2:
 			break
+		elif droneSocket.motorRead == 1:	#temporary								 
+			try:
+				droneSocket.sock.settimeout(3.0)
+				print(droneSocket.recv()) # do something with this, put in queue
+				droneSocket.motorRead = 0 #?
+			except:
+				print("motor reciever timed out")
+	print("motorListen thread done")
 
 def sendIMU(droneSocket):
 	print("sendIMU thread up")
 	while(True):
-		msgString = pbData()
-		droneSocket.send(msgString)
+		if droneSocket.imuSend == 2:
+			break
+		elif droneSocket.imuSend == 1: #temporary, should be more in thread only
+			droneSocket.imuSend = 0 #?
+			msgString = pbData()
+			droneSocket.send(msgString)
+			#time.sleep(1) #delete maybe
+	print("sendIMU thread done")
 
 #-----------------MAIN----------------@
-pbstring = pbInit()
-droneSocket = ClientSocket()
+if __name__ == '__main__':
+	pbstring = pbInit()
+	serverAddress = ("128.39.200.239",20002)
+	#serverAddress = ("b12.uia.no",20002)
+	droneSocket = ClientSocket(serverAddress)
+	connError = droneSocket.dserverConnect()
+	print(connError)
+	if connError == 0: #replace maybe
+		qMotor = mp.Queue(5)
 
-serverAddress = ("128.39.200.239",20002)
-i = 0
-stringRecv = None
-while(True):
-	droneSocket.initSend(serverAddress,pbstring)
-	try:
-		droneSocket.sock.settimeout(3.0)
-		stringRecv = droneSocket.initRecv()
-		print("string recieved: " + str(stringRecv))
-	except:
-		print("timeout, retrying " + str(i))
-		i += 1
-	if not stringRecv == None:
-	 break
+		tMotorRecv = tr.Thread(target=motorListen, args=(droneSocket,qMotor))
+		tIMUsend = tr.Thread(target = sendIMU, args=(droneSocket,))
+		tMotorRecv.run()
+		tIMUsend.run()
 
-print("connecting to:" + str(stringRecv[1]))
-droneSocket.connect(stringRecv[1])
-droneSocket.send(pbstring)
-qMotor = queue.Queue(5)
+		droneSocket.imuSend = 1
+		time.sleep(1)
+		droneSocket.motorRead = 1
+		time.sleep(1)
+		droneSOcket.imuSend = 2
+		droneSocket.motorRead = 2
 
-tMotorRecv = Thread(target=motorListen, args=((droneSocket,qMotor)))
-tIMUsend = Thread(target = sendIMU, args=(droneSocket,))
-tMotorRecv.run()
-tIMUsend.run()
-print("sleeping")
-i = 0
-while(i<=30):
-	print(qMotor.get())
-	time.sleep(1)
-	i += 1
-print("joining threads")
-tMotorRecv.join()
-tIMUsend.join()
+# print("sleeping")
+# i = 0
+#	while(i<=30):
+#		print(qMotor.get())
+#		time.sleep(1)
+#		i += 1
+#	print("joining threads")
+		tMotorRecv.join()
+		tIMUsend.join()
 
-if False:	
-	print("echoing")
-	droneSocket.sock.settimeout(10)
-	while(True):
-		msg = droneSocket.recv()
-		print("recieved: " + str(msg))
-		droneSocket.send(str.encode("Recv: " + str(msg)))
+		if False:	 #block comment
+			print("echoing")
+			droneSocket.sock.settimeout(10)
+			while(True):
+				msg = droneSocket.recv()
+				print("recieved: " + str(msg))
+				droneSocket.send(str.encode("Recv: " + str(msg)))
