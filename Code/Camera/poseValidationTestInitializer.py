@@ -3,7 +3,9 @@ import cv2
 import cv2.aruco as aruco # For simplification
 import pyrealsense2 as rs
 import numpy
+from numpy import sin, cos
 import time
+from math import pi
 # --------------------------------------- Libraries ---------------------------------------
 
 # ------------------- Constant variables for simple changes -------------------
@@ -11,11 +13,42 @@ axesLength = 0.1
 screenHeight = 480   # pixels
 screenWidth = 848    # pixels
 fps = 60             # pixels
-cColor = (0, 0, 120) # bgr
-cThick = 1           # pixels
+tolerance = 5 # degrees
+
+# Angles [radians]
+a = pi/2
+b = pi/8
+c = pi/8
+
+# Rotation Matrix
+yaw = numpy.array([
+    [cos(a), -sin(a), 0],
+    [sin(a),  cos(a), 0],
+    [0,         0,    1]
+])
+
+pitch = numpy.array([
+    [cos(b), 0, sin(b)],
+    [0, 1, 0],
+    [-sin(b), 0, cos(b)]
+])
+
+roll = numpy.array([
+    [1, 0, 0],
+    [0, cos(c), -sin(c)],
+    [0, sin(c), cos(c)]
+])
+rotMatUpsideDown = yaw
+rotMatUpsideDown = numpy.array([
+    [-1.0, 0.0, 0.0],
+    [ 0.0, 1.0, 0.0],
+    [ 0.0, 0.0,-1.0]
+])
+rotVecUpsideDown, _ = cv2.Rodrigues(rotMatUpsideDown)
+
 
 # Physical marker sizes
-markerSize = 0.05 # Marker sides [m]
+markerSize = 0.167 # Marker sides [m]
 markerPoints = numpy.array([[-markerSize / 2, markerSize / 2, 0],
                               [markerSize / 2, markerSize / 2, 0],
                               [markerSize / 2, -markerSize / 2, 0],
@@ -54,9 +87,7 @@ config = rs.config()
 
 # Color Stream
 config.enable_stream(rs.stream.color, screenWidth, screenHeight, rs.format.bgr8, fps) # (streamType, xRes, yRes, format, fps)
-# Depth Stream
-config.enable_stream(rs.stream.depth, screenWidth, screenHeight, rs.format.z16, fps) # (streamType, xRes, yRes, format, fps)
-#config.enable_stream(rs.stream.infrared, screenWidth, screenHeight, rs.format.y8, fps) # (streamType, xRes, yRes, format, fps)
+
 pipe.start(config)
 
 rotVectors = []
@@ -73,10 +104,6 @@ while(True):
     # Color Stream
     color_frame = frame.get_color_frame()                  # Extract Color frame
     color_image = numpy.asanyarray(color_frame.get_data()) # Convert to NumPy array
-
-    # Depth Stream
-    depth_frame = frame.get_depth_frame()    # Extract Depth frame
-    depth_image = numpy.asanyarray(depth_frame.get_data()) # Convert to NumPy array
 
     # Marker Identification
     gray = cv2.cvtColor(color_image, cv2.COLOR_BGR2GRAY)   # Grayscale image
@@ -95,15 +122,7 @@ while(True):
 
             # Print current vectors
             print("\nRotation Vectors: ", rotVectors)
-            print("\nTranslation Vectors: ", transVectors)
-
-            # Reprojection Error Logging
-            print("\nReprojection Error: ", reprojError)
-            #write.writerow(reprojError)
-
-            # Draw marker axes
-            cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
-                            distCoeffs=distortionCoefficients, rvec=rotVectors[0], tvec=transVectors[0], length=axesLength)
+            print("\ntransVectors[0]: ", transVectors[0].flatten())
 
             # Draw marker axes
             cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
@@ -111,26 +130,20 @@ while(True):
             
             # Print Current marker ID
             print("\nCurrent ID: ", markerID)
+        
+            # 
+            curRotMat, _ = cv2.Rodrigues(rotVectors[0])
+            print("\nCurrent Rotmat: ", curRotMat)
+            rotMatDiff = numpy.dot(curRotMat, rotMatUpsideDown.T)
+            rotVecDiff, _ = cv2.Rodrigues(rotMatDiff)
+            diffAngle = numpy.rad2deg(numpy.linalg.norm(rotVecDiff))
 
-            # Extract corners
-            corners = markerCorner.reshape(4,2)
-            (topLeft, topRight, bottomRight, bottomLeft) = corners
+            print("\nDiffAngle: ", diffAngle)
 
-            # Extract middle of marker
-            avgCorner_x = int((topLeft[0] + topRight[0] + bottomLeft[0] + bottomRight[0])/4)
-            avgCorner_y = int((topLeft[1] + topRight[1] + bottomLeft[1] + bottomRight[1])/4)
-
-            # Extract depth distance at middle of marker
-            depthDist = depth_image.item(avgCorner_y, avgCorner_x)
-
-            # Print Depth
-            print("Depth Distance: ", depthDist)
-
-    # Depth Stream: Add color map
-    depth_image = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.15), cv2.COLORMAP_TURBO)
+            if (diffAngle < tolerance):
+                print("\nStop rotating, inside tolerance.")
 
     # Display image
-    cv2.imshow('DepthStream', depth_image)
     cv2.imshow('ColorStream', color_image)
 
     # Loop breaker
