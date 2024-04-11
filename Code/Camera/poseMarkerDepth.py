@@ -142,8 +142,8 @@ while(True):
 
     endTime = time.time_ns()
     diffTime = endTime - startTime
-    print("\nThis frame [ns]: ", diffTime)
-    print("\nTimestamp [ns]: ", startTime)
+    #print("\nThis frame [ns]: ", diffTime)
+    #print("\nTimestamp [ns]: ", startTime)
 
     # Variabler for Adrian export:
         # startTime, rotVectors, transVectors[0], depthDist, markerID
