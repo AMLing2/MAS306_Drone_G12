@@ -30,87 +30,97 @@ async def main(qCam):
 	with open(filename, 'w') as csvfile:
 		csvwriter = csv.writer(csvfile)
 		csvwriter.writerow(fields)
+	global x,y,z
+	global allRotations
+	x = 1
+	y = 2
+	z = 3
+	allRotations = 4
+	# Connect to qtm ----------------------------------------------------------
+	print("connecting to qtm")
+	if False:
+		connection = await qtm.connect("192.168.0.29")
+		print("qtm connected")
 
-	i = 1
-		# Connect to qtm ----------------------------------------------------------
-	connection = await qtm.connect("192.168.0.29")
+		# Connection failed?
+		if connection is None:
+				print("Failed to connect")
+				return
 
-    # Connection failed?
-	if connection is None:
-			print("Failed to connect")
-			return
+		# Get 6dof settings from qtm
+		xml_string = await connection.get_parameters(parameters=["6d"])
+		body_index = create_body_index(xml_string)
 
+		# Define which body to extract ----------------------------------------------
+		wanted_body = "drone"
 
-	# Get 6dof settings from qtm
-	xml_string = await connection.get_parameters(parameters=["6d"])
-	body_index = create_body_index(xml_string)
-
-
-	# Define which body to extract ----------------------------------------------
-	wanted_body = "drone"
-
-	def on_packet(packet):
-			info, bodies = packet.get_6d()
-			
-			if wanted_body is not None and wanted_body in body_index:
-					# Extract one specific body
-					wanted_index = body_index[wanted_body]
-					position, rotation = bodies[wanted_index]
-					x, y, z = position
-					allRotations = rotation
-					rotation1 = rotation[0][0]
+		def on_packet(packet):
+				global x,y,z
+				global allRotations
+				
+				info, bodies = packet.get_6d()
+				if wanted_body is not None and wanted_body in body_index:
+						# Extract one specific body
+						wanted_index = body_index[wanted_body]
+						position, rotation = bodies[wanted_index]
+						x, y, z = position
+						allRotations = rotation
+						rotation1 = rotation[0][0]
 
 
 
 
-					#print("{} - Pos: {} - Rot: {}".format(wanted_body, position, rotation))
-					#print(f"X: {x}, Y: {y}, Z: {z}")
-					#print(f"Rotation matrix: {allRotations}")
-					print(f"Matrix: {rotation1}")
+						#print("{} - Pos: {} - Rot: {}".format(wanted_body, position, rotation))
+						#print(f"X: {x}, Y: {y}, Z: {z}")
+						#print(f"Rotation matrix: {allRotations}")
+						print(f"Matrix: {rotation1}")
 	
-	def writeCSV():#write to rows
-		qCam.put(i)#saves image at the same time
-		row = [i,x,y,z,allrotations]
-		with open(filename, 'w') as csvfile:
+	async def writeCSV(i):#write to rows
+		#print("csvwrite2")
+		qCam.put(i)#sends queue to save image at the same time
+		row = [i,x,y,z,allRotations]
+		with open(filename, 'a') as csvfile:
 			csvwriter = csv.writer(csvfile)
 			csvwriter.writerow(row)							 
-		i += 1
 			
 	# Start streaming frames
-	await connection.stream_frames(components=["6d"], on_packet=on_packet)
+	#await connection.stream_frames(components=["6d"], on_packet=on_packet)
 	# Wait asynchronously 5 seconds while running writeCSV every 50ms
-	for n in range(100):
-		await asyncio.gather(writeCsv())
-		await asyncio.wait(50)
-	await connection.stream_frames_stop() #stop streaming
+	i = 1
+	while(i <= 100):
+		await writeCSV(i)
+		await asyncio.sleep(0.05)
+		i += 1
+	print("completed, press q to exit")
+	#await connection.stream_frames_stop() #stop streaming
 
 # -------------------Qualisys setup --------------------
 def cameraMethod(qCam):
-# Directory to save video 
+	# Directory to save video 
 	dir = r'/home/thomaz/Recordings/poseValidationTest'
 	os.chdir(dir)
 
-# Four-Character Code (File format)
+	# Four-Character Code (File format)
 	fourcc = cv2.VideoWriter_fourcc(*'MJPG')
 
-# Image Transfer Rate
+	# Image Transfer Rate
 	fps = 60
 
-# Image size [pixels]
+	# Image size [pixels]
 	w = 848 # Width
 	h = 480 # Height
 
-# File Configuraiton for recording
+	# File Configuraiton for recording
 	items = os.listdir(dir)
 	recNum = len(items)
 	recording = cv2.VideoWriter(f'qualisysTest_{recNum}.avi', fourcc, fps, (w,h))
-# ------------------ Recording Setup ------------------
+	# ------------------ Recording Setup ------------------
 
-# Depth Camera connection
+	# Depth Camera connection
 	pipe = rs.pipeline()
 	cfg = rs.config()
 
-# Setup Stream
+	# Setup Stream
 	cfg.enable_stream(rs.stream.color, w, h, rs.format.bgr8, fps) # (streamType, xRes, yRes, format, fps)
 	pipe.start(cfg)
 	
@@ -121,8 +131,9 @@ def cameraMethod(qCam):
 			color_image = numpy.asanyarray(color_frame.get_data())
 
 			# Save frame to file
-			if not qTime.empty():
-					i = qTime.get(block=False)
+			if not qCam.empty():
+					#print("saving frame")
+					i = qCam.get(block=False)
 					recording.write(color_image)
 
 			# Display the current frame
@@ -131,6 +142,9 @@ def cameraMethod(qCam):
 			# Press Q to stop recording
 			if cv2.waitKey(1) == ord('q'):
 					break
+	recording.release()
+	pipe.stop()             # Stop recording
+	cv2.destroyAllWindows() # Free resources
 	print("camera process done")
 
 if __name__ == "__main__":
@@ -144,8 +158,5 @@ if __name__ == "__main__":
 	asyncio.get_event_loop().run_until_complete(main(qCam))
 
 	pCam.join()
-	recording.release()
-	pipe.stop()             # Stop recording
-	cv2.destroyAllWindows() # Free resources
 
 
