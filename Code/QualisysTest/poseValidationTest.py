@@ -2,7 +2,8 @@ import cv2                  # OpenCV
 import pyrealsense2 as rs   # RealSense Wrapper
 import numpy                # Python Math
 import os                   # For path
-
+import csv
+import time
 # ------------------ Recording Setup ------------------
 # Directory to save video 
 dir = r'/home/thomaz/Recordings/poseValidationTest'
@@ -27,19 +28,31 @@ recording = cv2.VideoWriter(f'qualisysTest_{recNum}.avi', fourcc, fps, (w,h))
 # Depth Camera connection
 pipe = rs.pipeline()
 cfg = rs.config()
+#setup csv file
+filename - "cameraTimestamps.csv" 
+fields = ['Frame','Timestamp']
+with open(filename, 'w') as csvfile:
+		csvwriter = csv.writer(csvfile)
+		csvwriter.writerow(fields)
 
 # Setup Stream
 cfg.enable_stream(rs.stream.color, w, h, rs.format.bgr8, fps) # (streamType, xRes, yRes, format, fps)
 pipe.start(cfg)
+n = 1
 
 while(True):
     # Extract and convert frame
     frame = pipe.wait_for_frames() # waits for and collects all frames from camera (depth, color, etc)
-    color_frame = frame.get_color_frame()
+    with open(filename,'a') as csvfile:
+			csvwriter = csv.writer(csvfile)
+			csvwriter.writerow(n,time.time())
+		n += 1
+
+		color_frame = frame.get_color_frame()
     color_image = numpy.asanyarray(color_frame.get_data())
 
     # Save frame to file
-    if saveFrame:
+    if True:
         recording.write(color_image)
 
     # Display the current frame
