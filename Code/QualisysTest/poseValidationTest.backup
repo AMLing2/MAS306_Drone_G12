@@ -23,9 +23,9 @@ def create_body_index(xml_string):
 
     return body_to_index
 
-async def main(qCam,startTime):
+async def main(qCam):
 	#setup csv
-	fields = ['iteration','timestamp','x','y','z','r11','r12','r13','r21','r22','r23','r31','r32','r33']
+	fields = ['iteration','x','y','z','r11','r12','r13','r21','r22','r23','r31','r32','r33']
 	filename = "qualisysOutput.csv"
 	with open(filename, 'w') as csvfile:
 		csvwriter = csv.writer(csvfile)
@@ -78,7 +78,7 @@ async def main(qCam,startTime):
 	async def writeCSV(i):#write to rows
 		#print("csvwrite2")
 		qCam.put(i)#sends queue to save image at the same time
-		row = [i,time.monotonic()-startTime,x,y,z,allRotations]
+		row = [i,x,y,z,allRotations]
 		with open(filename, 'a') as csvfile:
 			csvwriter = csv.writer(csvfile)
 			csvwriter.writerow(row)							 
@@ -95,7 +95,7 @@ async def main(qCam,startTime):
 	#await connection.stream_frames_stop() #stop streaming
 
 # -------------------Qualisys setup --------------------
-def cameraMethod(qCam,startTime):
+def cameraMethod(qCam):
 	
 	fields = ['timestampt']
 	filename = "cameraOutput.csv"
@@ -137,7 +137,7 @@ def cameraMethod(qCam,startTime):
 			cameraTimestamp = time.monotonic()
 			with open(filename, 'a') as csvfile:
 				csvwriter = csv.writer(csvfile)
-				csvwriter.writerow(time.monotonic()-startTime)							 
+				csvwriter.writerow(time.monotonic())							 
 			color_frame = frame.get_color_frame()
 			color_image = numpy.asanyarray(color_frame.get_data())
 
@@ -160,13 +160,12 @@ def cameraMethod(qCam,startTime):
 
 if __name__ == "__main__":
 	
-# ------------------ Recording Setup ------------------a
-	startTime = time.monotonic()
+# ------------------ Recording Setup ------------------
 	qCam = mp.Queue(5)
-	pCam = mp.Process(target=cameraMethod, args=(qCam,startTime,))
+	pCam = mp.Process(target=cameraMethod, args=(qCam,))
 	# Run our asynchronous function until complete
 	pCam.start()
-	asyncio.get_event_loop().run_until_complete(main(qCam,startTime))
+	asyncio.get_event_loop().run_until_complete(main(qCam))
 
 	pCam.join()
 
