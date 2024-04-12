@@ -41,26 +41,26 @@ pipe.start(cfg)
 n = 1
 
 while(True):
-    # Extract and convert frame
-    frame = pipe.wait_for_frames() # waits for and collects all frames from camera (depth, color, etc)
-    with open(filename,'a') as csvfile:
-			csvwriter = csv.writer(csvfile)
-			csvwriter.writerow(n,time.time())
-		n += 1
+	# Extract and convert frame
+	frame = pipe.wait_for_frames() # waits for and collects all frames from camera (depth, color, etc)
+	with open(filename,'a') as csvfile:
+		csvwriter = csv.writer(csvfile)
+		csvwriter.writerow(n,time.time())
+	n += 1
 
-		color_frame = frame.get_color_frame()
-    color_image = numpy.asanyarray(color_frame.get_data())
+	color_frame = frame.get_color_frame()
+	color_image = numpy.asanyarray(color_frame.get_data())
 
-    # Save frame to file
-    if True:
-        recording.write(color_image)
+	# Save frame to file
+	if True:
+		recording.write(color_image)
 
-    # Display the current frame
-    cv2.imshow('LiveReading', color_image)
+	# Display the current frame
+	cv2.imshow('LiveReading', color_image)
 
-    # Press Q to stop recording
-    if cv2.waitKey(1) == ord('q'):
-        break
+	# Press Q to stop recording
+	if cv2.waitKey(1) == ord('q'):
+		break
 
 recording.release()
 pipe.stop()             # Stop recording
