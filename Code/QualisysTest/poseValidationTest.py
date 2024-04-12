@@ -6,7 +6,7 @@ import csv
 import time
 # ------------------ Recording Setup ------------------
 # Directory to save video 
-dir = r'/home/thomaz/Recordings/poseValidationTest'
+dir = r'/home/thomaz/poseValidationTest'
 os.chdir(dir)
 
 # Four-Character Code (File format)
@@ -21,16 +21,19 @@ h = 480 # Height
 
 # File Configuraiton for recording
 items = os.listdir(dir)
-recNum = len(items)
+recNum = round(len(items)/2, None)
 recording = cv2.VideoWriter(f'qualisysTest_{recNum}.avi', fourcc, fps, (w,h))
 # ------------------ Recording Setup ------------------
 
 # Depth Camera connection
 pipe = rs.pipeline()
 cfg = rs.config()
-#setup csv file
-filename - "cameraTimestamps.csv" 
+
+# Setup csv file
+filename = f"cameraTimestamps_{recNum}.csv" 
 fields = ['Frame','Timestamp']
+
+# Column names
 with open(filename, 'w') as csvfile:
 		csvwriter = csv.writer(csvfile)
 		csvwriter.writerow(fields)
@@ -40,27 +43,29 @@ cfg.enable_stream(rs.stream.color, w, h, rs.format.bgr8, fps) # (streamType, xRe
 pipe.start(cfg)
 n = 1
 
-while(True):
-	# Extract and convert frame
-	frame = pipe.wait_for_frames() # waits for and collects all frames from camera (depth, color, etc)
-	with open(filename,'a') as csvfile:
-		csvwriter = csv.writer(csvfile)
-		csvwriter.writerow(n,time.time())
-	n += 1
+with open(filename,'a') as csvfile:
+    # Set writer for loop
+    csvwriter = csv.writer(csvfile)
 
-	color_frame = frame.get_color_frame()
-	color_image = numpy.asanyarray(color_frame.get_data())
+    while(True):
+        # Extract and convert frame
+        frame = pipe.wait_for_frames() # waits for and collects all frames from camera (depth, color, etc)
+        csvwriter.writerow([n,time.time()])
+        n += 1
 
-	# Save frame to file
-	if True:
-		recording.write(color_image)
+        color_frame = frame.get_color_frame()
+        color_image = numpy.asanyarray(color_frame.get_data())
 
-	# Display the current frame
-	cv2.imshow('LiveReading', color_image)
+        # Save frame to file
+        if True:
+            recording.write(color_image)
 
-	# Press Q to stop recording
-	if cv2.waitKey(1) == ord('q'):
-		break
+        # Display the current frame
+        cv2.imshow('LiveReading', color_image)
+
+        # Press Q to stop recording
+        if cv2.waitKey(1) == ord('q'):
+            break
 
 recording.release()
 pipe.stop()             # Stop recording
