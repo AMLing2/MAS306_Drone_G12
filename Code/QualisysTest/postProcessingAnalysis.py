@@ -61,7 +61,7 @@ h = 480 # Height
 # Test number for easy change
 testNr = 6
 
-tolerance = 0.02 # meters
+tolerance = 0.1 # meters
 # ------------------ Import/Export Video Setup ------------------
 
 # Create object for parameters
@@ -80,7 +80,7 @@ reprojError = 0
 loopRound = 1
 markerFrames = 0
 startTime = 0
-last10trans = []
+last10mag = []
 detectedStart = False
 
 # Start new recording
@@ -111,16 +111,32 @@ rotMatQTM = []
 
 # Extract all rows of column 3 to 5 (excluding headers)
 transQTM = [row[3:6] for row in QTMdata[14:]]
-transQTM = numpy.array(transQTM, dtype=float)/1000.0
-#print("\nQTM correct: ", transQTM)
+transQTM = numpy.array(transQTM, dtype=float)/1000.0 # millimeters -> meters
 
 # Measured physical distances from RGB camera to Qualisys L-Frame
-pTransVec = numpy.array([0.177, 0.129, 1.524])
+pTransVec = numpy.array([0.177, 0.129, 1.524])   # meters
 pTransArr = numpy.tile(pTransVec, (len(transQTM), 1))
 
 # Correct translation
 transQTM = pTransArr - transQTM
 print("\nCorrected translation: ", transQTM)
+
+detectedStartQTM = False
+last10magQTM = []
+for i, row in enumerate(transQTM):
+
+    #print("\niteration: ", i)
+    curTransMagQTM = numpy.linalg.norm(transQTM[i])
+
+    last10magQTM.append(curTransMagQTM)
+    if (len(last10magQTM) > 10):
+        last10magQTM.pop(0)
+    print("\nLast10: ", last10magQTM)
+
+    if (not detectedStartQTM) and (len(last10magQTM) == 10) and (abs(curTransMagQTM - last10magQTM[0]) > tolerance):
+        startTimeQTM = QTMdata[i][1]
+        detectedStartQTM = True
+print("\nQTM start time: ", startTimeQTM)
 
 
 while(recording.isOpened()):
@@ -162,9 +178,10 @@ while(recording.isOpened()):
 #            if (len(last10trans) == 10):
 #                print("curMag: ", numpy.linalg.norm(transVectors[0]))
 #                print("prevMag: ", numpy.linalg.norm(last10trans[0]))
+            curTransMag = numpy.linalg.norm(transVectors[0])
 
 
-            if (not detectedStart) and (len(last10trans) == 10) and (abs(numpy.linalg.norm(last10trans[0]) - numpy.linalg.norm(transVectors[0])) > tolerance):
+            if (not detectedStart) and (len(last10mag) == 10) and (abs(last10mag[0] - curTransMag) > tolerance):
                 #print("loopRound: ", loopRound)
                 startTime = timestampOpenCV[loopRound][1]
                 print("LoopRound: ", loopRound)
@@ -172,9 +189,9 @@ while(recording.isOpened()):
                 detectedStart = True
 
             # 
-            last10trans.append(transVectors[0])
-            if (len(last10trans) > 10):
-                last10trans.pop(0)
+            last10mag.append(curTransMag)
+            if (len(last10mag) > 10):
+                last10mag.pop(0)
 
 #            prevTransVec = transVectors[0]
             markerFrames += 1
@@ -190,6 +207,7 @@ while(recording.isOpened()):
         break
 
     loopRound += 1
+    print("\nStartOpen: ", startTime)
 
 # Release playback after each dictionary
 recording.release()
