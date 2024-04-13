@@ -57,11 +57,17 @@ roll = numpy.array([
 
 yawPitchRoll = yaw @ pitch @ roll
 
+yawPitchRoll = numpy.array([
+    [-1, 0, 0],
+    [0, 1, 0],
+    [0, 0, -1]
+])
+
 # ------------------- Constant variables for simple changes -------------------
 
 # Set dictionary for the markers
 arucoParams     = aruco.DetectorParameters()
-arucoDictionary = aruco.getPredefinedDictionary(aruco.DICT_6X6_50)
+arucoDictionary = aruco.getPredefinedDictionary(aruco.DICT_5X5_50)
 
 # Setup configuration and start pipeline stream
 pipe = rs.pipeline()
@@ -112,8 +118,8 @@ while(True):
             print("rotVector: ", rotVector)
 
             # Draw marker axes
-            cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
-                            distCoeffs=distortionCoefficients, rvec=rotVector, tvec=transVector, length=axesLength)
+            #cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
+            #                distCoeffs=distortionCoefficients, rvec=rotVector, tvec=transVector, length=axesLength)
             
             # Draw rotated axes
             cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,

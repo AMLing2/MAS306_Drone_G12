@@ -98,31 +98,36 @@ for row in timestampReader:
 
 print("timestamps: ", timestampOpenCV[0])
 
-# Import data from Qualisys
+# ------------ Qualisys Data ---------------
+### Import data from Qualisys ###
 fileQTM = open(f'qualisysData_{testNr}.tsv')
 QTMreader = csv.reader(fileQTM, delimiter="\t")
 QTMdata = []
 for row in QTMreader:
     QTMdata.append(row)
 
-# Extract translation and rotation
-transVectorsQTM = []
-rotMatQTM = []
-
-# Extract all rows of column 3 to 5 (excluding headers)
+#### Translation ####
+# Extract all rows of columns 3 to 5 (excluding headers)
 transQTM = [row[3:6] for row in QTMdata[14:]]
 transQTM = numpy.array(transQTM, dtype=float)/1000.0 # millimeters -> meters
 
 # Measured physical distances from RGB camera to Qualisys L-Frame
-pTransVec = numpy.array([0.177, 0.129, 1.524])   # meters
+pTransVec = numpy.array([0.192, 0.144, 1.564])   # meters
 pTransArr = numpy.tile(pTransVec, (len(transQTM), 1))
 
 # Correct translation
 transQTM = pTransArr - transQTM
-print("\nCorrected translation: ", transQTM)
+#print("\nCorrected translation: ", transQTM)
 
+#### Start Detection ####
 detectedStartQTM = False
 last10magQTM = []
+
+# Time list
+timeQTM = [row[1] for row in QTMdata[14:]]
+iterQTM = [row[0] for row in QTMdata[14:]]
+
+# Find start time
 for i, row in enumerate(transQTM):
 
     #print("\niteration: ", i)
@@ -131,12 +136,49 @@ for i, row in enumerate(transQTM):
     last10magQTM.append(curTransMagQTM)
     if (len(last10magQTM) > 10):
         last10magQTM.pop(0)
-    print("\nLast10: ", last10magQTM)
+    #print("\nLast10: ", last10magQTM)
 
     if (not detectedStartQTM) and (len(last10magQTM) == 10) and (abs(curTransMagQTM - last10magQTM[0]) > tolerance):
-        startTimeQTM = QTMdata[i][1]
+        print("i from loop: ", i)
+        startTimeQTM = timeQTM[i]
+        startIterQTM = iterQTM[i] # used?
         detectedStartQTM = True
 print("\nQTM start time: ", startTimeQTM)
+print("\nQTM iter start: ", startIterQTM)
+
+# Convert from strings
+timeQTM = [float(element) for element in timeQTM]
+#print("\ntimeQTM: ", timeQTM)
+
+# Difference list -------> starts @ 1 not 0 <--------
+dTimeQTM = [timeQTM[i]-timeQTM[i-1] for i in range(1, len(timeQTM))]
+#print("\ndTimeQTM: ", dTimeQTM)
+
+#print("\nLen: ", len(timeQTM))
+#print("\nLenDiff: ", len(dTimeQTM))
+
+
+
+#### Rotation ####
+# Extract all rows of columns 10 to 18 (excluding headers)
+rotElementsQTM = [row[10:19] for row in QTMdata[14:]]
+print("\nRotmatQTM: ", rotElementsQTM)
+rotElementsQTM = [[float(element) for element in sublist] for sublist in rotElementsQTM]
+
+# Rotation Matrix for relating frames: Qualisys -> D435
+rotMatQTM2OpenCV = numpy.array([
+    [-1.0, 0.0,  0.0],
+    [ 0.0, 1.0,  0.0],
+    [ 0.0, 0.0, -1.0]
+])
+
+# Convert to new form and relate to D435 frame
+rotMatQTM = []
+for row in rotElementsQTM:
+    matrix = numpy.array(row).reshape(3,3)
+    matrix = matrix @ rotMatQTM2OpenCV # Convert orientation
+    rotMatQTM.append(matrix)
+# ------------ Qualisys Data ---------------
 
 
 while(recording.isOpened()):
@@ -180,6 +222,7 @@ while(recording.isOpened()):
             if (not detectedStart) and (len(last10mag) == 10) and (abs(last10mag[0] - curTransMag) > tolerance):
                 #print("loopRound: ", loopRound)
                 startTime = timestampOpenCV[loopRound][1]
+                startIter = timestampOpenCV[loopRound][0]
                 print("LoopRound: ", loopRound)
                 print("start time: ", startTime)
                 detectedStart = True
