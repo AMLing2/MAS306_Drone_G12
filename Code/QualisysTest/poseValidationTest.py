@@ -46,11 +46,11 @@ n = 1
 with open(filename,'a') as csvfile:
     # Set writer for loop
     csvwriter = csv.writer(csvfile)
-
+    startTime = time.monotonic()
     while(True):
         # Extract and convert frame
         frame = pipe.wait_for_frames() # waits for and collects all frames from camera (depth, color, etc)
-        csvwriter.writerow([n,time.time()])
+        csvwriter.writerow([n,time.monotonic()-startTime])
         n += 1
 
         color_frame = frame.get_color_frame()
