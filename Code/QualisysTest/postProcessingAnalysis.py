@@ -59,7 +59,7 @@ w = 848 # Width
 h = 480 # Height
 
 # Test number for easy change
-testNr = 6
+testNr = 12
 
 tolerance = 0.1 # meters
 # ------------------ Import/Export Video Setup ------------------
@@ -165,7 +165,7 @@ while(recording.isOpened()):
 
             # Print current vectors
 #            print("\nRotation Vectors: ", rotVectors)
-            print("\nTranslation Vectors: ", transVectors)
+#            print("\nTranslation Vectors: ", transVectors)
 
             # Draw marker axes
             cv2.drawFrameAxes(frame, cameraMatrix=cameraMatrix,
@@ -174,12 +174,8 @@ while(recording.isOpened()):
             # Print Current marker ID
 #            print("\nCurrent ID: ", markerID)
 
-            # Check for start movement
-#            if (len(last10trans) == 10):
-#                print("curMag: ", numpy.linalg.norm(transVectors[0]))
-#                print("prevMag: ", numpy.linalg.norm(last10trans[0]))
+            # Save current magnitude
             curTransMag = numpy.linalg.norm(transVectors[0])
-
 
             if (not detectedStart) and (len(last10mag) == 10) and (abs(last10mag[0] - curTransMag) > tolerance):
                 #print("loopRound: ", loopRound)
@@ -188,13 +184,10 @@ while(recording.isOpened()):
                 print("start time: ", startTime)
                 detectedStart = True
 
-            # 
+            # Save last 10 frames magnitude
             last10mag.append(curTransMag)
             if (len(last10mag) > 10):
                 last10mag.pop(0)
-
-#            prevTransVec = transVectors[0]
-            markerFrames += 1
 
         # Display the current frame
         cv2.imshow('Playback', frame)  # Display the current frame
@@ -207,7 +200,9 @@ while(recording.isOpened()):
         break
 
     loopRound += 1
-    print("\nStartOpen: ", startTime)
+
+print("\nStartOpen: ", startTime)
+print("\nStartQTM: ", startTimeQTM)
 
 # Release playback after each dictionary
 recording.release()
