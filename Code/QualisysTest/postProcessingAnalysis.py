@@ -4,6 +4,7 @@ import cv2.aruco as aruco   # Simplification
 import os                   # Check file-extension
 import numpy                # Python Math
 import csv                  # Data import
+#import pandas
 # --------------------------------------- Libraries ---------------------------------------
 
 # ------------------- Constant variables for simple changes -------------------
@@ -58,7 +59,7 @@ w = 848 # Width
 h = 480 # Height
 
 # Test number for easy change
-testNr = 4
+testNr = 6
 
 tolerance = 0.02 # meters
 # ------------------ Import/Export Video Setup ------------------
@@ -98,7 +99,28 @@ for row in timestampReader:
 print("timestamps: ", timestampOpenCV[0])
 
 # Import data from Qualisys
-    # [                         TBA                         ]
+fileQTM = open(f'qualisysData_{testNr}.tsv')
+QTMreader = csv.reader(fileQTM, delimiter="\t")
+QTMdata = []
+for row in QTMreader:
+    QTMdata.append(row)
+
+# Extract translation and rotation
+transVectorsQTM = []
+rotMatQTM = []
+
+# Extract all rows of column 3 to 5 (excluding headers)
+transQTM = [row[3:6] for row in QTMdata[14:]]
+transQTM = numpy.array(transQTM, dtype=float)/1000.0
+#print("\nQTM correct: ", transQTM)
+
+# Measured physical distances from RGB camera to Qualisys L-Frame
+pTransVec = numpy.array([0.177, 0.129, 1.524])
+pTransArr = numpy.tile(pTransVec, (len(transQTM), 1))
+
+# Correct translation
+transQTM = pTransArr - transQTM
+print("\nCorrected translation: ", transQTM)
 
 
 while(recording.isOpened()):
@@ -127,11 +149,7 @@ while(recording.isOpened()):
 
             # Print current vectors
 #            print("\nRotation Vectors: ", rotVectors)
-#            print("\nTranslation Vectors: ", transVectors)
-
-            # Reprojection Error Logging
-#            print("\nReprojection Error: ", reprojError)
-            #write.writerow(reprojError)
+            print("\nTranslation Vectors: ", transVectors)
 
             # Draw marker axes
             cv2.drawFrameAxes(frame, cameraMatrix=cameraMatrix,
@@ -172,7 +190,6 @@ while(recording.isOpened()):
         break
 
     loopRound += 1
-    print("startTime: ", startTime)
 
 # Release playback after each dictionary
 recording.release()
