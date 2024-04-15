@@ -153,6 +153,8 @@ for i, row in enumerate(transQTM):
         detectedStartQTM = True
 print("\nQTM start time: ", startTimeQTM)
 print("\nQTM iter start: ", startIterQTM)
+# Start value to be changed
+correctTimeQTM = startTimeQTM
 
 # Convert from strings
 #timeQTM = [float(element) for element in timeQTM]
@@ -248,17 +250,32 @@ while(recording.isOpened()):
             #print("\nRange(len())", range(len(timeQTM)))
             if detectedStart:
                 for i in range(len(timeQTM)):
-                    iTimeQTM = timeQTM[i] - startTimeQTM
-                    iPrevTimeQTM = timeQTM[i-1] - startTimeQTM
-    #                nextIterTimeQTM = timeQTM[i+1] - startTimeQTM
-                    if ( abs(iTimeQTM-curTime) > abs(iPrevTimeQTM-curTime) ):
-                        correctTime = iTimeQTM
-                        correctIter = i
-                    else:
-                        correctTime = iPrevTimeQTM
-                        correctIter = i-1
-                print("\nCV time: ", curTime)
-                print("\nQTM time: ", correctTime)
+                    #iTimeQTM = timeQTM[i] - startTimeQTM
+                    #iPrevTimeQTM = timeQTM[i-1] - startTimeQTM
+    #               # nextIterTimeQTM = timeQTM[i+1] - startTimeQTM
+                    #if ( abs(iTimeQTM-curTime) < abs(iPrevTimeQTM-curTime) ):
+                    #    correctTime = iTimeQTM
+                    #    correctIter = i
+                    #else:
+                    #    correctTime = iPrevTimeQTM
+                    ##    correctIter = i-1
+                    #curTimeQTM = (timeQTM[i-1] - startTimeQTM)
+                    #curDiff = curTime - curTimeQTM
+                    ##prevTimeQTM = (timeQTM[i] - startTimeQTM)
+                    ##prevDiff = curTime - prevTimeQTM
+                    #if   (i > 0) and (curDiff < prevDiff):
+                    #    correctTimeQTM = curTimeQTM
+                    #elif (i > 0) and (curDiff > prevDiff):
+                    #    correctTimeQTM = correctTimeQTM
+                    #prevDiff = curDiff
+                    #print("\nLoop iterator range: ", i)
+                    if (0 < ((timeQTM[i] - startTimeQTM) - curTime)):
+                        correctTimeQTM = timeQTM[i]
+                        break
+
+                print("\nCurrent Time: ", curTime)
+                print("\nOpenCV Time: ", timestampOpenCV[loopRound])
+                print("\nQTM Time: ", correctTimeQTM)
                     
 
         # Display the current frame
