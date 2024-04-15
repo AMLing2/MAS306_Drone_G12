@@ -1,1 +1,1 @@
-/usr/bin/c++ CMakeFiles/test.dir/src/test.cpp.o -o test 
+/usr/bin/c++ CMakeFiles/test.dir/src/test.cpp.o -o test  /usr/lib/x86_64-linux-gnu/libprotobuf.so /usr/lib/x86_64-linux-gnu/libprotobuf-lite.so 
