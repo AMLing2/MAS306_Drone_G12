@@ -92,6 +92,8 @@ test_EXTERNAL_OBJECTS =
 
 test: CMakeFiles/test.dir/src/test.cpp.o
 test: CMakeFiles/test.dir/build.make
+test: /usr/lib/x86_64-linux-gnu/libprotobuf.so
+test: /usr/lib/x86_64-linux-gnu/libprotobuf-lite.so
 test: CMakeFiles/test.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable test"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/test.dir/link.txt --verbose=$(VERBOSE)
