@@ -60,7 +60,7 @@ EQUALS = =
 CMAKE_SOURCE_DIR = /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer
+CMAKE_BINARY_DIR = /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -132,9 +132,9 @@ install/strip/fast: preinstall/fast
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/CMakeFiles /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build/CMakeFiles /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -162,41 +162,41 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named arenaServer
+# Target rules for targets named test
 
 # Build rule for target.
-arenaServer: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 arenaServer
-.PHONY : arenaServer
+test: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test
+.PHONY : test
 
 # fast build rule for target.
-arenaServer/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/arenaServer.dir/build.make CMakeFiles/arenaServer.dir/build
-.PHONY : arenaServer/fast
+test/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/build
+.PHONY : test/fast
 
-src/arenaServer.o: src/arenaServer.cpp.o
-.PHONY : src/arenaServer.o
+src/test.o: src/test.cpp.o
+.PHONY : src/test.o
 
 # target to build an object file
-src/arenaServer.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/arenaServer.dir/build.make CMakeFiles/arenaServer.dir/src/arenaServer.cpp.o
-.PHONY : src/arenaServer.cpp.o
+src/test.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/test.cpp.o
+.PHONY : src/test.cpp.o
 
-src/arenaServer.i: src/arenaServer.cpp.i
-.PHONY : src/arenaServer.i
+src/test.i: src/test.cpp.i
+.PHONY : src/test.i
 
 # target to preprocess a source file
-src/arenaServer.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/arenaServer.dir/build.make CMakeFiles/arenaServer.dir/src/arenaServer.cpp.i
-.PHONY : src/arenaServer.cpp.i
+src/test.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/test.cpp.i
+.PHONY : src/test.cpp.i
 
-src/arenaServer.s: src/arenaServer.cpp.s
-.PHONY : src/arenaServer.s
+src/test.s: src/test.cpp.s
+.PHONY : src/test.s
 
 # target to generate assembly for a file
-src/arenaServer.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/arenaServer.dir/build.make CMakeFiles/arenaServer.dir/src/arenaServer.cpp.s
-.PHONY : src/arenaServer.cpp.s
+src/test.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/test.cpp.s
+.PHONY : src/test.cpp.s
 
 # Help Target
 help:
@@ -210,10 +210,10 @@ help:
 	@echo "... install/strip"
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
-	@echo "... arenaServer"
-	@echo "... src/arenaServer.o"
-	@echo "... src/arenaServer.i"
-	@echo "... src/arenaServer.s"
+	@echo "... test"
+	@echo "... src/test.o"
+	@echo "... src/test.i"
+	@echo "... src/test.s"
 .PHONY : help
 
 

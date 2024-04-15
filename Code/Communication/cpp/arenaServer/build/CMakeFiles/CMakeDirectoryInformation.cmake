@@ -3,7 +3,7 @@
 
 # Relative path conversion top directories.
 set(CMAKE_RELATIVE_PATH_TOP_SOURCE "/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer")
-set(CMAKE_RELATIVE_PATH_TOP_BINARY "/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer")
+set(CMAKE_RELATIVE_PATH_TOP_BINARY "/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build")
 
 # Force unix paths in dependencies.
 set(CMAKE_FORCE_UNIX_PATHS 1)

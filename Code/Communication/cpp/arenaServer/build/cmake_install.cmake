@@ -43,17 +43,17 @@ if(NOT DEFINED CMAKE_OBJDUMP)
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/arenaServer/arenaServer" AND
-     NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/arenaServer/arenaServer")
+  if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/arenaServer/test" AND
+     NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/arenaServer/test")
     file(RPATH_CHECK
-         FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/arenaServer/arenaServer"
+         FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/arenaServer/test"
          RPATH "")
   endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/arenaServer" TYPE EXECUTABLE FILES "/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/arenaServer")
-  if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/arenaServer/arenaServer" AND
-     NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/arenaServer/arenaServer")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/arenaServer" TYPE EXECUTABLE FILES "/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build/test")
+  if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/arenaServer/test" AND
+     NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/arenaServer/test")
     if(CMAKE_INSTALL_DO_STRIP)
-      execute_process(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/arenaServer/arenaServer")
+      execute_process(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/arenaServer/test")
     endif()
   endif()
 endif()
@@ -66,5 +66,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
