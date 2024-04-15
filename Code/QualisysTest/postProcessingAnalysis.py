@@ -91,12 +91,18 @@ recording = cv2.VideoCapture(f'qualisysTest_{testNr}.avi')
 
 # Import timestamps from D435 recording
 fileOpenCV = open(f'cameraTimestamps_{testNr}.csv')
-timestampReader = csv.reader(fileOpenCV)
-timestampOpenCV = []
-for row in timestampReader:
-    timestampOpenCV.append(row)
+dataOpenCVreader = csv.reader(fileOpenCV)
+dataOpenCV = []
+for row in dataOpenCVreader:
+    dataOpenCV.append(row)
 
-print("timestamps: ", timestampOpenCV[0])
+timestampOpenCV = [row[1] for row in dataOpenCV[1:]]
+timestampOpenCV = numpy.array(timestampOpenCV, dtype=float)
+iterOpenCV = [row[0] for row in dataOpenCV[1:]]
+iterOpenCV = numpy.array(iterOpenCV, dtype=int)
+
+#print("\ndataOpenCV: ", dataOpenCV)
+print("\nTimestampsOpenCV: ", timestampOpenCV)
 
 # ------------ Qualisys Data ---------------
 ### Import data from Qualisys ###
@@ -125,7 +131,9 @@ last10magQTM = []
 
 # Time list
 timeQTM = [row[1] for row in QTMdata[14:]]
+timeQTM = numpy.array(timeQTM, dtype=float)
 iterQTM = [row[0] for row in QTMdata[14:]]
+iterQTM = numpy.array(iterQTM, dtype=int)
 
 # Find start time
 for i, row in enumerate(transQTM):
@@ -147,7 +155,7 @@ print("\nQTM start time: ", startTimeQTM)
 print("\nQTM iter start: ", startIterQTM)
 
 # Convert from strings
-timeQTM = [float(element) for element in timeQTM]
+#timeQTM = [float(element) for element in timeQTM]
 #print("\ntimeQTM: ", timeQTM)
 
 # Difference list -------> starts @ 1 not 0 <--------
@@ -162,7 +170,7 @@ dTimeQTM = [timeQTM[i]-timeQTM[i-1] for i in range(1, len(timeQTM))]
 #### Rotation ####
 # Extract all rows of columns 10 to 18 (excluding headers)
 rotElementsQTM = [row[10:19] for row in QTMdata[14:]]
-print("\nRotmatQTM: ", rotElementsQTM)
+#print("\nRotmatQTM: ", rotElementsQTM)
 rotElementsQTM = [[float(element) for element in sublist] for sublist in rotElementsQTM]
 
 # Rotation Matrix for relating frames: Qualisys -> D435
@@ -219,12 +227,14 @@ while(recording.isOpened()):
             # Save current magnitude
             curTransMag = numpy.linalg.norm(transVectors[0])
 
+            #### START DETECTION ####
             if (not detectedStart) and (len(last10mag) == 10) and (abs(last10mag[0] - curTransMag) > tolerance):
                 #print("loopRound: ", loopRound)
-                startTime = timestampOpenCV[loopRound][1]
-                startIter = timestampOpenCV[loopRound][0]
-                print("LoopRound: ", loopRound)
-                print("start time: ", startTime)
+                startTime = timestampOpenCV[loopRound]
+                #startIter = iterOpenCV[loopRound-1]
+                print("\nLoopRound: ", loopRound)
+                #print("startIter: ", startIter)
+                print("startTime: ", startTime)
                 detectedStart = True
 
             # Save last 10 frames magnitude
@@ -232,9 +242,28 @@ while(recording.isOpened()):
             if (len(last10mag) > 10):
                 last10mag.pop(0)
 
+            curTime = timestampOpenCV[loopRound] - startTime
+
+            # Match closest timestamps
+            #print("\nRange(len())", range(len(timeQTM)))
+            if detectedStart:
+                for i in range(len(timeQTM)):
+                    iTimeQTM = timeQTM[i] - startTimeQTM
+                    iPrevTimeQTM = timeQTM[i-1] - startTimeQTM
+    #                nextIterTimeQTM = timeQTM[i+1] - startTimeQTM
+                    if ( abs(iTimeQTM-curTime) > abs(iPrevTimeQTM-curTime) ):
+                        correctTime = iTimeQTM
+                        correctIter = i
+                    else:
+                        correctTime = iPrevTimeQTM
+                        correctIter = i-1
+                print("\nCV time: ", curTime)
+                print("\nQTM time: ", correctTime)
+                    
+
         # Display the current frame
         cv2.imshow('Playback', frame)  # Display the current frame
-                
+        
         # Export results video
         resultVid.write(frame)  # Incrementing filename
 
