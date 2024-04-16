@@ -4,7 +4,6 @@ import cv2.aruco as aruco   # Simplification
 import os                   # Check file-extension
 import numpy                # Python Math
 import csv                  # Data import
-import matplotlib.pyplot    # Plotting
 # --------------------------------------- Libraries ---------------------------------------
 
 # ------------------- Constant variables for simple changes -------------------
@@ -45,7 +44,7 @@ print("\nDistortion Coefficients\n", distortionCoefficients)
 
 # ------------------ Import/Export Setup ------------------
 # Directory to save video 
-dir = r'/home/thomaz/BackupsMAS306/WorkingExportMATLAB_15-4-2024'
+dir = r'/home/thomaz/poseValidationTest'
 os.chdir(dir)
 
 # Four-Character Code (File format)
@@ -59,7 +58,7 @@ w = 848 # Width
 h = 480 # Height
 
 # Test number for easy change
-testNr = 12
+testNr = 0
 
 tolerance = 0.1 # meters
 
@@ -78,9 +77,6 @@ arucoParams = aruco.DetectorParameters()
 # Set dictionary for the markers
 arucoParams     = aruco.DetectorParameters()
 arucoDictionary = aruco.getPredefinedDictionary(aruco.DICT_5X5_50)
-
-# Video number for filename
-vidNr = 0
 
 rotVectors = []
 transVectors = []
@@ -114,7 +110,7 @@ print("\nTimestampsOpenCV: ", timestampOpenCV)
 
 # ------------ Qualisys Data ---------------
 ### Import data from Qualisys ###
-fileQTM = open(f'qualisysData_{testNr}.tsv')
+fileQTM = open(f'qualisysTest{testNr}_6D.tsv')
 QTMreader = csv.reader(fileQTM, delimiter="\t")
 QTMdata = []
 for row in QTMreader:
@@ -122,7 +118,7 @@ for row in QTMreader:
 
 #### Translation ####
 # Extract all rows of columns 3 to 5 (excluding headers)
-transQTM = [row[3:6] for row in QTMdata[14:]]
+transQTM = [row[5:8] for row in QTMdata[14:]]
 transQTM = numpy.array(transQTM, dtype=float)/1000.0 # millimeters -> meters
 
 # Measured physical distances from RGB camera to Qualisys L-Frame
@@ -179,7 +175,7 @@ dTimeQTM = [timeQTM[i]-timeQTM[i-1] for i in range(1, len(timeQTM))]
 
 #### Rotation ####
 # Extract all rows of columns 10 to 18 (excluding headers)
-rotElementsQTM = [row[10:19] for row in QTMdata[14:]]
+rotElementsQTM = [row[12:21] for row in QTMdata[14:]]
 #print("\nRotmatQTM: ", rotElementsQTM)
 rotElementsQTM = [[float(element) for element in sublist] for sublist in rotElementsQTM]
 
