@@ -11,26 +11,8 @@ zQTM = data(:,4);
 xCV = data(:,5);
 yCV = data(:,6);
 zCV = data(:,7);
-v0R11 = data(:,8);
-v0R12 = data(:,9);
-v0R13 = data(:,10);
-v0R21 = data(:,11);
-v0R22 = data(:,12);
-v0R23 = data(:,13);
-v0R31 = data(:,14);
-v0R32 = data(:,15);
-v0R33 = data(:,16);
-v1R11 = data(:,17);
-v1R12 = data(:,18);
-v1R13 = data(:,19);
-v1R21 = data(:,20);
-v1R22 = data(:,21);
-v1R23 = data(:,22);
-v1R31 = data(:,23);
-v1R32 = data(:,24);
-v1R33 = data(:,25);
 
-
+%%%%%%%%%%% Translation Plotting %%%%%%%%%%%
 figure(Name="Plot of Translation comparison")
 
 % X plotting
@@ -61,51 +43,50 @@ legend('zQTM', 'zCV')
 ylabel('z [m]')
 xlabel('Time [seconds]')
 
+%%%%%%%%%%% Rotation Plotting %%%%%%%%%%%
 
-figure(Name="Rotation comparison")
-sgtitle("Rotation Comparison")
+figure(Name="Rotation comparison0")
+sgtitle("Rotation Matrix Comparison: Vec0 and QTM")
 
-subplot(3,3,1)
-plot(time, v0R11)
-hold on
-plot(time, v1R11)
+% Plotting rotVector[0] with QTM
+for i = 1:9
+    subplot(3, 3, i);
+    
+    vec0 = data(:, i+7); % v0Rij
+    QTM = data(:, i+25); % v1Rij
+    
+    if any(i == [3, 6, 7, 8])
+        plot(time, abs(vec0))
+    else
+        plot(time, vec0)
+    end
+        hold on;
+        plot(time, QTM)
+    
+    xlabel('Time [seconds]');
+    %ylabel(['Value of v' num2str(floor((i-1)/3)+1) 'R' num2str(mod(i-1,3)+1)])
+    title(['Element ', num2str(i)])
+    legend('Vec0', 'QTM');
+    hold off;
+end
 
-subplot(3,3,2)
-plot(time, v0R12)
-hold on
-plot(time, v1R12)
+figure(Name="Rotation Comparison1")
+sgtitle("Rotation Matrix Comparison: Vec1 and QTM")
 
-subplot(3,3,3)
-plot(time, v0R13)
-hold on
-plot(time, v1R13)
-
-subplot(3,3,4)
-plot(time, v0R21)
-hold on
-plot(time, v1R21)
-
-subplot(3,3,5)
-plot(time, v0R22)
-hold on
-plot(time, v1R22)
-
-subplot(3,3,6)
-plot(time, v0R23)
-hold on
-plot(time, v1R23)
-
-subplot(3,3,7)
-plot(time, v0R31)
-hold on
-plot(time, v1R31)
-
-subplot(3,3,8)
-plot(time, v0R32)
-hold on
-plot(time, v1R32)
-
-subplot(3,3,9)
-plot(time, v0R33)
-hold on
-plot(time, v1R33)
+% Plotting rotVector[1] with QTM
+for i = 1:9
+    subplot(3, 3, i);
+    
+    vec1 = data(:, i+16); % v0Rij
+    QTM = data(:, i+25); % v1Rij
+    
+    plot(time, vec0)
+    hold on;
+    plot(time, QTM)
+    
+    xlabel('Time [seconds]');
+    %ylabel(['Value of v' num2str(floor((i-1)/3)+1) 'R' num2str(mod(i-1,3)+1)])
+    title(['Element ', num2str(i)])
+    legend('Vec1', 'QTM');
+    hold off;
+end
