@@ -45,7 +45,7 @@ print("\nDistortion Coefficients\n", distortionCoefficients)
 
 # ------------------ Import/Export Setup ------------------
 # Directory to save video 
-dir = r'/home/thomaz/poseValidationTest'
+dir = r'/home/thomaz/BackupsMAS306/WorkingExportMATLAB_15-4-2024'
 os.chdir(dir)
 
 # Four-Character Code (File format)
@@ -197,11 +197,15 @@ for row in rotElementsQTM:
     matrix = matrix @ rotMatQTM2OpenCV # Convert orientation
     rotMatQTM.append(matrix)
 # ------------ Qualisys Data ---------------
+print("\nRotmatQTM: ", rotMatQTM)
 
 
 # Setup csv file
 filename = f"ExportedResults_{testNr}.csv" 
-fields = ['Time','xQTM', 'yQTM', 'zQTM', 'xCV', 'yCV', 'zCV']
+fields = ['Time','xQTM', 'yQTM', 'zQTM', 'xCV', 'yCV', 'zCV', 
+          'v0R11','v0R12','v0R13','v0R21','v0R22','v0R23','v0R31','v0R32','v0R33',
+          'v1R11','v1R12','v1R13','v1R21','v1R22','v1R23','v1R31','v1R32','v1R33',
+          'qtmR11','qtmR12','qtmR13','qtmR21','qtmR22','qtmR23','qtmR31','qtmR32','qtmR33']
 
 # Column names
 with open(filename, 'w') as csvfile:
@@ -275,28 +279,34 @@ with open(filename,'a') as csvfile:
                             correctTimeQTM = timeQTM[i]
                             break
 
-                    print("\nCurrent Time: ", curTime)
-                    print("\nOpenCV Time: ", timestampOpenCV[loopRound])
-                    print("\nQTM Time: ", correctTimeQTM)
+                    #print("\nCurrent Time: ", curTime)
+                    #print("\nOpenCV Time: ", timestampOpenCV[loopRound])
+                    #print("\nQTM Time: ", correctTimeQTM)
 
-#                    timeQTMplot.append(correctTimeQTM)
-#                    timeCVplot.append(timestampOpenCV[loopRound])
-#                    
-#                    #curTime = curTime.flatten()
-#                    timePlot.append(curTime)
-#                    
-#                    xQTM.append(transQTM[i][0])
-#                    yQTM.append(transQTM[i][1])
-#                    zQTM.append(transQTM[i][2])
-#
-#                    #transVectors = transVectors[0].flatten()
-#                    xCV.append(transVectors[0][0][0])
-#                    yCV.append(transVectors[0][1][0])
-#                    zCV.append(transVectors[0][2][0])
-#
+                    #print("\nRotVector: ", rotVectors[0])
+                    #print("\nRotVectorElement: ", rotVectors[0][1][0])
+                    
+                    #print("\nrotmatQTM: ", rotMatQTM[i])
+                    #print("\nrotmatQTMElement: ", rotMatQTM[i][0][1])
+
+                    rotMat0, _ = cv2.Rodrigues(rotVectors[0])
+                    rotMat1, _ = cv2.Rodrigues(rotVectors[1])
+
+                    #print("\nRotMat0: ", rotMat0)
+                    #print("\nRotMat0Element: ", rotMat0[1][2]) # [row][column]
+
                     # Export time and translation vectors
                     csvwriter.writerow([curTime, transQTM[i][0], transQTM[i][1], transQTM[i][2],
-                                        transVectors[0][0][0], transVectors[0][1][0], transVectors[0][2][0]])
+                                        transVectors[0][0][0], transVectors[0][1][0], transVectors[0][2][0], 
+                                        rotMat0[0][0], rotMat0[0][1], rotMat0[0][2],
+                                        rotMat0[1][0], rotMat0[1][1], rotMat0[1][2],
+                                        rotMat0[2][0], rotMat0[2][1], rotMat0[2][2],
+                                        rotMat1[0][0], rotMat1[0][1], rotMat1[0][2], 
+                                        rotMat1[0][1], rotMat1[1][1], rotMat1[1][2], 
+                                        rotMat1[0][2], rotMat1[2][1], rotMat1[2][2], 
+                                        rotMatQTM[i][0][0], rotMatQTM[i][0][1], rotMatQTM[i][0][2],
+                                        rotMatQTM[i][1][0], rotMatQTM[i][1][1], rotMatQTM[i][1][2],
+                                        rotMatQTM[i][2][0], rotMatQTM[i][2][1], rotMatQTM[i][2][2],])
 
             # Display the current frame
             cv2.imshow('Playback', frame)  # Display the current frame
@@ -313,18 +323,6 @@ with open(filename,'a') as csvfile:
 print("\nStartOpen: ", startTime)
 print("\nStartQTM: ", startTimeQTM)
 
-#print("\nCurTime length: ", len(numpy.array(curTime)))
-#print("\nxQTM lebngh: ", len(numpy.array(xQTM)))
-#        
-#
-#matplotlib.pyplot.plot(curTime, xQTM)
-#matplotlib.pyplot.xlabel('Time')
-#matplotlib.pyplot.ylabel('X values')
-#matplotlib.pyplot.show()
-#
-#print("\ntimePlot: ", len(timePlot))
-#print("x: ", len(xQTM))
-#
 # Release playback after each dictionary
 recording.release()
 resultVid.release()
