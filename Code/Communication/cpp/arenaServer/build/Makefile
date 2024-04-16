@@ -174,6 +174,70 @@ test/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/build
 .PHONY : test/fast
 
+#=============================================================================
+# Target rules for targets named arenaServer
+
+# Build rule for target.
+arenaServer: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 arenaServer
+.PHONY : arenaServer
+
+# fast build rule for target.
+arenaServer/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/arenaServer.dir/build.make CMakeFiles/arenaServer.dir/build
+.PHONY : arenaServer/fast
+
+src/arenaServer.o: src/arenaServer.cpp.o
+.PHONY : src/arenaServer.o
+
+# target to build an object file
+src/arenaServer.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/arenaServer.dir/build.make CMakeFiles/arenaServer.dir/src/arenaServer.cpp.o
+.PHONY : src/arenaServer.cpp.o
+
+src/arenaServer.i: src/arenaServer.cpp.i
+.PHONY : src/arenaServer.i
+
+# target to preprocess a source file
+src/arenaServer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/arenaServer.dir/build.make CMakeFiles/arenaServer.dir/src/arenaServer.cpp.i
+.PHONY : src/arenaServer.cpp.i
+
+src/arenaServer.s: src/arenaServer.cpp.s
+.PHONY : src/arenaServer.s
+
+# target to generate assembly for a file
+src/arenaServer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/arenaServer.dir/build.make CMakeFiles/arenaServer.dir/src/arenaServer.cpp.s
+.PHONY : src/arenaServer.cpp.s
+
+src/dronePosVec.pb.o: src/dronePosVec.pb.cc.o
+.PHONY : src/dronePosVec.pb.o
+
+# target to build an object file
+src/dronePosVec.pb.cc.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/dronePosVec.pb.cc.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/arenaServer.dir/build.make CMakeFiles/arenaServer.dir/src/dronePosVec.pb.cc.o
+.PHONY : src/dronePosVec.pb.cc.o
+
+src/dronePosVec.pb.i: src/dronePosVec.pb.cc.i
+.PHONY : src/dronePosVec.pb.i
+
+# target to preprocess a source file
+src/dronePosVec.pb.cc.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/dronePosVec.pb.cc.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/arenaServer.dir/build.make CMakeFiles/arenaServer.dir/src/dronePosVec.pb.cc.i
+.PHONY : src/dronePosVec.pb.cc.i
+
+src/dronePosVec.pb.s: src/dronePosVec.pb.cc.s
+.PHONY : src/dronePosVec.pb.s
+
+# target to generate assembly for a file
+src/dronePosVec.pb.cc.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/dronePosVec.pb.cc.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/arenaServer.dir/build.make CMakeFiles/arenaServer.dir/src/dronePosVec.pb.cc.s
+.PHONY : src/dronePosVec.pb.cc.s
+
 src/test.o: src/test.cpp.o
 .PHONY : src/test.o
 
@@ -210,7 +274,14 @@ help:
 	@echo "... install/strip"
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
+	@echo "... arenaServer"
 	@echo "... test"
+	@echo "... src/arenaServer.o"
+	@echo "... src/arenaServer.i"
+	@echo "... src/arenaServer.s"
+	@echo "... src/dronePosVec.pb.o"
+	@echo "... src/dronePosVec.pb.i"
+	@echo "... src/dronePosVec.pb.s"
 	@echo "... src/test.o"
 	@echo "... src/test.i"
 	@echo "... src/test.s"
