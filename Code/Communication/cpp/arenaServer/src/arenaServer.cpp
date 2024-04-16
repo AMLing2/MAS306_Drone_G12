@@ -5,7 +5,8 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <netdb.h>
-#include <sys/time.h>
+#include <thread>
+//#include <sys/time.h> //for timeval struct, not needed? chrono is better
 
 class ArenaServer : public ClientSocket
 {
@@ -13,6 +14,8 @@ public:
 	ArenaServer(const std::string& addr, int port)
 	:f_port(port)
 	,f_addr(addr)
+	,monoTimeStart_(
+			std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now().time_since_epoch()))
 	{
 		genBuffer_ = new char[bufferLen_];
 		char decimal_port[16];
@@ -53,21 +56,27 @@ public:
 	virtual socklen_t getclient(struct sockaddr* clientAddr) override;
 	virtual int sendDrone(const char* msg,size_t msglen) override;
 	virtual void setTimeout() override;
-	virtual void setTimeout(const long int sec,const long int microSec) override;
+	virtual void setTimeout(const long int sec,const long int nanoSec) override;
 	int connectInit();
-	virtual	size_t recvDrone(char* buffer,size_t bufferLen) override;
+	virtual	ssize_t recvDrone(char* buffer,size_t bufferLen) override;
 	void mainloop();
+	int cSyncTime(dronePosVec::dataTransfers* pdroneInfoMsg);
 	
 private:
-int f_port;
-std::string f_addr;
-struct addrinfo* f_addrinfo;
-int f_socket;
-struct sockaddr clientAddr_;
-socklen_t clientsocklen_;
-const size_t bufferLen_ = 1024;
-char* genBuffer_;
+	std::chrono::nanoseconds monoTimeNow_();
+	std::chrono::nanoseconds calcSleepTime_(int interval);
+
+	int f_port;
+	std::string f_addr;
+	struct addrinfo* f_addrinfo;
+	int f_socket;
+	struct sockaddr clientAddr_;
+	socklen_t clientsocklen_;
+	const size_t bufferLen_ = 1024;
+	char* genBuffer_;
+	const std::chrono::nanoseconds monoTimeStart_;
 };
+
 
 //-------------------MAIN-------------------@
 int main()
@@ -93,18 +102,25 @@ int main()
 void ArenaServer::mainloop()
 {
 	//would be nice to have two sockets, one for udp streaming and one tcp for other communication such as this
-	setTimeout();
-	size_t msgRecvLen = 0;
+	ssize_t msgRecvLen = 0;
 	dronePosVec::dataTransfers droneInfoMsg;
 	while(true)
 	{
+		setTimeout(60,0);
+		std::cout<<"listening to drone input"<<std::endl;
 		msgRecvLen = recvDrone(genBuffer_,bufferLen_);
+		if(msgRecvLen == -1)
+		{
+			break;
+		}
 		droneInfoMsg.ParseFromArray(genBuffer_,msgRecvLen);
+		std::cout<<"msg recv: "<<droneInfoMsg.msg()<<std::endl;
 		switch(droneInfoMsg.type())
 		{
 			case dronePosVec::timeSync:
 				{
-
+					std::cout<<"timesync req"<<std::endl;
+					cSyncTime(&droneInfoMsg);
 					break;
 				}
 			case dronePosVec::socketInfo:
@@ -114,7 +130,7 @@ void ArenaServer::mainloop()
 				}
 			case dronePosVec::stateChange:
 				{
-
+					std::cout<<"statechange req"<<std::endl;
 					break;
 				}
 			default:
@@ -122,9 +138,43 @@ void ArenaServer::mainloop()
 					break;
 				}
 		}
-
-
 	}
+}
+
+int ArenaServer::cSyncTime(dronePosVec::dataTransfers* pdroneInfoMsg) //sync client's time to server
+{
+	long int intervalTime = 100000000; //100ms
+	pdroneInfoMsg->Clear();
+	pdroneInfoMsg->set_id(1);
+	pdroneInfoMsg->set_type(dronePosVec::timeSync);
+	pdroneInfoMsg->set_timesync_ns(monoTimeStart_.count()); //this is pointless
+	pdroneInfoMsg->SerializeToArray(genBuffer_,bufferLen_);
+	setTimeout(1,0);
+
+	std::chrono::nanoseconds sendTime = calcSleepTime_(intervalTime); //send next relaive 100ms
+	std::this_thread::sleep_for(sendTime);
+	sendDrone(genBuffer_,pdroneInfoMsg->ByteSizeLong());
+	sendTime = monoTimeNow_();
+	
+	ssize_t msgLen = recvDrone(genBuffer_,bufferLen_); //read
+	if (msgLen > 0)
+	{
+		pdroneInfoMsg->Clear();
+		pdroneInfoMsg->ParseFromArray(genBuffer_,msgLen);
+		std::chrono::nanoseconds recvTime = monoTimeNow_();
+		long int timeDiff = (recvTime - sendTime).count() - intervalTime;
+		std::cout<<"time difference = "<<timeDiff<<std::endl;
+		pdroneInfoMsg->set_id(1);
+		pdroneInfoMsg->set_timesync_ns(timeDiff);
+		pdroneInfoMsg->SerializeToArray(genBuffer_,bufferLen_);
+		sendDrone(genBuffer_,pdroneInfoMsg->ByteSizeLong());//adding an offset might be wierd, 0.2-0.7ms delay without it
+	}
+	return 0;
+}
+
+std::chrono::nanoseconds ArenaServer::calcSleepTime_(int interval)
+{
+	return std::chrono::nanoseconds(interval) -((monoTimeNow_() - monoTimeStart_) % interval);
 }
 
 socklen_t ArenaServer::getclient(struct sockaddr* clientAddr)
@@ -165,9 +215,9 @@ int ArenaServer::sendDrone(const char* msg,size_t msglen)
 	return 0; //should ideally check if length sent = length of msg
 }
 
-size_t ArenaServer::recvDrone(char* buffer,size_t bufferLen)
+ssize_t ArenaServer::recvDrone(char* buffer,size_t bufferLen)
 {
-	size_t recvLen = recv(f_socket, buffer, bufferLen,0);
+	ssize_t recvLen = recv(f_socket, buffer, bufferLen,0);
 	buffer[recvLen] = '\0';
 	return recvLen;
 }
@@ -186,4 +236,9 @@ void ArenaServer::setTimeout(const long int sec,const long int microSec)
 	timeoutTime.tv_sec = sec;
 	timeoutTime.tv_usec = microSec;
 	setsockopt(f_socket,SOL_SOCKET,SO_RCVTIMEO,&timeoutTime,sizeof(timeoutTime));
+}
+
+std::chrono::nanoseconds ArenaServer::monoTimeNow_() //gives time of start of monotonic clock, NOT unix time (ie. 1970)
+{
+	return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now().time_since_epoch());
 }

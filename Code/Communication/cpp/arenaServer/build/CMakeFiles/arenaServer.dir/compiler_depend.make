@@ -367,7 +367,9 @@ CMakeFiles/arenaServer.dir/src/arenaServer.cpp.o: ../src/arenaServer.cpp \
   /usr/include/x86_64-linux-gnu/bits/in.h \
   /usr/include/rpc/netdb.h \
   /usr/include/x86_64-linux-gnu/bits/netdb.h \
-  /usr/include/x86_64-linux-gnu/sys/time.h
+  /usr/include/c++/11/thread \
+  /usr/include/c++/11/bits/std_thread.h \
+  /usr/include/c++/11/bits/this_thread_sleep.h
 
 CMakeFiles/arenaServer.dir/src/dronePosVec.pb.cc.o: ../src/dronePosVec.pb.cc \
   /usr/include/stdc-predef.h \
@@ -718,8 +720,6 @@ CMakeFiles/arenaServer.dir/src/dronePosVec.pb.cc.o: ../src/dronePosVec.pb.cc \
 
 /usr/include/google/protobuf/wire_format.h:
 
-/usr/include/x86_64-linux-gnu/sys/time.h:
-
 /usr/include/x86_64-linux-gnu/bits/netdb.h:
 
 /usr/include/rpc/netdb.h:
@@ -777,6 +777,8 @@ CMakeFiles/arenaServer.dir/src/dronePosVec.pb.cc.o: ../src/dronePosVec.pb.cc \
 /usr/include/c++/11/bits/parse_numbers.h:
 
 /usr/include/c++/11/ctime:
+
+/usr/include/c++/11/thread:
 
 /usr/include/c++/11/ratio:
 
@@ -1018,6 +1020,8 @@ CMakeFiles/arenaServer.dir/src/dronePosVec.pb.cc.o: ../src/dronePosVec.pb.cc \
 
 /usr/include/asm-generic/errno-base.h:
 
+/usr/include/c++/11/bits/this_thread_sleep.h:
+
 /usr/include/c++/11/bits/locale_facets.tcc:
 
 /usr/include/x86_64-linux-gnu/bits/types/struct_tm.h:
@@ -1145,6 +1149,8 @@ CMakeFiles/arenaServer.dir/src/dronePosVec.pb.cc.o: ../src/dronePosVec.pb.cc \
 /usr/include/x86_64-linux-gnu/bits/types/struct_timespec.h:
 
 /usr/include/ctype.h:
+
+/usr/include/c++/11/bits/std_thread.h:
 
 /usr/include/c++/11/bits/cpp_type_traits.h:
 
