@@ -65,7 +65,7 @@ class ClientSocket:
 		dataMsg.ParseFromString(self.recv())
 		print("globalTImer: " +str(dataMsg.timeSync_ns))
 		self.globalTimer = dataMsg.timeSync_ns
-		syncInterval = 10000000 #10ms
+		syncInterval = 100000000 #100ms
 		sleepLen = sleepTimeCalc(syncInterval,globalTimer)
 		time.sleep(sleepLen) #sleep until sync time
 		responseTime = time.time_ns()
@@ -85,10 +85,10 @@ class ClientSocket:
 class TimeTracker:
 	def __init__(globalTimer,qAction):
 		self.globalTimer = globalTimer
-		self.qAction = 
+#self.qAction = 
 
 
-def sleepTimeCalc(interval,timer)
+def sleepTimeCalc(interval,timer):
 	return float(interval - ((time.time_ns() - timer) % interval))/1000000000.0
 
 def pbInit(): #remove
@@ -109,8 +109,8 @@ def pbData(): #temp test
 	return dp.SerializeToString() 
 
 
-def pTimeTracker(globalTimer,qAction):
-	if time.time_ns() >= 
+#def pTimeTracker(globalTimer,qAction):
+	#if time.time_ns() >= 
 
 def motorListen(droneSocket,qMotor): #remove
 	print("motorListen thread up")
