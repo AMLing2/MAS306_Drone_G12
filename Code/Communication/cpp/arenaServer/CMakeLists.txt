@@ -6,13 +6,19 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-#find_package(Protobuf REQUIRED)
+find_package(Protobuf 3.12.4 REQUIRED)
 include_directories(${Protobuf_INCLUDE_DIRS})
-add_executable(test src/test.cpp)
-#target_link_libraries(arenaServer socket)
-#target_include_directories(arenaServer PRIVATE ${PROTOBUF_INCLUDE_DIRS})
-#target_link_libraries(arenaServer PRIVATE ${PROTOBUF_LIBRARIES})
+include_directories(${HOME}/.local/include)
+
+add_executable(test src/test.cpp src/dronePosVec.pb.cc)
+add_executable(arenaServer src/arenaServer.cpp src/dronePosVec.pb.cc)
+
+target_link_libraries(test protobuf::libprotobuf protobuf::libprotobuf-lite)
+target_link_libraries(arenaServer protobuf::libprotobuf protobuf::libprotobuf-lite)
+
+#target_include_directories(test PRIVATE ${HOME}/.local/include)
+#target_link_libraries(test PRIVATE ${HOME}/.local/lib/libprotobuf.so)
 
 install(TARGETS
-		test
+		arenaServer
 		DESTINATION lib/${PROJECT_NAME})

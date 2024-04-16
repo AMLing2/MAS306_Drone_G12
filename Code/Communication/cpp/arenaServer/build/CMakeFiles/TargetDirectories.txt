@@ -1,4 +1,5 @@
 /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build/CMakeFiles/test.dir
+/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build/CMakeFiles/arenaServer.dir
 /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build/CMakeFiles/edit_cache.dir
 /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build/CMakeFiles/rebuild_cache.dir
 /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build/CMakeFiles/list_install_components.dir

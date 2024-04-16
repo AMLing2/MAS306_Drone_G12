@@ -4,7 +4,7 @@ import cv2.aruco as aruco   # Simplification
 import os                   # Check file-extension
 import numpy                # Python Math
 import csv                  # Data import
-#import pandas
+import matplotlib.pyplot    # Plotting
 # --------------------------------------- Libraries ---------------------------------------
 
 # ------------------- Constant variables for simple changes -------------------
@@ -43,9 +43,9 @@ print("\nDistortion Coefficients\n", distortionCoefficients)
 
 # ------------------- Constant variables for simple changes -------------------
 
-# ------------------ Import/Export Video Setup ------------------
+# ------------------ Import/Export Setup ------------------
 # Directory to save video 
-dir = r'/home/thomaz/poseValidationTest'
+dir = r'/home/thomaz/BackupsMAS306/WorkingExportMATLAB_15-4-2024'
 os.chdir(dir)
 
 # Four-Character Code (File format)
@@ -62,7 +62,15 @@ h = 480 # Height
 testNr = 12
 
 tolerance = 0.1 # meters
-# ------------------ Import/Export Video Setup ------------------
+
+# Plotting variables
+#timeQTMplot = []
+#timeCVplot = []
+#timePlot = []
+#xQTM,yQTM,zQTM = [],[],[]
+#xCV,yCV,zCV    = [],[],[]
+
+# ------------------ Import/Export Setup ------------------
 
 # Create object for parameters
 arucoParams = aruco.DetectorParameters()
@@ -77,7 +85,7 @@ vidNr = 0
 rotVectors = []
 transVectors = []
 reprojError = 0
-loopRound = 1
+loopRound = 0
 markerFrames = 0
 startTime = 0
 last10mag = []
@@ -123,7 +131,8 @@ pTransArr = numpy.tile(pTransVec, (len(transQTM), 1))
 
 # Correct translation
 transQTM = pTransArr - transQTM
-#print("\nCorrected translation: ", transQTM)
+print("\nCorrected translation: ", transQTM)
+#print("\nExported variable: ", transQTM[2][1])
 
 #### Start Detection ####
 detectedStartQTM = False
@@ -168,7 +177,6 @@ dTimeQTM = [timeQTM[i]-timeQTM[i-1] for i in range(1, len(timeQTM))]
 #print("\nLenDiff: ", len(dTimeQTM))
 
 
-
 #### Rotation ####
 # Extract all rows of columns 10 to 18 (excluding headers)
 rotElementsQTM = [row[10:19] for row in QTMdata[14:]]
@@ -189,106 +197,128 @@ for row in rotElementsQTM:
     matrix = matrix @ rotMatQTM2OpenCV # Convert orientation
     rotMatQTM.append(matrix)
 # ------------ Qualisys Data ---------------
+print("\nRotmatQTM: ", rotMatQTM)
 
 
-while(recording.isOpened()):
-    
-    # Extract frames
-    ret, frame = recording.read()        
-    
-    # Stop while loop if no more frames
-    if not ret:
-        break
+# Setup csv file
+filename = f"ExportedResults_{testNr}.csv" 
+fields = ['Time','xQTM', 'yQTM', 'zQTM', 'xCV', 'yCV', 'zCV', 
+          'v0R11','v0R12','v0R13','v0R21','v0R22','v0R23','v0R31','v0R32','v0R33',
+          'v1R11','v1R12','v1R13','v1R21','v1R22','v1R23','v1R31','v1R32','v1R33',
+          'qtmR11','qtmR12','qtmR13','qtmR21','qtmR22','qtmR23','qtmR31','qtmR32','qtmR33']
 
-    # Identification
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)   # Grayscale image
-    corners, ids, rejectedImagePoints = aruco.detectMarkers(gray, arucoDictionary, parameters=arucoParams)
-    
-    # Is marker detected?
-    if len(corners) > 0:
+# Column names
+with open(filename, 'w') as csvfile:
+		csvwriter = csv.writer(csvfile)
+		csvwriter.writerow(fields)
+          
+
+with open(filename,'a') as csvfile:
+    # Set writer for loop
+    csvwriter = csv.writer(csvfile)
         
-        # Iterate through list of markers
-        for (markerCorner, markerID) in zip(corners, ids):
+    while(recording.isOpened()):
+        
+        # Extract frames
+        ret, frame = recording.read()        
+        
+        # Stop while loop if no more frames
+        if not ret:
+            break
 
-            # SolvePnPGeneric for extracting all possible vectors
-            retVal, rotVectors, transVectors, reprojError = cv2.solvePnPGeneric(
-                markerPoints, markerCorner, cameraMatrix, distortionCoefficients, rvecs=rotVectors, tvecs=transVectors, reprojectionError=reprojError,
-                useExtrinsicGuess=False, flags=cv2.SOLVEPNP_IPPE)
-
-            # Print current vectors
-#            print("\nRotation Vectors: ", rotVectors)
-#            print("\nTranslation Vectors: ", transVectors)
-
-            # Draw marker axes
-            cv2.drawFrameAxes(frame, cameraMatrix=cameraMatrix,
-                            distCoeffs=distortionCoefficients, rvec=rotVectors[0], tvec=transVectors[0], length=axesLength)
+        # Identification
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)   # Grayscale image
+        corners, ids, rejectedImagePoints = aruco.detectMarkers(gray, arucoDictionary, parameters=arucoParams)
+        
+        # Is marker detected?
+        if len(corners) > 0:
             
-            # Print Current marker ID
-#            print("\nCurrent ID: ", markerID)
+            # Iterate through list of markers
+            for (markerCorner, markerID) in zip(corners, ids):
 
-            # Save current magnitude
-            curTransMag = numpy.linalg.norm(transVectors[0])
+                # SolvePnPGeneric for extracting all possible vectors
+                retVal, rotVectors, transVectors, reprojError = cv2.solvePnPGeneric(
+                    markerPoints, markerCorner, cameraMatrix, distortionCoefficients, rvecs=rotVectors, tvecs=transVectors, reprojectionError=reprojError,
+                    useExtrinsicGuess=False, flags=cv2.SOLVEPNP_IPPE)
 
-            #### START DETECTION ####
-            if (not detectedStart) and (len(last10mag) == 10) and (abs(last10mag[0] - curTransMag) > tolerance):
-                #print("loopRound: ", loopRound)
-                startTime = timestampOpenCV[loopRound]
-                #startIter = iterOpenCV[loopRound-1]
-                print("\nLoopRound: ", loopRound)
-                #print("startIter: ", startIter)
-                print("startTime: ", startTime)
-                detectedStart = True
+                # Print current vectors
+    #            print("\nRotation Vectors: ", rotVectors)
+    #            print("\nTranslation Vectors: ", transVectors)
 
-            # Save last 10 frames magnitude
-            last10mag.append(curTransMag)
-            if (len(last10mag) > 10):
-                last10mag.pop(0)
+                # Draw marker axes
+                cv2.drawFrameAxes(frame, cameraMatrix=cameraMatrix,
+                                distCoeffs=distortionCoefficients, rvec=rotVectors[0], tvec=transVectors[0], length=axesLength)
+                
+                # Print Current marker ID
+    #            print("\nCurrent ID: ", markerID)
 
-            curTime = timestampOpenCV[loopRound] - startTime
+                # Save current magnitude
+                curTransMag = numpy.linalg.norm(transVectors[0])
 
-            # Match closest timestamps
-            #print("\nRange(len())", range(len(timeQTM)))
-            if detectedStart:
-                for i in range(len(timeQTM)):
-                    #iTimeQTM = timeQTM[i] - startTimeQTM
-                    #iPrevTimeQTM = timeQTM[i-1] - startTimeQTM
-    #               # nextIterTimeQTM = timeQTM[i+1] - startTimeQTM
-                    #if ( abs(iTimeQTM-curTime) < abs(iPrevTimeQTM-curTime) ):
-                    #    correctTime = iTimeQTM
-                    #    correctIter = i
-                    #else:
-                    #    correctTime = iPrevTimeQTM
-                    ##    correctIter = i-1
-                    #curTimeQTM = (timeQTM[i-1] - startTimeQTM)
-                    #curDiff = curTime - curTimeQTM
-                    ##prevTimeQTM = (timeQTM[i] - startTimeQTM)
-                    ##prevDiff = curTime - prevTimeQTM
-                    #if   (i > 0) and (curDiff < prevDiff):
-                    #    correctTimeQTM = curTimeQTM
-                    #elif (i > 0) and (curDiff > prevDiff):
-                    #    correctTimeQTM = correctTimeQTM
-                    #prevDiff = curDiff
-                    #print("\nLoop iterator range: ", i)
-                    if (0 < ((timeQTM[i] - startTimeQTM) - curTime)):
-                        correctTimeQTM = timeQTM[i]
-                        break
+                #### START DETECTION ####
+                if (not detectedStart) and (len(last10mag) == 10) and (abs(last10mag[0] - curTransMag) > tolerance):
+                    #print("loopRound: ", loopRound)
+                    startTime = timestampOpenCV[loopRound]
+                    #startIter = iterOpenCV[loopRound-1]
+                    print("\nLoopRound: ", loopRound)
+                    #print("startIter: ", startIter)
+                    print("startTime: ", startTime)
+                    detectedStart = True
 
-                print("\nCurrent Time: ", curTime)
-                print("\nOpenCV Time: ", timestampOpenCV[loopRound])
-                print("\nQTM Time: ", correctTimeQTM)
+                # Save last 10 frames magnitude
+                last10mag.append(curTransMag)
+                if (len(last10mag) > 10):
+                    last10mag.pop(0)
+
+                curTime = timestampOpenCV[loopRound] - startTime
+
+                # Match closest timestamps
+                if detectedStart:
+                    for i in range(len(timeQTM)):
+                        if (0 < ((timeQTM[i] - startTimeQTM) - curTime)):
+                            correctTimeQTM = timeQTM[i]
+                            break
+
+                    #print("\nCurrent Time: ", curTime)
+                    #print("\nOpenCV Time: ", timestampOpenCV[loopRound])
+                    #print("\nQTM Time: ", correctTimeQTM)
+
+                    #print("\nRotVector: ", rotVectors[0])
+                    #print("\nRotVectorElement: ", rotVectors[0][1][0])
                     
+                    #print("\nrotmatQTM: ", rotMatQTM[i])
+                    #print("\nrotmatQTMElement: ", rotMatQTM[i][0][1])
 
-        # Display the current frame
-        cv2.imshow('Playback', frame)  # Display the current frame
-        
-        # Export results video
-        resultVid.write(frame)  # Incrementing filename
+                    rotMat0, _ = cv2.Rodrigues(rotVectors[0])
+                    rotMat1, _ = cv2.Rodrigues(rotVectors[1])
 
-    # Press Q to stop video playback
-    if cv2.waitKey(1) == ord('q'):
-        break
+                    #print("\nRotMat0: ", rotMat0)
+                    #print("\nRotMat0Element: ", rotMat0[1][2]) # [row][column]
 
-    loopRound += 1
+                    # Export time and translation vectors
+                    csvwriter.writerow([curTime, transQTM[i][0], transQTM[i][1], transQTM[i][2],
+                                        transVectors[0][0][0], transVectors[0][1][0], transVectors[0][2][0], 
+                                        rotMat0[0][0], rotMat0[0][1], rotMat0[0][2],
+                                        rotMat0[1][0], rotMat0[1][1], rotMat0[1][2],
+                                        rotMat0[2][0], rotMat0[2][1], rotMat0[2][2],
+                                        rotMat1[0][0], rotMat1[0][1], rotMat1[0][2], 
+                                        rotMat1[0][1], rotMat1[1][1], rotMat1[1][2], 
+                                        rotMat1[0][2], rotMat1[2][1], rotMat1[2][2], 
+                                        rotMatQTM[i][0][0], rotMatQTM[i][0][1], rotMatQTM[i][0][2],
+                                        rotMatQTM[i][1][0], rotMatQTM[i][1][1], rotMatQTM[i][1][2],
+                                        rotMatQTM[i][2][0], rotMatQTM[i][2][1], rotMatQTM[i][2][2],])
+
+            # Display the current frame
+            cv2.imshow('Playback', frame)  # Display the current frame
+            
+            # Export results video
+            resultVid.write(frame)  # Incrementing filename
+
+        # Press Q to stop video playback
+        if cv2.waitKey(1) == ord('q'):
+            break
+
+        loopRound += 1
 
 print("\nStartOpen: ", startTime)
 print("\nStartQTM: ", startTimeQTM)
