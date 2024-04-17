@@ -170,23 +170,23 @@ with open(filename,'a') as csvfile:
         print("\ntransVector0: ", transVector0)
         print("\nrotVector0: ", rotVector0)
 
-        # Save current magnitude
-        curTransMag = numpy.linalg.norm(transVector0)
+        if not ((transVector0[0] == 0.0) and (transVector0[1] == 0.0) and (transVector0[2] == 0.0)):
+            # Save current magnitude
+            curTransMag = numpy.linalg.norm(transVector0)
+            # Save last 10 frames magnitude
+            last10mag.append(curTransMag)
+            if (len(last10mag) > 10):
+                last10mag.pop(0)
 
-        #### START DETECTION ####
-        if (not detectedStart) and (len(last10mag) == 10) and (abs(last10mag[0] - curTransMag) > tolerance):
-            #print("loopRound: ", loopRound)
-            startTime = timestampOpenCV[loopRound]
-            #startIter = iterOpenCV[loopRound-1]
-            print("\nLoopRound: ", loopRound)
-            #print("startIter: ", startIter)
-            print("startTime: ", startTime)
-            detectedStart = True
-
-        # Save last 10 frames magnitude
-        last10mag.append(curTransMag)
-        if (len(last10mag) > 10):
-            last10mag.pop(0)
+            #### START DETECTION ####
+            if (not detectedStart) and (len(last10mag) == 10) and (abs(last10mag[0] - curTransMag) > tolerance):
+                #print("loopRound: ", loopRound)
+                startTime = timestampOpenCV[loopRound]
+                #startIter = iterOpenCV[loopRound-1]
+                print("\nLoopRound: ", loopRound)
+                #print("startIter: ", startIter)
+                print("startTime: ", startTime)
+                detectedStart = True
 
         curTime = timestampOpenCV[loopRound] - startTime
 
