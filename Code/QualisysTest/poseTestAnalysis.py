@@ -167,8 +167,8 @@ with open(filename,'a') as csvfile:
         rotVector0 = numpy.array(dataOpenCV[loopRound+1][9:12], dtype=numpy.float32)
         rotVector1 = numpy.array(dataOpenCV[loopRound+1][12:15], dtype=numpy.float32)
 
-        print("\ntransVector0: ", transVector0)
-        print("\nrotVector0: ", rotVector0)
+        #print("\ntransVector0: ", transVector0)
+        #print("\nrotVector0: ", rotVector0)
 
         if not ((transVector0[0] == 0.0) and (transVector0[1] == 0.0) and (transVector0[2] == 0.0)):
             # Save current magnitude
@@ -183,18 +183,19 @@ with open(filename,'a') as csvfile:
                 #print("loopRound: ", loopRound)
                 startTime = timestampOpenCV[loopRound]
                 #startIter = iterOpenCV[loopRound-1]
-                print("\nLoopRound: ", loopRound)
+                #print("\nLoopRound: ", loopRound)
                 #print("startIter: ", startIter)
-                print("startTime: ", startTime)
+                #print("startTime: ", startTime)
                 detectedStart = True
 
         curTime = timestampOpenCV[loopRound] - startTime
 
         # Match closest timestamps
         if detectedStart:
+            # QTM time match? 
             for i in range(len(timeQTM)):
                 if (0 < ((timeQTM[i] - startTimeQTM) - curTime)):
-                    correctTimeQTM = timeQTM[i]
+                    idx = i
                     break
 
             #print("\nCurrent Time: ", curTime)
@@ -206,32 +207,31 @@ with open(filename,'a') as csvfile:
             
             #print("\nrotmatQTM: ", rotMatQTM[i])
             #print("\nrotmatQTMElement: ", rotMatQTM[i][0][1])
-            if not ((transVector0[0] == 0.0) and (transVector0[1] == 0.0) and (transVector0[2] == 0.0) and
-                    (transVector1[0] == 0.0) and (transVector1[1] == 0.0) and (transVector1[2] == 0.0)):
+            if not ((transVector0[0] == 0.0) and (transVector0[1] == 0.0) and (transVector0[2] == 0.0)):
                 rotMat0, _ = cv2.Rodrigues(rotVector0)
-                print("\nRotMat0: ", rotMat0)
-            #else:
-            #    rotMat0 = numpy.zeros((3, 3), dtype=numpy.float32)
-            #if not ((transVector1[0] == 0.0) and (transVector1[1] == 0.0) and (transVector1[2] == 0.0)):
+                #print("\nRotMat0: ", rotMat0)
+            else:
+                rotMat0 = numpy.zeros((3, 3), dtype=numpy.float32)
+            if not ((transVector1[0] == 0.0) and (transVector1[1] == 0.0) and (transVector1[2] == 0.0)):
                 rotMat1, _ = cv2.Rodrigues(rotVector1)
-            #else:
-            #    rotMat1 = numpy.zeros((3, 3), dtype=numpy.float32)
+            else:
+                rotMat1 = numpy.zeros((3, 3), dtype=numpy.float32)
 
-            #print("\nRotMat0Element: ", rotMat0[1][2]) # [row][column]
+        #print("\nRotMat0Element: ", rotMat0[1][2]) # [row][column]
 
-                # Export time and translation vectors
-                csvwriter.writerow([curTime, transQTM[i][0], transQTM[i][1], transQTM[i][2],
-                                    transVector0[0], transVector0[1], transVector0[2],
-                                    transVector1[0], transVector1[1], transVector1[2],
-                                    rotMat0[0][0], rotMat0[0][1], rotMat0[0][2],
-                                    rotMat0[1][0], rotMat0[1][1], rotMat0[1][2],
-                                    rotMat0[2][0], rotMat0[2][1], rotMat0[2][2],
-                                    rotMat1[0][0], rotMat1[0][1], rotMat1[0][2], 
-                                    rotMat1[0][1], rotMat1[1][1], rotMat1[1][2], 
-                                    rotMat1[0][2], rotMat1[2][1], rotMat1[2][2], 
-                                    rotMatQTM[i][0][0], rotMatQTM[i][0][1], rotMatQTM[i][0][2],
-                                    rotMatQTM[i][1][0], rotMatQTM[i][1][1], rotMatQTM[i][1][2],
-                                    rotMatQTM[i][2][0], rotMatQTM[i][2][1], rotMatQTM[i][2][2],])
+            # Export time and translation vectors
+            csvwriter.writerow([curTime, transQTM[idx][0], transQTM[idx][1], transQTM[idx][2],
+                                transVector0[0], transVector0[1], transVector0[2],
+                                transVector1[0], transVector1[1], transVector1[2],
+                                rotMat0[0][0], rotMat0[0][1], rotMat0[0][2],
+                                rotMat0[1][0], rotMat0[1][1], rotMat0[1][2],
+                                rotMat0[2][0], rotMat0[2][1], rotMat0[2][2],
+                                rotMat1[0][0], rotMat1[0][1], rotMat1[0][2], 
+                                rotMat1[0][1], rotMat1[1][1], rotMat1[1][2], 
+                                rotMat1[0][2], rotMat1[2][1], rotMat1[2][2], 
+                                rotMatQTM[idx][0][0], rotMatQTM[idx][0][1], rotMatQTM[idx][0][2],
+                                rotMatQTM[idx][1][0], rotMatQTM[idx][1][1], rotMatQTM[idx][1][2],
+                                rotMatQTM[idx][2][0], rotMatQTM[idx][2][1], rotMatQTM[idx][2][2],])
 
         ########################## THIS IS DONE INSIDE DETECTION #########################
 
