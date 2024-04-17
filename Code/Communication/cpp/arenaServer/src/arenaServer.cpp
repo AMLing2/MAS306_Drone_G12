@@ -202,6 +202,7 @@ int ArenaServer::connectInit()
 	{
 		std::string msgInit = "message sent";
 		sendDrone(msgInit.c_str(),msgInit.length());
+		std::cout<<"msg to drone sent: "<<msgInit<<std::endl;
 		setTimeout(30,0);
 		recvDrone(genBuffer_,bufferLen_); //just read to clear buffer
 		std::cout<<"msg recv:"<<genBuffer_<<std::endl;
