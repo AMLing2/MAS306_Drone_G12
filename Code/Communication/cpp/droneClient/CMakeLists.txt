@@ -1,10 +1,15 @@
 cmake_minimum_required(VERSION 3.8)
 project(droneClient)
 
-
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
+
+#set(CMAKE_BUILD_TYPE DEBUG)
+
+#set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
+
+set(CMAKE_CXX_FLAGS "-g")
 
 find_package(Protobuf 3.12.4 REQUIRED)
 include_directories(${Protobuf_INCLUDE_DIRS})
