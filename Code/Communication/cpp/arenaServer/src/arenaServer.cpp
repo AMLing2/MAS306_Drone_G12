@@ -106,7 +106,7 @@ void ArenaServer::mainloop()
 	dronePosVec::dataTransfers droneInfoMsg;
 	while(true)
 	{
-		setTimeout(60,0);
+		setTimeout(30,0);
 		std::cout<<"listening to drone input"<<std::endl;
 		msgRecvLen = recvDrone(genBuffer_,bufferLen_);
 		if(msgRecvLen == -1)
@@ -197,14 +197,14 @@ int ArenaServer::connectInit()
 {
 	clientsocklen_ = getclient(&clientAddr_);
 	int r = connect(f_socket,&clientAddr_,clientsocklen_);
-	std::cout<<r<<std::endl;
+	std::cout<<"connection r = "<<r<<std::endl;
 	if(r == 0)
 	{
 		std::string msgInit = "message sent";
-		std::cout<<msgInit.length()<<std::endl;
 		sendDrone(msgInit.c_str(),msgInit.length());
-		setTimeout(3,0);
+		setTimeout(30,0);
 		recvDrone(genBuffer_,bufferLen_); //just read to clear buffer
+		std::cout<<"msg recv:"<<genBuffer_<<std::endl;
 	}
 	return r;
 }

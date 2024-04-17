@@ -1,0 +1,7 @@
+/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/droneClient/build/CMakeFiles/droneClient.dir
+/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/droneClient/build/CMakeFiles/edit_cache.dir
+/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/droneClient/build/CMakeFiles/rebuild_cache.dir
+/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/droneClient/build/CMakeFiles/list_install_components.dir
+/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/droneClient/build/CMakeFiles/install.dir
+/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/droneClient/build/CMakeFiles/install/local.dir
+/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/droneClient/build/CMakeFiles/install/strip.dir
