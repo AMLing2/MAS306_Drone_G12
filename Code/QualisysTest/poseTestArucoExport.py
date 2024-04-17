@@ -139,11 +139,12 @@ with open(filename,'a') as csvfile:
                 
                 # Print Current marker ID
     #            print("\nCurrent ID: ", markerID)
-        else:
-            transVectors = (numpy.array([[0.0], [0.0], [0.0]]), numpy.array([[0.0], [0.0], [0.0]]))
-            rotVectors = transVectors
-            reprojError[0][0] = 0.0
-            reprojError[1][0] = 0.0
+                # Export results csv
+                csvwriter.writerow([loopRound, timestampOpenCV[loopRound],
+                                    transVectors[0][0][0], transVectors[0][1][0], transVectors[0][2][0], 
+                                    transVectors[1][0][0], transVectors[1][1][0], transVectors[1][2][0], 
+                                    rotVectors[0][0][0], rotVectors[0][1][0], rotVectors[0][2][0],
+                                    rotVectors[1][0][0], rotVectors[1][1][0], rotVectors[1][2][0], reprojError[0][0], reprojError[1][0]])
         
         # Print current vectors
         #print("\nRotation Vectors: ", rotVectors)
@@ -154,13 +155,6 @@ with open(filename,'a') as csvfile:
 
         print("\nreprojError: ", reprojError)
         #print("\nreprojErrorElement: ", reprojError[1][0])
-
-        # Export results csv
-        csvwriter.writerow([loopRound, timestampOpenCV[loopRound],
-                            transVectors[0][0][0], transVectors[0][1][0], transVectors[0][2][0], 
-                            transVectors[1][0][0], transVectors[1][1][0], transVectors[1][2][0], 
-                            rotVectors[0][0][0], rotVectors[0][1][0], rotVectors[0][2][0],
-                            rotVectors[1][0][0], rotVectors[1][1][0], rotVectors[1][2][0], reprojError[0][0], reprojError[1][0]])
 
         # Display the current frame
         cv2.imshow('Playback', frame)  # Display the current frame

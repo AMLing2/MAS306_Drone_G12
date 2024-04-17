@@ -149,13 +149,15 @@ fields = ['Time','xQTM', 'yQTM', 'zQTM', 'xCV', 'yCV', 'zCV',
 with open(filename, 'w') as csvfile:
 		csvwriter = csv.writer(csvfile)
 		csvwriter.writerow(fields)
-          
+
+#rounds = []
 
 with open(filename,'a') as csvfile:
     # Set writer for loop
     csvwriter = csv.writer(csvfile)
         
-    for loopRound in iterOpenCV:
+    # From 0 to end(iterOpenCV)
+    for loopRound in range(len(iterOpenCV)):
     
         ########################## THIS IS DONE INSIDE DETECTION #########################
 
@@ -164,38 +166,39 @@ with open(filename,'a') as csvfile:
         transVector0 = numpy.array(dataOpenCV[loopRound+1][2:5], dtype=numpy.float32)
         transVector1 = numpy.array(dataOpenCV[loopRound+1][5:8], dtype=numpy.float32)
         # Create rotVectors
-        rotVector0 = numpy.array(dataOpenCV[loopRound+1][9:12], dtype=numpy.float32)
-        rotVector1 = numpy.array(dataOpenCV[loopRound+1][12:15], dtype=numpy.float32)
+        rotVector0 = numpy.array(dataOpenCV[loopRound+1][8:11], dtype=numpy.float32)
+        rotVector1 = numpy.array(dataOpenCV[loopRound+1][11:14], dtype=numpy.float32)
 
         #print("\ntransVector0: ", transVector0)
         #print("\nrotVector0: ", rotVector0)
 
-        if not ((transVector0[0] == 0.0) and (transVector0[1] == 0.0) and (transVector0[2] == 0.0)):
-            # Save current magnitude
-            curTransMag = numpy.linalg.norm(transVector0)
-            # Save last 10 frames magnitude
-            last10mag.append(curTransMag)
-            if (len(last10mag) > 10):
-                last10mag.pop(0)
+        # Save current magnitude
+        curTransMag = numpy.linalg.norm(transVector0)
 
-            #### START DETECTION ####
-            if (not detectedStart) and (len(last10mag) == 10) and (abs(last10mag[0] - curTransMag) > tolerance):
-                #print("loopRound: ", loopRound)
-                startTime = timestampOpenCV[loopRound]
-                #startIter = iterOpenCV[loopRound-1]
-                #print("\nLoopRound: ", loopRound)
-                #print("startIter: ", startIter)
-                #print("startTime: ", startTime)
-                detectedStart = True
+        #### START DETECTION ####
+        if (not detectedStart) and (len(last10mag) == 10) and (abs(last10mag[0] - curTransMag) > tolerance):
+            #print("loopRound: ", loopRound)
+            startTime = timestampOpenCV[loopRound]
+            startLoop = loopRound
+            #startIter = iterOpenCV[loopRound-1]
+            #print("\nLoopRound: ", loopRound)
+            #print("startIter: ", startIter)
+            #print("startTime: ", startTime)
+            detectedStart = True
+        
+        # Save last 10 frames magnitude
+        last10mag.append(curTransMag)
+        if (len(last10mag) > 10):
+            last10mag.pop(0)
 
         curTime = timestampOpenCV[loopRound] - startTime
 
         # Match closest timestamps
         if detectedStart:
-            # QTM time match? 
+            # QTM time match - i will be saved when break
             for i in range(len(timeQTM)):
                 if (0 < ((timeQTM[i] - startTimeQTM) - curTime)):
-                    idx = i
+                    correctTimeQTM = timeQTM[i]
                     break
 
             #print("\nCurrent Time: ", curTime)
@@ -207,33 +210,41 @@ with open(filename,'a') as csvfile:
             
             #print("\nrotmatQTM: ", rotMatQTM[i])
             #print("\nrotmatQTMElement: ", rotMatQTM[i][0][1])
-            if not ((transVector0[0] == 0.0) and (transVector0[1] == 0.0) and (transVector0[2] == 0.0)):
-                rotMat0, _ = cv2.Rodrigues(rotVector0)
-                #print("\nRotMat0: ", rotMat0)
-            else:
-                rotMat0 = numpy.zeros((3, 3), dtype=numpy.float32)
-            if not ((transVector1[0] == 0.0) and (transVector1[1] == 0.0) and (transVector1[2] == 0.0)):
-                rotMat1, _ = cv2.Rodrigues(rotVector1)
-            else:
-                rotMat1 = numpy.zeros((3, 3), dtype=numpy.float32)
+            rotMat0, _ = cv2.Rodrigues(rotVector0)
+            rotMat1, _ = cv2.Rodrigues(rotVector1)
+            
+#                if not ((transVector0[0] == 0.0) and (transVector0[1] == 0.0) and (transVector0[2] == 0.0)):
+#                    rotMat0, _ = cv2.Rodrigues(rotVector0)
+#                    #print("\nRotMat0: ", rotMat0)
+#                else:
+#                    rotMat0 = numpy.zeros((3, 3), dtype=numpy.float32)
+#                if not ((transVector1[0] == 0.0) and (transVector1[1] == 0.0) and (transVector1[2] == 0.0)):
+#                    rotMat1, _ = cv2.Rodrigues(rotVector1)
+#                else:
+#                    rotMat1 = numpy.zeros((3, 3), dtype=numpy.float32)
 
         #print("\nRotMat0Element: ", rotMat0[1][2]) # [row][column]
 
+            #print("\ni for csvwriter QTM: ", i)
             # Export time and translation vectors
-            csvwriter.writerow([curTime, transQTM[idx][0], transQTM[idx][1], transQTM[idx][2],
+            csvwriter.writerow([curTime, transQTM[i][0], transQTM[i][1], transQTM[i][2],
                                 transVector0[0], transVector0[1], transVector0[2],
-                                transVector1[0], transVector1[1], transVector1[2],
+                                #transVector1[0], transVector1[1], transVector1[2],
                                 rotMat0[0][0], rotMat0[0][1], rotMat0[0][2],
                                 rotMat0[1][0], rotMat0[1][1], rotMat0[1][2],
                                 rotMat0[2][0], rotMat0[2][1], rotMat0[2][2],
                                 rotMat1[0][0], rotMat1[0][1], rotMat1[0][2], 
                                 rotMat1[0][1], rotMat1[1][1], rotMat1[1][2], 
                                 rotMat1[0][2], rotMat1[2][1], rotMat1[2][2], 
-                                rotMatQTM[idx][0][0], rotMatQTM[idx][0][1], rotMatQTM[idx][0][2],
-                                rotMatQTM[idx][1][0], rotMatQTM[idx][1][1], rotMatQTM[idx][1][2],
-                                rotMatQTM[idx][2][0], rotMatQTM[idx][2][1], rotMatQTM[idx][2][2],])
+                                rotMatQTM[i][0][0], rotMatQTM[i][0][1], rotMatQTM[i][0][2],
+                                rotMatQTM[i][1][0], rotMatQTM[i][1][1], rotMatQTM[i][1][2],
+                                rotMatQTM[i][2][0], rotMatQTM[i][2][1], rotMatQTM[i][2][2],])
 
         ########################## THIS IS DONE INSIDE DETECTION #########################
+        #rounds.append(loopRound)
 
 print("\nStartOpen: ", startTime)
 print("\nStartQTM: ", startTimeQTM)
+print("\nStartLoop: ", startLoop)
+
+#print("\nLoops: ", rounds)
