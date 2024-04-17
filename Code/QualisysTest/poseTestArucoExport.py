@@ -96,7 +96,8 @@ print("\nTimestampsOpenCV: ", timestampOpenCV)
 
 # Setup csv file
 filename = f"ExportedAruco_{testNr}.csv" 
-fields = ['Frame', 'TimeCV', 'rVec0_0', 'rVec0_1', 'rVec0_2', 'rVec1_0', 'rVec1_1', 'rVec1_2', 'reprojError0', 'reprojError1']
+fields = ['Frame', 'TimeCV', 'tVec0_0', 'tVec0_1','tVec0_2', 'tVec1_0', 'tVec1_1', 'tVec1_2',
+          'rVec0_0', 'rVec0_1', 'rVec0_2', 'rVec1_0', 'rVec1_1', 'rVec1_2', 'reprojError0', 'reprojError1']
 
 # Column names
 with open(filename, 'w') as csvfile:
@@ -132,27 +133,34 @@ with open(filename,'a') as csvfile:
                     markerPoints, markerCorner, cameraMatrix, distortionCoefficients, rvecs=rotVectors, tvecs=transVectors, reprojectionError=reprojError,
                     useExtrinsicGuess=False, flags=cv2.SOLVEPNP_IPPE)
 
-                # Print current vectors
-    #            print("\nRotation Vectors: ", rotVectors)
-    #            print("\nTranslation Vectors: ", transVectors)
-
                 # Draw marker axes
                 cv2.drawFrameAxes(frame, cameraMatrix=cameraMatrix,
                                 distCoeffs=distortionCoefficients, rvec=rotVectors[0], tvec=transVectors[0], length=axesLength)
                 
                 # Print Current marker ID
     #            print("\nCurrent ID: ", markerID)
+        else:
+            transVectors = (numpy.array([[0.0], [0.0], [0.0]]), numpy.array([[0.0], [0.0], [0.0]]))
+            rotVectors = transVectors
+            reprojError[0][0] = 0.0
+            reprojError[1][0] = 0.0
+        
+        # Print current vectors
+        #print("\nRotation Vectors: ", rotVectors)
+        #print("\nTranslation Vectors: ", transVectors)
+        #print("\nTransVec0Eleent: ", transVectors[1][2][0])
+        #print("\nRotVector: ", rotVectors[1])
+        #print("\nRotVectorElement: ", rotVectors[1][1][0])
 
-#            print("\nRotVector: ", rotVectors[1])
-#            print("\nRotVectorElement: ", rotVectors[1][1][0])
+        print("\nreprojError: ", reprojError)
+        #print("\nreprojErrorElement: ", reprojError[1][0])
 
-            #print("\nreprojError: ", reprojError)
-            #print("\nreprojErrorElement: ", reprojError[1][0])
-
-            # Export results csv
-            csvwriter.writerow([loopRound, timestampOpenCV[loopRound],
-                                rotVectors[0][0][0], rotVectors[0][1][0], rotVectors[0][2][0],
-                                rotVectors[1][0][0], rotVectors[1][1][0], rotVectors[1][2][0], reprojError[0][0], reprojError[1][0]])
+        # Export results csv
+        csvwriter.writerow([loopRound, timestampOpenCV[loopRound],
+                            transVectors[0][0][0], transVectors[0][1][0], transVectors[0][2][0], 
+                            transVectors[1][0][0], transVectors[1][1][0], transVectors[1][2][0], 
+                            rotVectors[0][0][0], rotVectors[0][1][0], rotVectors[0][2][0],
+                            rotVectors[1][0][0], rotVectors[1][1][0], rotVectors[1][2][0], reprojError[0][0], reprojError[1][0]])
 
         # Display the current frame
         cv2.imshow('Playback', frame)  # Display the current frame
