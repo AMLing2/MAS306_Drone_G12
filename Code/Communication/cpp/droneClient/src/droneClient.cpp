@@ -62,7 +62,7 @@ public:
 	virtual int dServerConnect() override;
 	virtual ssize_t initSend(char* msg, size_t msgLen) override;
 	virtual socklen_t getclient(struct sockaddr* clientAddr) override;
-	virtual ssize_t sendServer(const char* msg,size_t msglen) override;
+	virtual ssize_t sendServer(const char* msg,size_t msglen) const override;
 	virtual void setTimeout() override;
 	virtual void setTimeout(const long int sec,const long int nanoSec) override;
 	int connectInit();
@@ -96,20 +96,22 @@ public:
 	,clientClass_(clientClass)
 	{
 		imuBuffer_ = new char[imuBufferLen_];
+		pIMUmsg_ = std::make_unique<dronePosVec::dronePosition>();
 	}
 	~TcIMUStream()
 	{
 		delete[] imuBuffer_;
 	}
-	void tSendIMUStream();
+	void tSendIMUStream(std::unique_ptr<dronePosVec::dronePosition> pIMUmsg);
 	void tstartIMUthread()
 	{
 		thread_imu_ = std::thread([this]()
 		{
-			tSendIMUStream();
+			tSendIMUStream(std::move(pIMUmsg_));
 		});
 		thread_imu_.detach();
 	}
+	
 	void joinThread()
 	{
 		if(thread_imu_.joinable())
@@ -121,13 +123,18 @@ public:
 private:
 	const size_t imuBufferLen_ = 1024;
 	char* imuBuffer_;
+	//std::string strBuffer_;
 	const int interval_; //not sure if it would be nice to be able to update on runtime
 	DroneClient* clientClass_; //pointer is const, cant be used to write to class, preventing read and write at the same time
-	dronePosVec::dronePosition imuProtoc_;
 	bool threadLoop_ = true;
 	std::thread thread_imu_;
+	size_t msgbufferSize_ = 0;
+	std::unique_ptr<dronePosVec::dronePosition> pIMUmsg_;
+	//dronePosVec::dronePosition imuProtoc_;
+
 };
 
+/*
 class TcMotorStream
 {
 public:
@@ -149,6 +156,7 @@ private:
 	const int interval_; //not sure if it would be nice to be able to update on runtime
 	DroneClient* clientClass_; //pointer is const, cant be used to write to class, preventing read and write at the same time
 };
+*/
 
 //-------------------MAIN-------------------@
 int main()
@@ -188,24 +196,35 @@ int main()
 
 //--------------thread functions--------------@
 
-void TcIMUStream::tSendIMUStream()
+void TcIMUStream::tSendIMUStream(std::unique_ptr<dronePosVec::dronePosition> pIMUmsg)
 {
-	int tempi = 0;
-	size_t bufferSize = 0;//move to class
+	int tempi = 0; //temporary
+	const int value_size = 3; //temporary
+	std::string strBuffer_;
+	std::string tempmsg = "hello";
+	float value[value_size] = {1.1,1.2,1.3};
+	//google::protobuf::RepeatedField<float>* mpPos = imuProtoc_.mutable_position();
 	std::cout<<"IMUthread running"<<std::endl;
-	dronePosVec::dronePosition* dp = imuProtoc_.add_position();
-	while(threadLoop_)
+	while(true)
 	{
-		imuProtoc_.Clear();
-		imuProtoc_.set_devicetype(dronePosVec::IMUonly);
-		dp->set_position(1.1);
-		bufferSize = imuProtoc_.ByteSizeLong();
-		imuProtoc_.SerializeToArray(imuBuffer_,bufferSize);
+		/*
+		pIMUmsg->Clear();
+		pIMUmsg->set_devicetype(dronePosVec::IMUonly);
+		std::cout<<"adding to repeated pos"<<std::endl;
+		std::cout<<"str print: "<<pIMUmsg->devicetype()<<std::endl;
+		pIMUmsg->mutable_position()->Add(value[0]); //breaks here (sometimes)
+		msgbufferSize_ = pIMUmsg->ByteSizeLong();
+		std::cout<<"serializing"<<std::endl;
+		std::cout<<"pos size: "<<pIMUmsg->position_size()<<std::endl;
+		strBuffer_ = pIMUmsg->SerializeAsString(); //breaks here (always)
 		
+		
+		*/
 		//SEND
 		std::this_thread::sleep_for(clientClass_->calcSleepTime(interval_));
-		clientClass_->sendServer(imuBuffer_,bufferSize);
-		
+		std::cout<<"sending"<<std::endl;
+		clientClass_->sendServer(tempmsg.c_str(),tempmsg.length());
+		std::cout<<"msg sent"<<std::endl;
 		tempi++; //run 10 times
 		if(tempi >= 10)
 		{
@@ -213,12 +232,12 @@ void TcIMUStream::tSendIMUStream()
 		}
 	}
 }
-
+/*
 void TcMotorStream::tRecvMotorStream()
 {
 
 }
-
+*/
 //--------------class definitions-------------@
 void DroneClient::mainloop(dronePosVec::dataTransfers* pDataMsgs) //update for drone
 {
@@ -359,7 +378,7 @@ int DroneClient::connectInit() //unused
 	return r;
 }
 
-ssize_t DroneClient::sendServer(const char* msg,const size_t msglen)
+ssize_t DroneClient::sendServer(const char* msg,const size_t msglen) const
 {
 	return send(f_socket,msg,msglen,0);
 }

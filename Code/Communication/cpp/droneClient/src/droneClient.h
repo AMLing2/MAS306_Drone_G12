@@ -15,7 +15,7 @@ public:
 	virtual socklen_t getclient(struct sockaddr* clientAddr) = 0;// ideally should add all these into one init function
 	virtual int dServerConnect() = 0;
 	virtual ssize_t initSend(char* msg, size_t msgLen) =0;
-	virtual ssize_t sendServer(const char* msg,size_t msglen) = 0;//might rename
+	virtual ssize_t sendServer(const char* msg,size_t msglen) const = 0;//might rename
 	virtual ssize_t recvServer(char* buffer, size_t buffernLen) = 0;
 	virtual void setTimeout() = 0;
 	virtual void setTimeout(const long int sec,const long int microSec) = 0;
