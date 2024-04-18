@@ -10,6 +10,8 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/droneClient/src/droneClient.cpp" "CMakeFiles/droneClient.dir/src/droneClient.cpp.o" "gcc" "CMakeFiles/droneClient.dir/src/droneClient.cpp.o.d"
   "/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/droneClient/src/dronePosVec.pb.cc" "CMakeFiles/droneClient.dir/src/dronePosVec.pb.cc.o" "gcc" "CMakeFiles/droneClient.dir/src/dronePosVec.pb.cc.o.d"
+  "/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/droneClient/src/mainClient.cpp" "CMakeFiles/droneClient.dir/src/mainClient.cpp.o" "gcc" "CMakeFiles/droneClient.dir/src/mainClient.cpp.o.d"
+  "/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/droneClient/src/threadMembers.cpp" "CMakeFiles/droneClient.dir/src/threadMembers.cpp.o" "gcc" "CMakeFiles/droneClient.dir/src/threadMembers.cpp.o.d"
   )
 
 # Targets to which this target links.

@@ -222,6 +222,54 @@ src/dronePosVec.pb.cc.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/droneClient.dir/build.make CMakeFiles/droneClient.dir/src/dronePosVec.pb.cc.s
 .PHONY : src/dronePosVec.pb.cc.s
 
+src/mainClient.o: src/mainClient.cpp.o
+.PHONY : src/mainClient.o
+
+# target to build an object file
+src/mainClient.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/droneClient.dir/build.make CMakeFiles/droneClient.dir/src/mainClient.cpp.o
+.PHONY : src/mainClient.cpp.o
+
+src/mainClient.i: src/mainClient.cpp.i
+.PHONY : src/mainClient.i
+
+# target to preprocess a source file
+src/mainClient.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/droneClient.dir/build.make CMakeFiles/droneClient.dir/src/mainClient.cpp.i
+.PHONY : src/mainClient.cpp.i
+
+src/mainClient.s: src/mainClient.cpp.s
+.PHONY : src/mainClient.s
+
+# target to generate assembly for a file
+src/mainClient.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/droneClient.dir/build.make CMakeFiles/droneClient.dir/src/mainClient.cpp.s
+.PHONY : src/mainClient.cpp.s
+
+src/threadMembers.o: src/threadMembers.cpp.o
+.PHONY : src/threadMembers.o
+
+# target to build an object file
+src/threadMembers.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/droneClient.dir/build.make CMakeFiles/droneClient.dir/src/threadMembers.cpp.o
+.PHONY : src/threadMembers.cpp.o
+
+src/threadMembers.i: src/threadMembers.cpp.i
+.PHONY : src/threadMembers.i
+
+# target to preprocess a source file
+src/threadMembers.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/droneClient.dir/build.make CMakeFiles/droneClient.dir/src/threadMembers.cpp.i
+.PHONY : src/threadMembers.cpp.i
+
+src/threadMembers.s: src/threadMembers.cpp.s
+.PHONY : src/threadMembers.s
+
+# target to generate assembly for a file
+src/threadMembers.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/droneClient.dir/build.make CMakeFiles/droneClient.dir/src/threadMembers.cpp.s
+.PHONY : src/threadMembers.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -241,6 +289,12 @@ help:
 	@echo "... src/dronePosVec.pb.o"
 	@echo "... src/dronePosVec.pb.i"
 	@echo "... src/dronePosVec.pb.s"
+	@echo "... src/mainClient.o"
+	@echo "... src/mainClient.i"
+	@echo "... src/mainClient.s"
+	@echo "... src/threadMembers.o"
+	@echo "... src/threadMembers.i"
+	@echo "... src/threadMembers.s"
 .PHONY : help
 
 
