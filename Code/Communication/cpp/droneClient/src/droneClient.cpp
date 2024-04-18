@@ -16,12 +16,12 @@ class DroneClient : public ClientSocket
 {
 public:
 	DroneClient(const std::string& serverAddr, int serverPort)
-	:server_port_(serverPort)
-	,server_addr_(serverAddr)
+	:server_port(serverPort)
+	,server_addr(serverAddr)
 	{
 		genBuffer_ = new char[bufferLen_];
 		char decimal_port[16];
-		snprintf(decimal_port, 16, "%d", server_port_);
+		snprintf(decimal_port, 16, "%d", server_port);
 		decimal_port[15] = '\0';
 		/*
 		struct addrinfo hints;
@@ -40,7 +40,7 @@ public:
 		}
 		*/
 		f_socket = socket(AF_INET, SOCK_DGRAM | SOCK_CLOEXEC, IPPROTO_UDP);
-		if(f_socket == -1)
+		if(f_socket == 1)
 		{
 			std::cout<<"failed to create udp socket"<<std::endl;
 		}
@@ -73,14 +73,13 @@ public:
 	std::chrono::nanoseconds getMonoServerTime();
 	std::chrono::nanoseconds calcSleepTime(int interval);
 
-
-
 private:
 	std::chrono::nanoseconds monoTimeNow_();
-	int f_socket;
-	int server_port_;
-	std::string server_addr_;
+
+	int server_port;
+	std::string server_addr;
 	//struct addrinfo* f_addrinfo;
+	int f_socket;
 	struct sockaddr clientAddr_;
 	socklen_t clientsocklen_;
 	const size_t bufferLen_ = 1024;
@@ -115,7 +114,6 @@ public:
 	
 	void joinThread()
 	{
-		
 		if(thread_imu_.joinable())
 		{
 			thread_imu_.join();
@@ -164,8 +162,8 @@ private:
 int main()
 {
 	dronePosVec::dataTransfers dataMsg;
-	const std::string serverAddr = "128.39.200.239";
-	const int serverPort = 20002;
+	std::string serverAddr = "128.39.200.239";
+	int serverPort = 20002;
 	DroneClient droneClient(serverAddr,serverPort);
 	if (droneClient.dServerConnect() == 0)
 	{
@@ -190,11 +188,9 @@ int main()
 	{
 		std::cout<<"connection error"<<std::endl;
 	}
-	/*
 	std::cout<<"press to exit"<<std::endl;
 	int a;
 	std::cin>>a;
-	*/
 	return 0;
 }
 
@@ -202,30 +198,33 @@ int main()
 
 void TcIMUStream::tSendIMUStream(std::unique_ptr<dronePosVec::dronePosition> pIMUmsg)
 {
-	//std::cout<<"f_socket: "<<clientClass_->f_socket<<std::endl;
 	int tempi = 0; //temporary
-	const int value_size = 3;
+	const int value_size = 3; //temporary
+	std::string strBuffer_;
+	std::string tempmsg = "hello";
 	float value[value_size] = {1.1,1.2,1.3};
 	//google::protobuf::RepeatedField<float>* mpPos = imuProtoc_.mutable_position();
 	std::cout<<"IMUthread running"<<std::endl;
-	while(threadLoop_)
+	while(true)
 	{
+		/*
 		pIMUmsg->Clear();
 		pIMUmsg->set_devicetype(dronePosVec::IMUonly);
 		std::cout<<"adding to repeated pos"<<std::endl;
 		std::cout<<"str print: "<<pIMUmsg->devicetype()<<std::endl;
-		pIMUmsg->mutable_position()->Add(value[0]);
+		pIMUmsg->mutable_position()->Add(value[0]); //breaks here (sometimes)
 		msgbufferSize_ = pIMUmsg->ByteSizeLong();
 		std::cout<<"serializing"<<std::endl;
 		std::cout<<"pos size: "<<pIMUmsg->position_size()<<std::endl;
-		pIMUmsg->SerializeToArray(imuBuffer_,imuBufferLen_);
+		strBuffer_ = pIMUmsg->SerializeAsString(); //breaks here (always)
 		
+		
+		*/
 		//SEND
 		std::this_thread::sleep_for(clientClass_->calcSleepTime(interval_));
 		std::cout<<"sending"<<std::endl;
-		clientClass_->sendServer(imuBuffer_,msgbufferSize_);
+		clientClass_->sendServer(tempmsg.c_str(),tempmsg.length());
 		std::cout<<"msg sent"<<std::endl;
-		std::cout<<tempi<<std::endl;
 		tempi++; //run 10 times
 		if(tempi >= 10)
 		{
@@ -240,7 +239,7 @@ void TcMotorStream::tRecvMotorStream()
 }
 */
 //--------------class definitions-------------@
-void DroneClient::mainloop(dronePosVec::dataTransfers* pDataMsgs) //update for drone, change to reference
+void DroneClient::mainloop(dronePosVec::dataTransfers* pDataMsgs) //update for drone
 {
 	//would be nice to have two sockets, one for udp streaming and one tcp for other communication such as this
 	//request for server to start reading streams
@@ -261,10 +260,8 @@ void DroneClient::mainloop(dronePosVec::dataTransfers* pDataMsgs) //update for d
 	TcIMUStream imuStream(20000000,this);	
 	imuStream.tstartIMUthread();
 	std::cout<<"waiting for imu thread to end"<<std::endl;
-	//imuStream.joinThread();
-	while (true)
-	{
-	}
+	imuStream.joinThread();
+	
 	
 }
 
@@ -339,7 +336,7 @@ int DroneClient::cSyncTime(dronePosVec::dataTransfers* pdroneInfoMsg) //sync cli
 	pdroneInfoMsg->ParseFromArray(genBuffer_,msgLen);
 	timerOffset_ = std::chrono::nanoseconds(pdroneInfoMsg->timesync_ns());
 
-	monoServerTime_ = monoServerTime_ - timerOffset_; //wierd
+	monoServerTime_ = monoServerTime_ - timerOffset_;
 	std::cout<<"offset: "<< timerOffset_.count()<<std::endl;
 	return 0;
 }
@@ -391,8 +388,8 @@ ssize_t DroneClient::initSend(char* msg, size_t msgLen)
 	struct sockaddr_in arenaServerAddr;
 	memset(&arenaServerAddr,0,sizeof(arenaServerAddr)); //probably pointless
 	arenaServerAddr.sin_family = AF_INET;
-	arenaServerAddr.sin_port = htons(server_port_); //converts to network byte order
-	inet_pton(arenaServerAddr.sin_family, server_addr_.c_str(), &(arenaServerAddr.sin_addr));
+	arenaServerAddr.sin_port = htons(server_port); //converts to network byte order
+	inet_pton(arenaServerAddr.sin_family, server_addr.c_str(), &(arenaServerAddr.sin_addr));
 	memset(&arenaServerAddr.sin_zero,0,sizeof(arenaServerAddr.sin_zero));
 	struct sockaddr* sockaddrServer = reinterpret_cast<sockaddr*>(&arenaServerAddr);
 	return sendto(f_socket,msg,msgLen,0,sockaddrServer,sizeof(arenaServerAddr));
