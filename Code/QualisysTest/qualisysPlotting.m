@@ -2,7 +2,7 @@ clc; clear; close all;
 
 %% Plotting results Qualisys Test 
 
-data = csvread("ExportedResults_0.csv", 2,0);
+data = csvread("ExportedResults_2.csv", 2,0);
 
 time = data(:,1);
 xQTM = data(:,2);
@@ -78,7 +78,7 @@ for i = 1:9
     xlabel('Time [seconds]');
     title(['Element ', num2str(i)])
     hold off
-    xlim([25 125])
+    %xlim([25 125])
     ylim([-1 1])
 end
 
@@ -113,7 +113,7 @@ for i = 1:9
     xlabel('Time [seconds]');
     title(['Element ', num2str(i)])
     hold off
-    xlim([25 125])
+    %xlim([25 125])
     ylim([-1 1])
 end
 
@@ -154,7 +154,7 @@ for i = 1:9
     xlabel('Time [seconds]');
     title(['Element ', num2str(i)])
     hold off
-    xlim([25 125])
+    %xlim([25 125])
     ylim([-1 1])
 end
 
@@ -190,7 +190,7 @@ for i = 1:9
     xlabel('Time [seconds]');
     title(['Element ', num2str(i)])
     hold off
-    xlim([25 125])
+    %xlim([25 125])
     ylim([-1 1])
 end
 
@@ -207,25 +207,125 @@ lgd.Position(2) = 0.4;
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
 
-%%%%%%%%%%% 
+%%%%%%%%%%%%%%%%%% Angle diff plot %%%%%%%%%%%%%%%%%%
 figure(Name="Angle")
 hold on
 angles0 = zeros(length(time), 1);
+angles1 = zeros(length(time), 1);
+angChoice = zeros(length(time), 1);
+eul0 = zeros(length(time), 3);
+eul1 = zeros(length(time), 3);
 for i = 1 : length(time)
     rotMat0 = [data(i,8), data(i,9), data(i,10);
                data(i,11), data(i,12), data(i,13);
                data(i,14), data(i,15), data(i,16)];
+    rotMat1 = [data(i,17), data(i,18), data(i,19);
+               data(i,20), data(i,21), data(i,22);
+               data(i,23), data(i,24), data(i,25)];
     rotMatQTM = [data(i,26), data(i,27), data(i,28);
                  data(i,29), data(i,30), data(i,31);
                  data(i,32), data(i,33), data(i,34)];
-    rotMatDiff = rotMat0' * rotMatQTM;
-    rotVecDiff = rotm2axang(rotMatDiff);
-    angles0(i) = rad2deg(rotVecDiff(4));
+    rotMatDiff0 = rotMat0' * rotMatQTM;
+    rotMatDiff1 = rotMat1' * rotMatQTM;
+    eul0(i,:) = rotm2eul(rotMatDiff0);
+    eul1(i,:) = rotm2eul(rotMatDiff1);
+
+    rotVecDiff0 = rotm2axang(rotMatDiff0);
+    rotVecDiff1 = rotm2axang(rotMatDiff1);
+    angles0(i) = rad2deg(rotVecDiff0(4));
+    angles1(i) = rad2deg(rotVecDiff1(4));
+    
+    ang0 = rad2deg(rotVecDiff0(4));
+    ang1 = rad2deg(rotVecDiff1(4));
+    
+    if ang0 < ang1
+        angChoice(i) = ang0;
+    else
+        angChoice(i) = ang1;
+    end
 end
 
 % Plot only when QTM rotation matrix != 0
-validIndices = (QTM ~= 0);
-plot(time(validIndices), angles0(validIndices), '.k', MarkerSize=1)
+plotY = rad2deg(eul0(:,1));
+validIndices = (plotY ~= 0);
+plot(time(validIndices), plotY(validIndices), '.k', MarkerSize=1)
 title("Difference from Axis-Angle")
 ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
+ylim([-50 50])
+
+%%%%%%%%%%%%%%%%%% Projection Plot %%%%%%%%%%%%%%%%%%
+CV0anglesX = zeros(length(time), 1);
+CV0anglesY = zeros(length(time), 1);
+QTManglesX = zeros(length(time), 1);
+QTManglesY = zeros(length(time), 1);
+% diff0AnglesX = zeros(length(time), 1);
+% diff0AnglesY = zeros(length(time), 1);
+% diff1AnglesX = zeros(length(time), 1);
+% diff1AnglesY = zeros(length(time), 1);
+diffAnglesX = zeros(length(time), 1);
+diffAnglesY = zeros(length(time), 1);
+
+angChoice = zeros(length(time), 1);
+eul0 = zeros(length(time), 3);
+eul1 = zeros(length(time), 3);
+
+for i = 1 : length(time)
+    x0_x = data(i,8);
+    x0_y = data(i,11);
+    y0_x = data(i,9);
+    y0_y = data(i,12);
+
+    x1_x = data(i,17);
+    x1_y = data(i,20);
+    y1_x = data(i,18);
+    y1_y = data(i,21);
+
+    CV0anglesX = atan2d(x0_y,x0_x);
+    CV0anglesY = atan2d(y0_x,y0_y);
+
+    CV1anglesX = atan2d(x1_y,x1_x);
+    CV1anglesY = atan2d(y1_x,y1_y);
+
+    xQTM_x = data(i,26);
+    xQTM_y = data(i,29);
+    yQTM_x = data(i,27);
+    yQTM_y = data(i,30);
+
+    QTManglesX = atan2d(xQTM_y, xQTM_x);
+    QTManglesY = atan2d(yQTM_x, yQTM_y);
+
+    diff0AnglesX = QTManglesX - CV0anglesX;
+    diff0AnglesY = QTManglesY - CV0anglesY;
+
+    diff1AnglesX = QTManglesX - CV1anglesX;
+    diff1AnglesY = QTManglesY - CV1anglesY;
+
+    if abs(diff0AnglesX) < abs(diff1AnglesX)
+        diffAnglesX(i) = diff0AnglesX;
+    else
+        diffAnglesX(i) = diff1AnglesX;
+    end
+    if abs(diff0AnglesY) < abs(diff1AnglesY)
+        diffAnglesY(i) = diff0AnglesY;
+    else
+        diffAnglesY(i) = diff1AnglesY;
+    end
+end
+
+% Plot only when QTM rotation matrix != 0
+%plotY = rad2deg(eul0(:,1));
+validIndices = (QTM ~= 0);
+figure(Name="ProjPlotXY")
+plot(time(validIndices), diffAnglesX(validIndices), '.r', MarkerSize=1)
+hold on
+plot(time(validIndices), diffAnglesY(validIndices), '.g', MarkerSize=1)
+title("Difference in angle projected in XY-plane")
+ylabel("Angle [degrees]")
+xlabel("Time [seconds]")
+[h, icons] = legend('X-axis diff', 'Y-axis diff');
+ylim([-15 15])
+
+% Change size of legend icons
+icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
+set(icons, 'MarkerSize', 20)
