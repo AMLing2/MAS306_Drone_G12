@@ -67,14 +67,14 @@ public:
 	virtual void setTimeout(const long int sec,const long int nanoSec) override;
 	int connectInit();
 	virtual	ssize_t recvServer(char* buffer,size_t bufferLen) override;
-	void mainloop();
+	void mainloop(dronePosVec::dataTransfers* pDataMsgs);
 	int cSyncTime(dronePosVec::dataTransfers* pdroneInfoMsg);
 	
 	std::chrono::nanoseconds getMonoServerTime();
+	std::chrono::nanoseconds calcSleepTime(int interval);
 
 private:
 	std::chrono::nanoseconds monoTimeNow_();
-	std::chrono::nanoseconds calcSleepTime_(int interval);
 
 	int server_port;
 	std::string server_addr;
@@ -88,10 +88,72 @@ private:
 	std::chrono::nanoseconds timerOffset_ = std::chrono::nanoseconds(0);
 };
 
+class TcIMUStream
+{
+public:
+	TcIMUStream(int interval, DroneClient* clientClass)
+	:interval_(interval)
+	,clientClass_(clientClass)
+	{
+		imuBuffer_ = new char[imuBufferLen_];
+	}
+	~TcIMUStream()
+	{
+		delete[] imuBuffer_;
+	}
+	void tSendIMUStream();
+	void tstartIMUthread()
+	{
+		thread_imu_ = std::thread([this]()
+		{
+			tSendIMUStream();
+		});
+		thread_imu_.detach();
+	}
+	void joinThread()
+	{
+		if(thread_imu_.joinable())
+		{
+			thread_imu_.join();
+		}
+	}
+
+private:
+	const size_t imuBufferLen_ = 1024;
+	char* imuBuffer_;
+	const int interval_; //not sure if it would be nice to be able to update on runtime
+	DroneClient* clientClass_; //pointer is const, cant be used to write to class, preventing read and write at the same time
+	dronePosVec::dronePosition imuProtoc_;
+	bool threadLoop_ = true;
+	std::thread thread_imu_;
+};
+
+class TcMotorStream
+{
+public:
+	TcMotorStream(int interval, DroneClient* clientClass)
+	:interval_(interval)
+	,clientClass_(clientClass)
+	{
+		motorBuffer_ = new char[motorBufferLen_];
+	}
+	~TcMotorStream()
+	{
+		delete[] motorBuffer_;
+	}
+	void tRecvMotorStream();
+
+private:
+	const size_t motorBufferLen_ = 1024;
+	char* motorBuffer_;
+	const int interval_; //not sure if it would be nice to be able to update on runtime
+	DroneClient* clientClass_; //pointer is const, cant be used to write to class, preventing read and write at the same time
+};
 
 //-------------------MAIN-------------------@
 int main()
 {
+	dronePosVec::dataTransfers dataMsg;
 	std::string serverAddr = "128.39.200.239";
 	int serverPort = 20002;
 	DroneClient droneClient(serverAddr,serverPort);
@@ -99,7 +161,6 @@ int main()
 	{
 		std::cout<<"connection sucess"<<std::endl;
 		//checklist before starting streaming
-		dronePosVec::dataTransfers dataMsg;
 		bool checklist = true;
 		while(checklist)
 		{
@@ -113,7 +174,7 @@ int main()
 				checklist = false;
 			}
 		}
-		droneClient.mainloop();
+		droneClient.mainloop(&dataMsg);
 	}
 	else
 	{
@@ -125,54 +186,64 @@ int main()
 	return 0;
 }
 
-//--------------class definitions-------------@
-void DroneClient::mainloop() //update for drone
-{
-	//would be nice to have two sockets, one for udp streaming and one tcp for other communication such as this
-	
-	
-	
-	
-	
-	/*
-	ssize_t msgRecvLen = 0;
-	dronePosVec::dataTransfers droneInfoMsg;
-	while(true)
-	{
-		setTimeout(60,0);
-		std::cout<<"listening to drone input"<<std::endl;
-		msgRecvLen = recvServer(genBuffer_,bufferLen_);
-		if(msgRecvLen == -1)
-		{
-			break;
-		}
-		droneInfoMsg.ParseFromArray(genBuffer_,msgRecvLen);
-		std::cout<<"msg recv: "<<droneInfoMsg.msg()<<std::endl;
-		switch(droneInfoMsg.type())
-		{
-			case dronePosVec::timeSync:
-				{
-					std::cout<<"timesync req"<<std::endl;
-					cSyncTime(&droneInfoMsg);
-					break;
-				}
-			case dronePosVec::socketInfo:
-				{
+//--------------thread functions--------------@
 
-					break;
-				}
-			case dronePosVec::stateChange:
-				{
-					std::cout<<"statechange req"<<std::endl;
-					break;
-				}
-			default:
-				{
-					break;
-				}
+void TcIMUStream::tSendIMUStream()
+{
+	int tempi = 0;
+	size_t bufferSize = 0;//move to class
+	std::cout<<"IMUthread running"<<std::endl;
+	dronePosVec::dronePosition* dp = imuProtoc_.add_position();
+	while(threadLoop_)
+	{
+		imuProtoc_.Clear();
+		imuProtoc_.set_devicetype(dronePosVec::IMUonly);
+		dp->set_position(1.1);
+		bufferSize = imuProtoc_.ByteSizeLong();
+		imuProtoc_.SerializeToArray(imuBuffer_,bufferSize);
+		
+		//SEND
+		std::this_thread::sleep_for(clientClass_->calcSleepTime(interval_));
+		clientClass_->sendServer(imuBuffer_,bufferSize);
+		
+		tempi++; //run 10 times
+		if(tempi >= 10)
+		{
+			threadLoop_ = false;
 		}
 	}
-	*/
+}
+
+void TcMotorStream::tRecvMotorStream()
+{
+
+}
+
+//--------------class definitions-------------@
+void DroneClient::mainloop(dronePosVec::dataTransfers* pDataMsgs) //update for drone
+{
+	//would be nice to have two sockets, one for udp streaming and one tcp for other communication such as this
+	//request for server to start reading streams
+	pDataMsgs->set_id(2);
+	pDataMsgs->set_type(dronePosVec::stateChange);
+	std::string stateMsg = "start";
+	pDataMsgs->set_msg(stateMsg);
+	pDataMsgs->SerializeToArray(genBuffer_,pDataMsgs->ByteSizeLong());
+	sendServer(genBuffer_,pDataMsgs->ByteSizeLong());
+	//wait for recv from server
+	setTimeout();
+	pDataMsgs->Clear();
+	ssize_t recvSize = recvServer(genBuffer_,bufferLen_);
+	pDataMsgs->ParseFromArray(genBuffer_,recvSize);
+	//could probably read what it is but recvining it means its probably fine
+
+	//start threads
+	TcIMUStream imuStream(20000000,this);	
+	imuStream.tstartIMUthread();
+	std::cout<<"waiting for imu thread to end"<<std::endl;
+	imuStream.joinThread();
+	
+	
 }
 
 int DroneClient::dServerConnect()
@@ -239,7 +310,7 @@ int DroneClient::cSyncTime(dronePosVec::dataTransfers* pdroneInfoMsg) //sync cli
 	pdroneInfoMsg->SerializeToArray(genBuffer_,bufferLen_);
 	size_t byteSize = pdroneInfoMsg->ByteSizeLong();
 
-	std::this_thread::sleep_for(calcSleepTime_(intervalTime));
+	std::this_thread::sleep_for(calcSleepTime(intervalTime));
 	sendServer(genBuffer_,byteSize);
 
 	msgLen = recvServer(genBuffer_,bufferLen_);
@@ -251,7 +322,7 @@ int DroneClient::cSyncTime(dronePosVec::dataTransfers* pdroneInfoMsg) //sync cli
 	return 0;
 }
 
-std::chrono::nanoseconds DroneClient::calcSleepTime_(int interval)
+std::chrono::nanoseconds DroneClient::calcSleepTime(int interval)
 {
 	return std::chrono::nanoseconds(interval) -((monoTimeNow_() - monoServerTime_) % interval);
 }
@@ -288,7 +359,7 @@ int DroneClient::connectInit() //unused
 	return r;
 }
 
-ssize_t DroneClient::sendServer(const char* msg,size_t msglen)
+ssize_t DroneClient::sendServer(const char* msg,const size_t msglen)
 {
 	return send(f_socket,msg,msglen,0);
 }
