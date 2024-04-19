@@ -32,7 +32,6 @@ void TcIMUStream::tSendIMUStream(std::unique_ptr<dronePosVec::dronePosition> pIM
 		//SEND
 		std::this_thread::sleep_for(clientClass_->calcSleepTime(interval_));
 		clientClass_->sendServer(tBuffer_,msgbufferSize_);
-		std::cout<<tempi<<std::endl;
 		tempi++; //run 10 times
 		if(tempi >= 10)
 		{
@@ -46,17 +45,20 @@ MOTOR
 */
 void TcMotorStream::tRecvMotorStream(std::unique_ptr<dronePosVec::droneControl> pMotormsg)
 {
-    int tempi = 0; //temporary
     std::cout<<"Motor thread running"<<std::endl;
+    clientClass_->setTimeout(10,0);
     while(threadLoop_)
     {
-        pMotormsg->Clear();
-        
+        std::this_thread::sleep_for(clientClass_->calcSleepTime(interval_));
+        //pMotormsg->Clear();
+        msgbufferSize_ = clientClass_->recvServer(tBuffer_,tBufferLen_);
+        if(msgbufferSize_ < 0)
+        {
+            threadLoop_ = false;
+            break;
+        }
 
-        if(tempi >= 10)
-		{
-			threadLoop_ = false;
-		}
+
     }
     std::cout<<"Motor thread finished"<<std::endl;
 }

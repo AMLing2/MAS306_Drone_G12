@@ -101,6 +101,8 @@ public:
 	TcIMUStream(int interval, DroneClient* clientClass)
 	:interval_(interval)
 	,clientClass_(clientClass)
+	//could do something like this: if race conditions happen to global monoTimers and Fsocket
+	//,f_socket_(clientClass_->f_socket) 
 	{
 		tBuffer_ = new char[tBufferLen_];
 		pIMUmsg_ = std::make_unique<dronePosVec::dronePosition>();
