@@ -2,7 +2,9 @@ clc; clear; close all;
 
 %% Plotting results Qualisys Test 
 
-data = csvread("ExportedResults_3.csv", 1,0);
+testNr = 2;
+fileName = ['ExportedResults_', num2str(testNr), '.csv'];
+data = csvread(fileName, 1,0);
 
 time = data(:,1);
 xQTM = data(:,2);
@@ -67,11 +69,11 @@ avgDiffMeters = table(avgDiffxVecs, avgDiffyVecs, avgDiffzVecs, ...
 %%%%%%%%%%%%%%%%%%%% Translation Analysis %%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%% Translation Plotting %%%%%%%%%%%%%%%%%%%%
-figure(Name="Plot of Translation comparison")
+transPlot = figure(Name="Plot of Translation comparison");
 
 % X plotting
 transIndicesX = (xQTM ~= trans(1));
-sgtitle("Position Comparison: rotVector[0] vs QTM")
+sgtitle("Position Comparison: rotVector[0] and QTM")
 subplot(3,1,1)
 plot(time(transIndicesX),xCV0(transIndicesX), '.r')
 hold on
@@ -109,10 +111,15 @@ xlabel('Time [seconds]')
 % Change size of legend icons
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
+
+% Export figure
+%set(transPlot,'units','normalized','outerposition',[0 0 1 1])
+saveas(transPlot, ['poseTest_',num2str(testNr), '_TransPlot'])
+saveas(transPlot, ['poseTest_',num2str(testNr), '_TransPlot.png'])
 %%%%%%%%%%%%%%%%%%%% Translation Plotting %%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%% Rotation Vec0 and Matrix %%%%%%%%%%%%%%%%%%
-figure(Name="Rotation comparison0")
+rot0matPlot = figure(Name="Rotation comparison0");
 sgtitle("Rotation Matrix Comparison: Vec0 and QTM")
 
 % Plotting rotVector[0] with QTM
@@ -158,10 +165,15 @@ lgd.Position(2) = 0.4;
 % Change size of legend icons
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
+
+% Export figure
+set(rot0matPlot,'units','normalized','outerposition',[0 0 1 1])
+saveas(rot0matPlot, ['poseTest_',num2str(testNr), '_rot0matPlot'])
+saveas(rot0matPlot, ['poseTest_',num2str(testNr), '_rot0matPlot.png'])
 %%%%%%%%%%%%%%%%%% Rotation Vec0 and Matrix %%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%% Rotation Vec0 and Matrix diff plot %%%%%%%%%%%%%
-figure(Name="RotationDifference0")
+rot0matDiffPlot = figure(Name="RotationDifference0");
 sgtitle("Rotation Matrix Element Difference: Vec0 - QTM")
 
 % Plotting rotVector[0] with QTM
@@ -195,10 +207,15 @@ end
 % % Change size of legend icons
 % icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 % set(icons, 'MarkerSize', 20)
+
+% Export figure
+set(rot0matDiffPlot,'units','normalized','outerposition',[0 0 1 1])
+saveas(rot0matDiffPlot, ['poseTest_',num2str(testNr), '_rot0matDiffPlot'])
+saveas(rot0matDiffPlot, ['poseTest_',num2str(testNr), '_rot0matDiffPlot.png'])
 %%%%%%%%%%%%% Rotation Vec0 and Matrix diff plot %%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%% Rotation Vec1 and Matrix %%%%%%%%%%%%%%%%%%
-figure(Name="Rotation Comparison1")
+rot1matPlot = figure(Name="Rotation Comparison1");
 sgtitle("Rotation Matrix Comparison: Vec1 and QTM")
 
 % Plotting rotVector[1] with QTM
@@ -245,10 +262,15 @@ lgd.Position(2) = 0.4;
 % Change size of legend icons
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
+
+% Export figure
+set(rot1matPlot,'units','normalized','outerposition',[0 0 1 1])
+saveas(rot1matPlot, ['poseTest_',num2str(testNr), '_rot1matPlot'])
+saveas(rot1matPlot, ['poseTest_',num2str(testNr), '_rot1matPlot.png'])
 %%%%%%%%%%%%%%%%%% Rotation Vec1 and Matrix %%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%% Rotation Vec1 and Matrix diff plot %%%%%%%%%%%%%
-figure(Name="RotationDifference1")
+rot1matDiffPlot = figure(Name="RotationDifference1");
 sgtitle("Rotation Matrix Element Difference: Vec1 - QTM")
 
 % Plotting rotVector[1] with QTM
@@ -280,10 +302,15 @@ end
 % % Change size of legend icons
 % icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 % set(icons, 'MarkerSize', 20)
+
+% Export figure
+set(rot1matDiffPlot,'units','normalized','outerposition',[0 0 1 1])
+saveas(rot1matDiffPlot, ['poseTest_',num2str(testNr), '_rot1matDiffPlot'])
+saveas(rot1matDiffPlot, ['poseTest_',num2str(testNr), '_rot1matDiffPlot.png'])
 %%%%%%%%%%%%% Rotation Vec1 and Matrix diff plot %%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%% Angle diff plot %%%%%%%%%%%%%%%%%%%%%%
-figure(Name="Angle")
+angleDiffPlot = figure(Name="AngleDiffPlot");
 hold on
 % angles0 = zeros(length(time), 1);
 % angles1 = zeros(length(time), 1);
@@ -328,6 +355,11 @@ title("Difference from Axis-Angle: Closest choice")
 ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
 ylim([0 90])
+
+% Export figure
+%set(rot1matDiffPlot,'units','normalized','outerposition',[0 0 1 1])
+saveas(angleDiffPlot, ['poseTest_',num2str(testNr), '_angleDiffPlot'])
+saveas(angleDiffPlot, ['poseTest_',num2str(testNr), '_angleDiffPlot.png'])
 %%%%%%%%%%%%%%%%%%%%%%% Angle diff plot %%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%% XY Projection Plot - Azimuth %%%%%%%%%%%%%%%%
@@ -415,7 +447,7 @@ end
 % Plot only when QTM rotation matrix != 0
 %plotY = rad2deg(eul0(:,1));
 %validIndices = (QTM ~= 0);
-figure(Name="ProjPlotXY_vec0")
+XYprojVec0 = figure(Name="ProjPlotXY_vec0");
 sgtitle("Angle projected in XY-plane: Vec0 and QTM")
 
 %%% Plotting X axis angles %%%
@@ -451,11 +483,16 @@ ylim([90 360])
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
 
+% Export figure
+%set(rot1matDiffPlot,'units','normalized','outerposition',[0 0 1 1])
+saveas(XYprojVec0, ['poseTest_',num2str(testNr), '_XYprojVec0'])
+saveas(XYprojVec0, ['poseTest_',num2str(testNr), '_XYprojVec0.png'])
+
 %%%%%%%% Angle Plot: Vec1 and QTM %%%%%%%%
 % Plot only when QTM rotation matrix != 0
 %plotY = rad2deg(eul0(:,1));
 %validIndices = (QTM ~= 0);
-figure(Name="ProjPlotXY_vec1")
+XYprojVec1 = figure(Name="ProjPlotXY_vec1");
 sgtitle("Angle projected in XY-plane: Vec1 and QTM")
 
 %%% Plotting X axis angles %%%
@@ -491,11 +528,16 @@ ylim([90 360])
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
 
+% Export figure
+%set(rot1matDiffPlot,'units','normalized','outerposition',[0 0 1 1])
+saveas(XYprojVec1, ['poseTest_',num2str(testNr), '_XYprojVec1'])
+saveas(XYprojVec1, ['poseTest_',num2str(testNr), '_XYprojVec1.png'])
+
 %%%%%%%% Angle Plot: Vector Choice and QTM %%%%%%%%
 % Plot only when QTM rotation matrix != 0
 %plotY = rad2deg(eul0(:,1));
 %validIndices = (QTM ~= 0);
-figure(Name="ProjPlotXY_vecChoice")
+XYprojVecChoice = figure(Name="ProjPlotXY_vecChoice");
 sgtitle("Angle projected in XY-plane: Closest rotVector and QTM")
 
 %%% Plotting X axis angles %%%
@@ -531,11 +573,16 @@ ylim([90 360])
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
 
+% Export figure
+%set(rot1matDiffPlot,'units','normalized','outerposition',[0 0 1 1])
+saveas(XYprojVecChoice, ['poseTest_',num2str(testNr), '_XYprojVecChoice'])
+saveas(XYprojVecChoice, ['poseTest_',num2str(testNr), '_XYprojVecChoice.png'])
+
 %%%%%%%% Difference Plot %%%%%%%%
 % Plot only when QTM rotation matrix != 0
 %plotY = rad2deg(eul0(:,1));
 validIndices = (QTM ~= 0);
-figure(Name="ProjPlotXY")
+XYprojDiff = figure(Name="ProjPlotXY");
 plot(time(validIndices), diffAnglesX(validIndices), '.r', MarkerSize=1)
 hold on
 plot(time(validIndices), diffAnglesY(validIndices), '.g', MarkerSize=1)
@@ -548,4 +595,9 @@ ylim([-30 30])
 % Change size of legend icons
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
+
+% Export figure
+%set(rot1matDiffPlot,'units','normalized','outerposition',[0 0 1 1])
+saveas(XYprojDiff, ['poseTest_',num2str(testNr), '_XYprojDiff'])
+saveas(XYprojDiff, ['poseTest_',num2str(testNr), '_XYprojDiff.png'])
 %%%%%%%%%%%%%%%% XY Projection Plot - Azimuth %%%%%%%%%%%%%%%%
