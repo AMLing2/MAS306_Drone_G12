@@ -61,6 +61,7 @@ public:
 	virtual	ssize_t recvDrone(char* buffer,size_t bufferLen) override;
 	void mainloop();
 	int cSyncTime(dronePosVec::dataTransfers* pdroneInfoMsg);
+	void tempReader();
 	
 private:
 	std::chrono::nanoseconds monoTimeNow_();
@@ -131,6 +132,14 @@ void ArenaServer::mainloop()
 			case dronePosVec::stateChange:
 				{
 					std::cout<<"statechange req"<<std::endl;
+					if(true) //should reallly change this to an enum
+					{
+						tempReader();
+					}
+					else
+					{
+						std::cout<<"unexpected request"<<std::endl;
+					}
 					break;
 				}
 			default:
@@ -242,4 +251,25 @@ void ArenaServer::setTimeout(const long int sec,const long int microSec)
 std::chrono::nanoseconds ArenaServer::monoTimeNow_() //gives time of start of monotonic clock, NOT unix time (ie. 1970)
 {
 	return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now().time_since_epoch());
+}
+
+void ArenaServer::tempReader()
+{
+	int interval = 20000000;
+	long recvTime = 0;
+	long expTime = 0;
+
+	setTimeout(1,0);
+	std::cout<<"starting reading"<<std::endl;
+	std::string msgtemp = "aa";
+	sendDrone(msgtemp.c_str(),msgtemp.length());
+	for(int i = 0;i<11;i++)
+	{
+		expTime = (monoTimeNow_() + calcSleepTime_(interval)).count();
+		std::cout<<"expected recv time: "<<expTime<<std::endl;
+		recvDrone(genBuffer_,bufferLen_);
+		recvTime = monoTimeNow_().count();
+		std::cout<<"actual recv time: "<<recvTime<<" difference = "<<recvTime - expTime <<std::endl;
+	}
+	std::cout<<"reading finished"<<std::endl;
 }

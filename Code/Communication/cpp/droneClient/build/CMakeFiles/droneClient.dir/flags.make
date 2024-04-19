@@ -6,5 +6,5 @@ CXX_DEFINES =
 
 CXX_INCLUDES = -I/.local/include
 
-CXX_FLAGS = -Wall -Wextra -Wpedantic
+CXX_FLAGS = -g -Wall -Wextra -Wpedantic
 

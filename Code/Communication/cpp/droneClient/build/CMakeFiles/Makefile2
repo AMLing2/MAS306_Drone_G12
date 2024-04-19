@@ -81,12 +81,12 @@ clean: CMakeFiles/droneClient.dir/clean
 CMakeFiles/droneClient.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/droneClient.dir/build.make CMakeFiles/droneClient.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/droneClient.dir/build.make CMakeFiles/droneClient.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/droneClient/build/CMakeFiles --progress-num=1,2,3 "Built target droneClient"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/droneClient/build/CMakeFiles --progress-num=1,2,3,4,5 "Built target droneClient"
 .PHONY : CMakeFiles/droneClient.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/droneClient.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/droneClient/build/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/droneClient/build/CMakeFiles 5
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/droneClient.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/droneClient/build/CMakeFiles 0
 .PHONY : CMakeFiles/droneClient.dir/rule

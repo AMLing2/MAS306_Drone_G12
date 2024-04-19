@@ -10,170 +10,7 @@
 #include <arpa/inet.h> //for htons()
 #include <cerrno>
 
-//#include <sys/time.h> //for timeval struct, not needed? chrono is better
-
-class DroneClient : public ClientSocket
-{
-public:
-	DroneClient(const std::string& serverAddr, int serverPort)
-	:server_port(serverPort)
-	,server_addr(serverAddr)
-	{
-		genBuffer_ = new char[bufferLen_];
-		char decimal_port[16];
-		snprintf(decimal_port, 16, "%d", server_port);
-		decimal_port[15] = '\0';
-		/*
-		struct addrinfo hints;
-		memset(&hints,0,sizeof(hints));
-		hints.ai_family = AF_INET;
-		hints.ai_socktype = SOCK_DGRAM;
-		hints.ai_protocol = IPPROTO_UDP;
-		int r = getaddrinfo(f_addr.c_str(), decimal_port, &hints, &f_addrinfo);
-		if(r != 0 || f_addrinfo == NULL)
-		{
-			std::cout<<"invalid addres or port"<<std::endl;
-		}
-		else
-		{
-			std::cout<<"ai_addr: "<< f_addrinfo->ai_addr <<std::endl;
-		}
-		*/
-		f_socket = socket(AF_INET, SOCK_DGRAM | SOCK_CLOEXEC, IPPROTO_UDP);
-		if(f_socket == 1)
-		{
-			std::cout<<"failed to create udp socket"<<std::endl;
-		}
-		/*
-		r = bind(f_socket, f_addrinfo->ai_addr,f_addrinfo->ai_addrlen);
-		if(r != 0)
-		{
-			std::cout<<"failed to bind socket"<<std::endl;
-		}
-		*/
-	}
-	~DroneClient()
-	{
-		delete[] genBuffer_;
-		//freeaddrinfo(f_addrinfo);
-		close(f_socket);
-	}
-
-	virtual int dServerConnect() override;
-	virtual ssize_t initSend(char* msg, size_t msgLen) override;
-	virtual socklen_t getclient(struct sockaddr* clientAddr) override;
-	virtual ssize_t sendServer(const char* msg,size_t msglen) override;
-	virtual void setTimeout() override;
-	virtual void setTimeout(const long int sec,const long int nanoSec) override;
-	int connectInit();
-	virtual	ssize_t recvServer(char* buffer,size_t bufferLen) override;
-	void mainloop();
-	int cSyncTime(dronePosVec::dataTransfers* pdroneInfoMsg);
-	
-	std::chrono::nanoseconds getMonoServerTime();
-
-private:
-	std::chrono::nanoseconds monoTimeNow_();
-	std::chrono::nanoseconds calcSleepTime_(int interval);
-
-	int server_port;
-	std::string server_addr;
-	//struct addrinfo* f_addrinfo;
-	int f_socket;
-	struct sockaddr clientAddr_;
-	socklen_t clientsocklen_;
-	const size_t bufferLen_ = 1024;
-	char* genBuffer_;
-	std::chrono::nanoseconds monoServerTime_ = std::chrono::nanoseconds(0);
-	std::chrono::nanoseconds timerOffset_ = std::chrono::nanoseconds(0);
-};
-
-
-//-------------------MAIN-------------------@
-int main()
-{
-	std::string serverAddr = "128.39.200.239";
-	int serverPort = 20002;
-	DroneClient droneClient(serverAddr,serverPort);
-	if (droneClient.dServerConnect() == 0)
-	{
-		std::cout<<"connection sucess"<<std::endl;
-		//checklist before starting streaming
-		dronePosVec::dataTransfers dataMsg;
-		bool checklist = true;
-		while(checklist)
-		{
-			if (droneClient.getMonoServerTime().count() == 0)
-			{
-				droneClient.cSyncTime(&dataMsg);
-			}
-			else
-			{
-				std::cout<<"checklist complete"<<std::endl;
-				checklist = false;
-			}
-		}
-		droneClient.mainloop();
-	}
-	else
-	{
-		std::cout<<"connection error"<<std::endl;
-	}
-	std::cout<<"press to exit"<<std::endl;
-	int a;
-	std::cin>>a;
-	return 0;
-}
-
 //--------------class definitions-------------@
-void DroneClient::mainloop() //update for drone
-{
-	//would be nice to have two sockets, one for udp streaming and one tcp for other communication such as this
-	
-	
-	
-	
-	
-	/*
-	ssize_t msgRecvLen = 0;
-	dronePosVec::dataTransfers droneInfoMsg;
-	while(true)
-	{
-		setTimeout(60,0);
-		std::cout<<"listening to drone input"<<std::endl;
-		msgRecvLen = recvServer(genBuffer_,bufferLen_);
-		if(msgRecvLen == -1)
-		{
-			break;
-		}
-		droneInfoMsg.ParseFromArray(genBuffer_,msgRecvLen);
-		std::cout<<"msg recv: "<<droneInfoMsg.msg()<<std::endl;
-		switch(droneInfoMsg.type())
-		{
-			case dronePosVec::timeSync:
-				{
-					std::cout<<"timesync req"<<std::endl;
-					cSyncTime(&droneInfoMsg);
-					break;
-				}
-			case dronePosVec::socketInfo:
-				{
-
-					break;
-				}
-			case dronePosVec::stateChange:
-				{
-					std::cout<<"statechange req"<<std::endl;
-					break;
-				}
-			default:
-				{
-					break;
-				}
-		}
-	}
-	*/
-}
 
 int DroneClient::dServerConnect()
 {
@@ -239,7 +76,7 @@ int DroneClient::cSyncTime(dronePosVec::dataTransfers* pdroneInfoMsg) //sync cli
 	pdroneInfoMsg->SerializeToArray(genBuffer_,bufferLen_);
 	size_t byteSize = pdroneInfoMsg->ByteSizeLong();
 
-	std::this_thread::sleep_for(calcSleepTime_(intervalTime));
+	std::this_thread::sleep_for(calcSleepTime(intervalTime));
 	sendServer(genBuffer_,byteSize);
 
 	msgLen = recvServer(genBuffer_,bufferLen_);
@@ -251,44 +88,12 @@ int DroneClient::cSyncTime(dronePosVec::dataTransfers* pdroneInfoMsg) //sync cli
 	return 0;
 }
 
-std::chrono::nanoseconds DroneClient::calcSleepTime_(int interval)
+std::chrono::nanoseconds DroneClient::calcSleepTime(int interval)
 {
 	return std::chrono::nanoseconds(interval) -((monoTimeNow_() - monoServerTime_) % interval);
 }
 
-socklen_t DroneClient::getclient(struct sockaddr* clientAddr)//unused
-{
-	const size_t bufferlen = 1024;
-	char* buffer = new char[bufferlen];
-	socklen_t addrlen;
-	setTimeout(30,0);
-	ssize_t msglen = 0;
-	msglen = recvfrom(this->f_socket,buffer,bufferlen,0,clientAddr,&addrlen);
-	buffer[msglen] = '\0';
-	if (msglen > 0)
-	{std::cout<<"msg recieved: "<<buffer<<std::endl;}
-	//msg is ignored for now, only want address of sender
-	delete[] buffer;
-	return addrlen;
-}
-
-int DroneClient::connectInit() //unused
-{
-	clientsocklen_ = getclient(&clientAddr_);
-	int r = connect(f_socket,&clientAddr_,clientsocklen_);
-	std::cout<<r<<std::endl;
-	if(r == 0)
-	{
-		std::string msgInit = "message sent";
-		std::cout<<msgInit.length()<<std::endl;
-		sendServer(msgInit.c_str(),msgInit.length());
-		setTimeout(3,0);
-		recvServer(genBuffer_,bufferLen_); //just read to clear buffer
-	}
-	return r;
-}
-
-ssize_t DroneClient::sendServer(const char* msg,size_t msglen)
+ssize_t DroneClient::sendServer(const char* msg,const size_t msglen) const
 {
 	return send(f_socket,msg,msglen,0);
 }

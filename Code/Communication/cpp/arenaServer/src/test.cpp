@@ -1,10 +1,25 @@
 #include <iostream>
 #include <string>
 #include "dronePosVec.pb.h" //use .cc not .h !!!!!!!!!!
-
+const size_t bufferSize = 1024;
 
 int main()
 {
+	char* buffer = new char[bufferSize];
+	dronePosVec::dronePosition dronePos;
+
+	dronePos.set_devicetype(dronePosVec::IMUonly);
+	float values[4] = {1.1,1.2,1.3,1.4};
+	dronePos.mutable_position()->Add(values[0]);
+
+	size_t msgSize = dronePos.ByteSizeLong();
+	dronePos.SerializeToArray(buffer,bufferSize);
+
+	dronePos.Clear();
+	dronePos.ParseFromArray(buffer,msgSize);
+	
+	std::cout<<"values size: "<<dronePos.position_size()<<std::endl;
+
 	dronePosVec::dataTransfers dronemsg;
 	//::dataTransfers dronemsg;
 
@@ -22,5 +37,7 @@ int main()
 	dronePosVec::dataTransfers newMsg;
 	newMsg.ParseFromString(serialOutput);
 	std::cout<<newMsg.type()<<std::endl;
+
+	delete[] buffer;
 	return 0;
 }

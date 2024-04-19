@@ -69,10 +69,38 @@ include CMakeFiles/droneClient.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/droneClient.dir/flags.make
 
+CMakeFiles/droneClient.dir/src/mainClient.cpp.o: CMakeFiles/droneClient.dir/flags.make
+CMakeFiles/droneClient.dir/src/mainClient.cpp.o: ../src/mainClient.cpp
+CMakeFiles/droneClient.dir/src/mainClient.cpp.o: CMakeFiles/droneClient.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/droneClient/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/droneClient.dir/src/mainClient.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/droneClient.dir/src/mainClient.cpp.o -MF CMakeFiles/droneClient.dir/src/mainClient.cpp.o.d -o CMakeFiles/droneClient.dir/src/mainClient.cpp.o -c /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/droneClient/src/mainClient.cpp
+
+CMakeFiles/droneClient.dir/src/mainClient.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/droneClient.dir/src/mainClient.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/droneClient/src/mainClient.cpp > CMakeFiles/droneClient.dir/src/mainClient.cpp.i
+
+CMakeFiles/droneClient.dir/src/mainClient.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/droneClient.dir/src/mainClient.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/droneClient/src/mainClient.cpp -o CMakeFiles/droneClient.dir/src/mainClient.cpp.s
+
+CMakeFiles/droneClient.dir/src/threadMembers.cpp.o: CMakeFiles/droneClient.dir/flags.make
+CMakeFiles/droneClient.dir/src/threadMembers.cpp.o: ../src/threadMembers.cpp
+CMakeFiles/droneClient.dir/src/threadMembers.cpp.o: CMakeFiles/droneClient.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/droneClient/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/droneClient.dir/src/threadMembers.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/droneClient.dir/src/threadMembers.cpp.o -MF CMakeFiles/droneClient.dir/src/threadMembers.cpp.o.d -o CMakeFiles/droneClient.dir/src/threadMembers.cpp.o -c /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/droneClient/src/threadMembers.cpp
+
+CMakeFiles/droneClient.dir/src/threadMembers.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/droneClient.dir/src/threadMembers.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/droneClient/src/threadMembers.cpp > CMakeFiles/droneClient.dir/src/threadMembers.cpp.i
+
+CMakeFiles/droneClient.dir/src/threadMembers.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/droneClient.dir/src/threadMembers.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/droneClient/src/threadMembers.cpp -o CMakeFiles/droneClient.dir/src/threadMembers.cpp.s
+
 CMakeFiles/droneClient.dir/src/droneClient.cpp.o: CMakeFiles/droneClient.dir/flags.make
 CMakeFiles/droneClient.dir/src/droneClient.cpp.o: ../src/droneClient.cpp
 CMakeFiles/droneClient.dir/src/droneClient.cpp.o: CMakeFiles/droneClient.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/droneClient/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/droneClient.dir/src/droneClient.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/droneClient/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/droneClient.dir/src/droneClient.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/droneClient.dir/src/droneClient.cpp.o -MF CMakeFiles/droneClient.dir/src/droneClient.cpp.o.d -o CMakeFiles/droneClient.dir/src/droneClient.cpp.o -c /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/droneClient/src/droneClient.cpp
 
 CMakeFiles/droneClient.dir/src/droneClient.cpp.i: cmake_force
@@ -86,7 +114,7 @@ CMakeFiles/droneClient.dir/src/droneClient.cpp.s: cmake_force
 CMakeFiles/droneClient.dir/src/dronePosVec.pb.cc.o: CMakeFiles/droneClient.dir/flags.make
 CMakeFiles/droneClient.dir/src/dronePosVec.pb.cc.o: ../src/dronePosVec.pb.cc
 CMakeFiles/droneClient.dir/src/dronePosVec.pb.cc.o: CMakeFiles/droneClient.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/droneClient/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/droneClient.dir/src/dronePosVec.pb.cc.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/droneClient/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/droneClient.dir/src/dronePosVec.pb.cc.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/droneClient.dir/src/dronePosVec.pb.cc.o -MF CMakeFiles/droneClient.dir/src/dronePosVec.pb.cc.o.d -o CMakeFiles/droneClient.dir/src/dronePosVec.pb.cc.o -c /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/droneClient/src/dronePosVec.pb.cc
 
 CMakeFiles/droneClient.dir/src/dronePosVec.pb.cc.i: cmake_force
@@ -99,19 +127,23 @@ CMakeFiles/droneClient.dir/src/dronePosVec.pb.cc.s: cmake_force
 
 # Object files for target droneClient
 droneClient_OBJECTS = \
+"CMakeFiles/droneClient.dir/src/mainClient.cpp.o" \
+"CMakeFiles/droneClient.dir/src/threadMembers.cpp.o" \
 "CMakeFiles/droneClient.dir/src/droneClient.cpp.o" \
 "CMakeFiles/droneClient.dir/src/dronePosVec.pb.cc.o"
 
 # External object files for target droneClient
 droneClient_EXTERNAL_OBJECTS =
 
+droneClient: CMakeFiles/droneClient.dir/src/mainClient.cpp.o
+droneClient: CMakeFiles/droneClient.dir/src/threadMembers.cpp.o
 droneClient: CMakeFiles/droneClient.dir/src/droneClient.cpp.o
 droneClient: CMakeFiles/droneClient.dir/src/dronePosVec.pb.cc.o
 droneClient: CMakeFiles/droneClient.dir/build.make
 droneClient: /usr/lib/x86_64-linux-gnu/libprotobuf.so
 droneClient: /usr/lib/x86_64-linux-gnu/libprotobuf-lite.so
 droneClient: CMakeFiles/droneClient.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/droneClient/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable droneClient"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/droneClient/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable droneClient"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/droneClient.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
