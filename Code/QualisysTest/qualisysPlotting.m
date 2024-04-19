@@ -2,7 +2,7 @@ clc; clear; close all;
 
 %% Plotting results Qualisys Test 
 
-testNr = 2;
+testNr = 4;
 fileName = ['ExportedResults_', num2str(testNr), '.csv'];
 data = csvread(fileName, 1,0);
 
@@ -80,6 +80,7 @@ hold on
 plot(time(transIndicesX),xQTM(transIndicesX), '.k', MarkerSize=1)
 ylabel('x [m]')
 xlabel('Time [seconds]')
+xlim([0 time(end)])
 [a, icons] = legend('xCV', 'xQTM', 'Location','eastoutside');
 % Change size of legend icons
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
@@ -93,6 +94,7 @@ hold on
 plot(time(transIndicesY),yQTM(transIndicesY), '.k', MarkerSize=1)
 ylabel('y [m]')
 xlabel('Time [seconds]')
+xlim([0 time(end)])
 [a, icons] = legend('yCV0', 'yQTM', 'Location','eastoutside');
 % Change size of legend icons
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
@@ -107,6 +109,7 @@ hold on
 plot(time(transIndicesZ),zQTM(transIndicesZ), '.k', MarkerSize=1)
 ylabel('z [m]')
 xlabel('Time [seconds]')
+xlim([0 time(end)])
 [a, icons] = legend('zCV0', 'zQTM', 'Location','eastoutside');
 % Change size of legend icons
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
@@ -142,6 +145,7 @@ for i = 1:9
     q = plot(time(validIndices), QTM(validIndices), '.k', MarkerSize=1);
     
     xlabel('Time [seconds]');
+    xlim([0 time(end)])
     title(['Element ', num2str(i)])
     hold off
     %xlim([25 125])
@@ -184,11 +188,12 @@ for i = 1:9
     QTM = data(:, i+25); % v1Rij
     
     % Plot only when QTM rotation matrix != 0
-    validIndices = (QTM ~= 0) & (vec0 ~= 0);;
+    validIndices = (QTM ~= 0) & (vec0 ~= 0);
     plot(time(validIndices), (vec0(validIndices)-QTM(validIndices)), ...
          '.k', MarkerSize=1)
     
     xlabel('Time [seconds]');
+    xlim([0 time(end)])
     title(['Element ', num2str(i)])
     hold off
     %xlim([25 125])
@@ -238,6 +243,7 @@ for i = 1:9
     plot(time(validIndices), QTM(validIndices), '.k', MarkerSize=1)
     
     xlabel('Time [seconds]');
+    xlim([0 time(end)])
     title(['Element ', num2str(i)])
     hold off
     %xlim([25 125])
@@ -286,6 +292,7 @@ for i = 1:9
          '.k', MarkerSize=1)
     
     xlabel('Time [seconds]');
+    xlim([0 time(end)])
     title(['Element ', num2str(i)])
     hold off
     %xlim([25 125])
@@ -354,6 +361,7 @@ plot(time(validIndices), angChoice(validIndices), '.k', MarkerSize=1)
 title("Difference from Axis-Angle: Closest choice")
 ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
+xlim([0 time(end)])
 ylim([0 90])
 
 % Export figure
@@ -395,15 +403,15 @@ for i = 1 : length(time)
     y1_x = data(i,18);
     y1_y = data(i,21);
 
-    CV0anglesX = atan2d(x0_y,x0_x);
-    CV0anglesY = atan2d(y0_y,y0_x) + 360*(y0_y<0);
+    CV0anglesX = atan2d(x0_y,x0_x) + 360*(x0_y<0);
+    CV0anglesY = atan2d(y0_y,y0_x);
 
     % Experimental
     CV0anglesXplot(i) = CV0anglesX;
     CV0anglesYplot(i) = CV0anglesY;
 
-    CV1anglesX = atan2d(x1_y,x1_x);
-    CV1anglesY = atan2d(y1_y,y1_x) + 360*(y1_y<0);
+    CV1anglesX = atan2d(x1_y,x1_x) + 360*(x1_y<0);
+    CV1anglesY = atan2d(y1_y,y1_x);
 
     % Experimental
     CV1anglesXplot(i) = CV1anglesX;
@@ -414,8 +422,8 @@ for i = 1 : length(time)
     yQTM_x = data(i,27);
     yQTM_y = data(i,30);
 
-    QTManglesX = atan2d(xQTM_y, xQTM_x);
-    QTManglesY = atan2d(yQTM_y, yQTM_x) + 360*(yQTM_y<0);
+    QTManglesX = atan2d(xQTM_y, xQTM_x) + 360*(xQTM_y<0);
+    QTManglesY = atan2d(yQTM_y, yQTM_x);
 
     % Experimental
     QTManglesXplot(i) = QTManglesX;
@@ -443,6 +451,9 @@ for i = 1 : length(time)
     end
 end
 
+xStart = 180;
+yStart = -270;
+
 %%%%%%%% Angle Plot: Vec0 and QTM %%%%%%%%
 % Plot only when QTM rotation matrix != 0
 %plotY = rad2deg(eul0(:,1));
@@ -458,7 +469,8 @@ hold on
 plot(time(validIndices), QTManglesXplot(validIndices), '.k', MarkerSize=1)
 ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
-ylim([-180 180])
+xlim([0 time(end)])
+ylim([xStart (xStart+360)])
 
 [h, icons] = legend('CV0 $\theta$ from X-axis', 'QTM $\theta$ from Y-axis', ...
     'Interpreter', 'latex', 'Location','best');
@@ -475,7 +487,8 @@ hold on
 plot(time(validIndices), QTManglesYplot(validIndices), '.k', MarkerSize=1)
 ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
-ylim([90 360])
+xlim([0 time(end)])
+ylim([yStart (yStart+360)])
 
 [h, icons] = legend('CV0 $\theta$ from Y-axis', 'QTM $\theta$ from Y-axis', ...
     'Interpreter', 'latex', 'Location','best');
@@ -503,7 +516,8 @@ hold on
 plot(time(validIndices), QTManglesXplot(validIndices), '.k', MarkerSize=1)
 ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
-ylim([-180 180])
+ylim([xStart (xStart+360)])
+xlim([0 time(end)])
 
 [h, icons] = legend('CV1 $\theta$ from X-axis', 'QTM $\theta$ from Y-axis', ...
     'Interpreter', 'latex', 'Location','best');
@@ -520,7 +534,8 @@ hold on
 plot(time(validIndices), QTManglesYplot(validIndices), '.k', MarkerSize=1)
 ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
-ylim([90 360])
+ylim([yStart (yStart+360)])
+xlim([0 time(end)])
 
 [h, icons] = legend('CV1 $\theta$ from Y-axis', 'QTM $\theta$ from Y-axis', ...
     'Interpreter', 'latex', 'Location','best');
@@ -548,7 +563,8 @@ hold on
 plot(time(validIndices), QTManglesXplot(validIndices), '.k', MarkerSize=1)
 ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
-ylim([-180 180])
+ylim([xStart (xStart+360)])
+xlim([0 time(end)])
 
 [h, icons] = legend('CV $\theta$ from X-axis', 'QTM $\theta$ from Y-axis', ...
     'Interpreter', 'latex', 'Location','best');
@@ -565,7 +581,8 @@ hold on
 plot(time(validIndices), QTManglesYplot(validIndices), '.k', MarkerSize=1)
 ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
-ylim([90 360])
+ylim([yStart (yStart+360)])
+xlim([0 time(end)])
 
 [h, icons] = legend('CV $\theta$ from Y-axis', 'QTM $\theta$ from Y-axis', ...
     'Interpreter', 'latex', 'Location','best');
@@ -591,6 +608,7 @@ ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
 [h, icons] = legend('X-axis diff', 'Y-axis diff');
 ylim([-30 30])
+xlim([0 time(end)])
 
 % Change size of legend icons
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
