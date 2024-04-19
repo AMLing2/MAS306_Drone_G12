@@ -2,23 +2,54 @@ clc; clear; close all;
 
 %% Plotting results Qualisys Test 
 
-data = csvread("ExportedResults_2.csv", 2,0);
+data = csvread("ExportedResults_3.csv", 1,0);
 
 time = data(:,1);
 xQTM = data(:,2);
 yQTM = data(:,3);
 zQTM = data(:,4);
-xCV = data(:,5);
-yCV = data(:,6);
-zCV = data(:,7);
+xCV0 = data(:,5);
+yCV0 = data(:,6);
+zCV0 = data(:,7);
+xCV1 = data(:,35);
+yCV1 = data(:,36);
+zCV1 = data(:,37);
+
+% Initialize difference lists
+diffxV01 = zeros(length(time), 1);
+diffyV01 = zeros(length(time), 1);
+diffzV01 = zeros(length(time), 1);
+diffxCVQTM = zeros(length(time), 1);
+diffyCVQTM = zeros(length(time), 1);
+diffzCVQTM = zeros(length(time), 1);
+% Append differences to lists
+for i = 1 : length(time)
+    diffxV01(i) = abs(xCV0(i) - xCV1(i));
+    diffyV01(i) = abs(yCV0(i) - yCV1(i));
+    diffzV01(i) = abs(zCV0(i) - zCV1(i));
+
+    diffxCVQTM(i) = abs(xCV0(i) - xQTM(i));
+    diffyCVQTM(i) = abs(yCV0(i) - yQTM(i));
+    diffzCVQTM(i) = abs(zCV0(i) - zQTM(i));
+end
+% Calculate average difference from list
+avgDiffxVecs = mean(diffxV01);
+avgDiffyVecs = mean(diffyV01);
+avgDiffzVecs = mean(diffzV01);
+avgDiffxCVQTM = mean(diffxCVQTM);
+avgDiffyCVQTM = mean(diffyCVQTM);
+avgDiffzCVQTM = mean(diffzCVQTM);
+% Present average differences
+avgDiffTable = table(avgDiffxVecs, avgDiffyVecs, avgDiffzVecs, ...
+                     avgDiffxCVQTM, avgDiffyCVQTM, avgDiffzCVQTM)
 
 %%%%%%%%%%%%%%%%%%%%%% Translation Plotting %%%%%%%%%%%%%%%%%%%%%%
 figure(Name="Plot of Translation comparison")
 
 % X plotting
-sgtitle("Translation Comparison")
+sgtitle("Translation Comparison: rotVector[0] vs QTM")
 subplot(3,1,1)
-plot(time,xCV, '.r')
+plot(time,xCV0, '.r')
 hold on
 plot(time,xQTM, '.k', MarkerSize=1)
 ylabel('x [m]')
@@ -30,24 +61,24 @@ set(icons, 'MarkerSize', 20)
 
 % Y plotting - Remember to flip sign, only axis which is aligned
 subplot(3,1,2)
-plot(time,-yCV, '.g')
+plot(time,-yCV0, '.g')
 hold on
 plot(time,yQTM, '.k', MarkerSize=1)
 ylabel('y [m]')
 xlabel('Time [seconds]')
-[a, icons] = legend('yCV', 'yQTM', 'Location','eastoutside');
+[a, icons] = legend('yCV0', 'yQTM', 'Location','eastoutside');
 % Change size of legend icons
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
 
 % Z plotting
 subplot(3,1,3)
-plot(time,zCV, '.b')
+plot(time,zCV0, '.b')
 hold on
 plot(time,zQTM, '.k', MarkerSize=1)
 ylabel('z [m]')
 xlabel('Time [seconds]')
-[a, icons] = legend('zCV', 'zQTM', 'Location','eastoutside');
+[a, icons] = legend('zCV0', 'zQTM', 'Location','eastoutside');
 % Change size of legend icons
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
@@ -324,7 +355,7 @@ title("Difference in angle projected in XY-plane")
 ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
 [h, icons] = legend('X-axis diff', 'Y-axis diff');
-ylim([-15 15])
+ylim([-30 30])
 
 % Change size of legend icons
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
