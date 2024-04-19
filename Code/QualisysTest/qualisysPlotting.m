@@ -121,7 +121,7 @@ for i = 1:9
     
     vec0 = data(:, i+7); % v0Rij
     QTM = data(:, i+25); % v1Rij
-    validIndices = (QTM ~= 0);
+    validIndices = (QTM ~= 0) & (vec0 ~= 0);
 
     if any(i == [1,4,7])
         plot(time(validIndices), vec0(validIndices), '.r')
@@ -172,7 +172,7 @@ for i = 1:9
     QTM = data(:, i+25); % v1Rij
     
     % Plot only when QTM rotation matrix != 0
-    validIndices = (QTM ~= 0);
+    validIndices = (QTM ~= 0) & (vec0 ~= 0);;
     plot(time(validIndices), (vec0(validIndices)-QTM(validIndices)), ...
          '.k', MarkerSize=1)
     
@@ -207,7 +207,7 @@ for i = 1:9
     
     vec1 = data(:, i+16); % v0Rij
     QTM = data(:, i+25); % v1Rij
-    validIndices = (QTM ~= 0);
+    validIndices = (QTM ~= 0) & (vec1 ~= 0);
 
     if any(i == [1,4,7])
         plot(time(validIndices), vec1(validIndices), '.r')
@@ -259,7 +259,7 @@ for i = 1:9
     QTM = data(:, i+25); % v1Rij
     
     % Plot only when QTM rotation matrix != 0
-    validIndices = (QTM ~= 0);
+    validIndices = (QTM ~= 0) & (vec1 ~= 0);
     plot(time(validIndices), (vec1(validIndices)-QTM(validIndices)), ...
          '.k', MarkerSize=1)
     
@@ -322,9 +322,8 @@ end
 
 % Plot only when QTM rotation matrix != 0
 %plotY = rad2deg(eul0(:,1));
-plotY = angChoice;
-validIndices = (plotY ~= 0);
-plot(time(validIndices), plotY(validIndices), '.k', MarkerSize=1)
+validIndices = (QTM ~= 0);
+plot(time(validIndices), angChoice(validIndices), '.k', MarkerSize=1)
 title("Difference from Axis-Angle: Closest choice")
 ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
@@ -332,20 +331,26 @@ ylim([0 90])
 %%%%%%%%%%%%%%%%%%%%%%% Angle diff plot %%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%% XY Projection Plot - Azimuth %%%%%%%%%%%%%%%%
-CV0anglesX = zeros(length(time), 1);
-CV0anglesY = zeros(length(time), 1);
-QTManglesX = zeros(length(time), 1);
-QTManglesY = zeros(length(time), 1);
+    % atan2 wrapping 360 deg:
+        % https://se.mathworks.com/matlabcentral/
+        % answers/202915-converting-atan2-output-to-360-deg
+CV0anglesXplot = zeros(length(time), 1);
+CV0anglesYplot = zeros(length(time), 1);
+CV1anglesXplot = zeros(length(time), 1);
+CV1anglesYplot = zeros(length(time), 1);
+QTManglesXplot = zeros(length(time), 1);
+QTManglesYplot = zeros(length(time), 1);
 % diff0AnglesX = zeros(length(time),1);
 % diff0AnglesY = zeros(length(time),1);
 % diff1AnglesX = zeros(length(time),1);
 % diff1AnglesY = zeros(length(time),1);
 diffAnglesX = zeros(length(time), 1);
 diffAnglesY = zeros(length(time), 1);
-
-angChoice = zeros(length(time), 1);
-eul0 = zeros(length(time), 3);
-eul1 = zeros(length(time), 3);
+CVanglesXchoice = zeros(length(time), 1);
+CVanglesYchoice = zeros(length(time), 1);
+% diffAngles = zeros(length(time), 1);
+% eul0 = zeros(length(time), 3);
+% eul1 = zeros(length(time), 3);
 
 for i = 1 : length(time)
     x0_x = data(i,8);
@@ -359,10 +364,18 @@ for i = 1 : length(time)
     y1_y = data(i,21);
 
     CV0anglesX = atan2d(x0_y,x0_x);
-    CV0anglesY = atan2d(y0_x,y0_y);
+    CV0anglesY = atan2d(y0_y,y0_x) + 360*(y0_y<0);
+
+    % Experimental
+    CV0anglesXplot(i) = CV0anglesX;
+    CV0anglesYplot(i) = CV0anglesY;
 
     CV1anglesX = atan2d(x1_y,x1_x);
-    CV1anglesY = atan2d(y1_x,y1_y);
+    CV1anglesY = atan2d(y1_y,y1_x) + 360*(y1_y<0);
+
+    % Experimental
+    CV1anglesXplot(i) = CV1anglesX;
+    CV1anglesYplot(i) = CV1anglesY;
 
     xQTM_x = data(i,26);
     xQTM_y = data(i,29);
@@ -370,8 +383,12 @@ for i = 1 : length(time)
     yQTM_y = data(i,30);
 
     QTManglesX = atan2d(xQTM_y, xQTM_x);
-    QTManglesY = atan2d(yQTM_x, yQTM_y);
+    QTManglesY = atan2d(yQTM_y, yQTM_x) + 360*(yQTM_y<0);
 
+    % Experimental
+    QTManglesXplot(i) = QTManglesX;
+    QTManglesYplot(i) = QTManglesY;
+    
     diff0AnglesX = QTManglesX - CV0anglesX;
     diff0AnglesY = QTManglesY - CV0anglesY;
 
@@ -380,16 +397,141 @@ for i = 1 : length(time)
 
     if abs(diff0AnglesX) < abs(diff1AnglesX)
         diffAnglesX(i) = diff0AnglesX;
+        CVanglesXchoice(i) = CV0anglesX;
     else
         diffAnglesX(i) = diff1AnglesX;
+        CVanglesXchoice(i) = CV1anglesX;
     end
     if abs(diff0AnglesY) < abs(diff1AnglesY)
         diffAnglesY(i) = diff0AnglesY;
+        CVanglesYchoice(i) = CV0anglesY;
     else
         diffAnglesY(i) = diff1AnglesY;
+        CVanglesYchoice(i) = CV1anglesY;
     end
 end
 
+%%%%%%%% Angle Plot: Vec0 and QTM %%%%%%%%
+% Plot only when QTM rotation matrix != 0
+%plotY = rad2deg(eul0(:,1));
+%validIndices = (QTM ~= 0);
+figure(Name="ProjPlotXY_vec0")
+sgtitle("Angle projected in XY-plane: Vec0 and QTM")
+
+%%% Plotting X axis angles %%%
+validIndices = (data(:,26) ~= 0) & (data(:,29) ~= 0);
+subplot(2,1,1)
+plot(time(validIndices), CV0anglesXplot(validIndices), '.r')
+hold on
+plot(time(validIndices), QTManglesXplot(validIndices), '.k', MarkerSize=1)
+ylabel("Angle [degrees]")
+xlabel("Time [seconds]")
+ylim([-180 180])
+
+[h, icons] = legend('CV0 $\theta$ from X-axis', 'QTM $\theta$ from Y-axis', ...
+    'Interpreter', 'latex', 'Location','best');
+% Change size of legend icons
+icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
+set(icons, 'MarkerSize', 20)
+
+%%% Plotting Y axis angles %%%
+validIndices = (data(:,27) ~= 0) & (data(:,30) ~= 0);
+subplot(2,1,2)
+% plot(time(validIndices), diffAnglesY(validIndices), '.g', MarkerSize=1)
+plot(time(validIndices), CV0anglesYplot(validIndices), '.g')
+hold on
+plot(time(validIndices), QTManglesYplot(validIndices), '.k', MarkerSize=1)
+ylabel("Angle [degrees]")
+xlabel("Time [seconds]")
+ylim([90 360])
+
+[h, icons] = legend('CV0 $\theta$ from Y-axis', 'QTM $\theta$ from Y-axis', ...
+    'Interpreter', 'latex', 'Location','best');
+% Change size of legend icons
+icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
+set(icons, 'MarkerSize', 20)
+
+%%%%%%%% Angle Plot: Vec1 and QTM %%%%%%%%
+% Plot only when QTM rotation matrix != 0
+%plotY = rad2deg(eul0(:,1));
+%validIndices = (QTM ~= 0);
+figure(Name="ProjPlotXY_vec1")
+sgtitle("Angle projected in XY-plane: Vec1 and QTM")
+
+%%% Plotting X axis angles %%%
+validIndices = (data(:,26) ~= 0) & (data(:,29) ~= 0);
+subplot(2,1,1)
+plot(time(validIndices), CV1anglesXplot(validIndices), '.r')
+hold on
+plot(time(validIndices), QTManglesXplot(validIndices), '.k', MarkerSize=1)
+ylabel("Angle [degrees]")
+xlabel("Time [seconds]")
+ylim([-180 180])
+
+[h, icons] = legend('CV1 $\theta$ from X-axis', 'QTM $\theta$ from Y-axis', ...
+    'Interpreter', 'latex', 'Location','best');
+% Change size of legend icons
+icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
+set(icons, 'MarkerSize', 20)
+
+%%% Plotting Y axis angles %%%
+validIndices = (data(:,27) ~= 0) & (data(:,30) ~= 0);
+subplot(2,1,2)
+% plot(time(validIndices), diffAnglesY(validIndices), '.g', MarkerSize=1)
+plot(time(validIndices), CV1anglesYplot(validIndices), '.g')
+hold on
+plot(time(validIndices), QTManglesYplot(validIndices), '.k', MarkerSize=1)
+ylabel("Angle [degrees]")
+xlabel("Time [seconds]")
+ylim([90 360])
+
+[h, icons] = legend('CV1 $\theta$ from Y-axis', 'QTM $\theta$ from Y-axis', ...
+    'Interpreter', 'latex', 'Location','best');
+% Change size of legend icons
+icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
+set(icons, 'MarkerSize', 20)
+
+%%%%%%%% Angle Plot: Vector Choice and QTM %%%%%%%%
+% Plot only when QTM rotation matrix != 0
+%plotY = rad2deg(eul0(:,1));
+%validIndices = (QTM ~= 0);
+figure(Name="ProjPlotXY_vecChoice")
+sgtitle("Angle projected in XY-plane: Closest rotVector and QTM")
+
+%%% Plotting X axis angles %%%
+validIndices = (data(:,26) ~= 0) & (data(:,29) ~= 0);
+subplot(2,1,1)
+plot(time(validIndices), CVanglesXchoice(validIndices), '.r')
+hold on
+plot(time(validIndices), QTManglesXplot(validIndices), '.k', MarkerSize=1)
+ylabel("Angle [degrees]")
+xlabel("Time [seconds]")
+ylim([-180 180])
+
+[h, icons] = legend('CV $\theta$ from X-axis', 'QTM $\theta$ from Y-axis', ...
+    'Interpreter', 'latex', 'Location','best');
+% Change size of legend icons
+icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
+set(icons, 'MarkerSize', 20)
+
+%%% Plotting Y axis angles %%%
+validIndices = (data(:,27) ~= 0) & (data(:,30) ~= 0);
+subplot(2,1,2)
+% plot(time(validIndices), diffAnglesY(validIndices), '.g', MarkerSize=1)
+plot(time(validIndices), CVanglesYchoice(validIndices), '.g')
+hold on
+plot(time(validIndices), QTManglesYplot(validIndices), '.k', MarkerSize=1)
+ylabel("Angle [degrees]")
+xlabel("Time [seconds]")
+ylim([90 360])
+
+[h, icons] = legend('CV $\theta$ from Y-axis', 'QTM $\theta$ from Y-axis', ...
+    'Interpreter', 'latex', 'Location','best');
+% Change size of legend icons
+icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
+set(icons, 'MarkerSize', 20)
+
+%%%%%%%% Difference Plot %%%%%%%%
 % Plot only when QTM rotation matrix != 0
 %plotY = rad2deg(eul0(:,1));
 validIndices = (QTM ~= 0);
@@ -397,7 +539,7 @@ figure(Name="ProjPlotXY")
 plot(time(validIndices), diffAnglesX(validIndices), '.r', MarkerSize=1)
 hold on
 plot(time(validIndices), diffAnglesY(validIndices), '.g', MarkerSize=1)
-title("Difference in angle projected in XY-plane")
+title("Difference in angle projected in XY-plane: Choice")
 ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
 [h, icons] = legend('X-axis diff', 'Y-axis diff');
