@@ -11,7 +11,7 @@ dir = r'/home/thomaz/poseValidationTest'
 os.chdir(dir)
 
 # Test number for easy change
-testNr = 0
+testNr = 4
 
 tolerance = 0.1 # meters
 
