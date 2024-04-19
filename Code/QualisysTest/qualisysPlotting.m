@@ -9,11 +9,18 @@ xQTM = data(:,2);
 yQTM = data(:,3);
 zQTM = data(:,4);
 xCV0 = data(:,5);
-yCV0 = data(:,6);
+yCV0 = -data(:,6); % Flip axis, different frames
 zCV0 = data(:,7);
 xCV1 = data(:,35);
-yCV1 = data(:,36);
+yCV1 = -data(:,36); % Same here
 zCV1 = data(:,37);
+
+trans = [0.190 0.143 1.564]; % Physically measured in m
+
+%%%%%%%%%%%%%%%%%%%%%% Translation Analysis %%%%%%%%%%%%%%%%%%%%%%
+%validIndicesX = (QTM ~= 0) & (xCV0 ~= 0);
+%validIndicesY = (QTM ~= 0) & (yCV0 ~= 0);
+%validIndicesZ = (QTM ~= 0) & (zCV0 ~= 0);
 
 % Initialize difference lists
 diffxV01 = zeros(length(time), 1);
@@ -22,16 +29,31 @@ diffzV01 = zeros(length(time), 1);
 diffxCVQTM = zeros(length(time), 1);
 diffyCVQTM = zeros(length(time), 1);
 diffzCVQTM = zeros(length(time), 1);
+% Start times
+timeTol = 1e-3;
+zStartTime = 192.379;
+zStopTime = 243.111;
+zStartAvgDiff = find(abs(time-zStartTime) < timeTol)
+zStopAvgDiff = find(abs(time-zStopTime) < timeTol)
 % Append differences to lists
 for i = 1 : length(time)
-    diffxV01(i) = abs(xCV0(i) - xCV1(i));
-    diffyV01(i) = abs(yCV0(i) - yCV1(i));
-    diffzV01(i) = abs(zCV0(i) - zCV1(i));
-
-    diffxCVQTM(i) = abs(xCV0(i) - xQTM(i));
-    diffyCVQTM(i) = abs(yCV0(i) - yQTM(i));
-    diffzCVQTM(i) = abs(zCV0(i) - zQTM(i));
+    if (xQTM(i) ~= trans(1)) && (xCV0(i) ~= 0)
+        diffxV01(i) = abs(xCV0(i) - xCV1(i));
+        diffxCVQTM(i) = abs(xCV0(i) - xQTM(i));
+    end
+    if (yQTM(i) ~= trans(2)) && (yCV0(i) ~= 0)
+        diffyV01(i) = abs(yCV0(i) - yCV1(i));
+        diffyCVQTM(i) = abs(yCV0(i) - yQTM(i)); % Sign flip, diff frames
+    end
 end
+for i = zStartAvgDiff : zStopAvgDiff
+    if (zQTM(i) ~= trans(3)) && (zCV0(i) ~= 0)
+        diffzV01(i) = abs(zCV0(i) - zCV1(i));
+        diffzCVQTM(i) = abs(zCV0(i) - zQTM(i));
+    end
+end
+
+format long
 % Calculate average difference from list
 avgDiffxVecs = mean(diffxV01);
 avgDiffyVecs = mean(diffyV01);
@@ -40,18 +62,19 @@ avgDiffxCVQTM = mean(diffxCVQTM);
 avgDiffyCVQTM = mean(diffyCVQTM);
 avgDiffzCVQTM = mean(diffzCVQTM);
 % Present average differences
-avgDiffTable = table(avgDiffxVecs, avgDiffyVecs, avgDiffzVecs, ...
+avgDiffMeters = table(avgDiffxVecs, avgDiffyVecs, avgDiffzVecs, ...
                      avgDiffxCVQTM, avgDiffyCVQTM, avgDiffzCVQTM)
 
 %%%%%%%%%%%%%%%%%%%%%% Translation Plotting %%%%%%%%%%%%%%%%%%%%%%
 figure(Name="Plot of Translation comparison")
 
 % X plotting
-sgtitle("Translation Comparison: rotVector[0] vs QTM")
+transIndicesX = (xQTM ~= trans(1));
+sgtitle("Position Comparison: rotVector[0] vs QTM")
 subplot(3,1,1)
-plot(time,xCV0, '.r')
+plot(time(transIndicesX),xCV0(transIndicesX), '.r')
 hold on
-plot(time,xQTM, '.k', MarkerSize=1)
+plot(time(transIndicesX),xQTM(transIndicesX), '.k', MarkerSize=1)
 ylabel('x [m]')
 xlabel('Time [seconds]')
 [a, icons] = legend('xCV', 'xQTM', 'Location','eastoutside');
@@ -60,10 +83,11 @@ icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
 
 % Y plotting - Remember to flip sign, only axis which is aligned
+transIndicesY = (yQTM ~= trans(2));
 subplot(3,1,2)
-plot(time,-yCV0, '.g')
+plot(time(transIndicesY),yCV0(transIndicesY), '.g')
 hold on
-plot(time,yQTM, '.k', MarkerSize=1)
+plot(time(transIndicesY),yQTM(transIndicesY), '.k', MarkerSize=1)
 ylabel('y [m]')
 xlabel('Time [seconds]')
 [a, icons] = legend('yCV0', 'yQTM', 'Location','eastoutside');
@@ -72,10 +96,12 @@ icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
 
 % Z plotting
+transIndicesZ = (zQTM ~= trans(3));
 subplot(3,1,3)
-plot(time,zCV0, '.b')
+plot(time(transIndicesZ),zCV0(transIndicesZ), ...
+    '.', 'Color',[109/255, 209/255, 255/255])
 hold on
-plot(time,zQTM, '.k', MarkerSize=1)
+plot(time(transIndicesZ),zQTM(transIndicesZ), '.k', MarkerSize=1)
 ylabel('z [m]')
 xlabel('Time [seconds]')
 [a, icons] = legend('zCV0', 'zQTM', 'Location','eastoutside');
@@ -85,7 +111,7 @@ set(icons, 'MarkerSize', 20)
 
 %%%%%%%%%%%%%%%%%%%%%% Rotation Plotting %%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%% Rotation Vec0 and Matrix %%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%% Rotation Vec0 and Matrix %%%%%%%%%%%%%%%%%%
 figure(Name="Rotation comparison0")
 sgtitle("Rotation Matrix Comparison: Vec0 and QTM")
 
@@ -95,16 +121,18 @@ for i = 1:9
     
     vec0 = data(:, i+7); % v0Rij
     QTM = data(:, i+25); % v1Rij
-    
+    validIndices = (QTM ~= 0);
+
     if any(i == [1,4,7])
-        plot(time, vec0, '.r')
+        plot(time(validIndices), vec0(validIndices), '.r')
     elseif any(i == [2,5,8])
-        plot(time, vec0, '.g')
+        plot(time(validIndices), vec0(validIndices), '.g')
     else
-        plot(time, vec0, '.b')
+        plot(time(validIndices), vec0(validIndices), ...
+            '.', 'Color',[109/255, 209/255, 255/255])
     end
     hold on
-    plot(time, QTM, '.k', MarkerSize=1)
+    plot(time(validIndices), QTM(validIndices), '.k', MarkerSize=1)
     
     xlabel('Time [seconds]');
     title(['Element ', num2str(i)])
@@ -125,7 +153,9 @@ lgd.Position(2) = 0.4;
 % Change size of legend icons
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
-%%%%%%%%%%%% Rotation Vec0 and Matrix diff plot %%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%% Rotation Vec0 and Matrix %%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%% Rotation Vec0 and Matrix diff plot %%%%%%%%%%%%%
 figure(Name="RotationDifference0")
 sgtitle("Rotation Matrix Element Difference: Vec0 - QTM")
 
@@ -160,8 +190,9 @@ lgd.Position(2) = 0.4;
 % Change size of legend icons
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
+%%%%%%%%%%%%% Rotation Vec0 and Matrix diff plot %%%%%%%%%%%%%
 
-%%%%%%%%%%%% Rotation Vec1 and Matrix %%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%% Rotation Vec1 and Matrix %%%%%%%%%%%%%%%%%%
 figure(Name="Rotation Comparison1")
 sgtitle("Rotation Matrix Comparison: Vec1 and QTM")
 
@@ -171,16 +202,18 @@ for i = 1:9
     
     vec1 = data(:, i+16); % v0Rij
     QTM = data(:, i+25); % v1Rij
-    
+    validIndices = (QTM ~= 0);
+
     if any(i == [1,4,7])
-        plot(time, vec1, '.r')
+        plot(time(validIndices), vec1(validIndices), '.r')
     elseif any(i == [2,5,8])
-        plot(time, vec1, '.g')
+        plot(time(validIndices), vec1(validIndices), '.g')
     else
-        plot(time, vec1, '.b')
+        plot(time(validIndices), vec1(validIndices), ...
+            '.', 'Color',[109/255, 209/255, 255/255])
     end
     hold on
-    plot(time, QTM, '.k', MarkerSize=1)
+    plot(time(validIndices), QTM(validIndices), '.k', MarkerSize=1)
     
     xlabel('Time [seconds]');
     title(['Element ', num2str(i)])
@@ -201,8 +234,9 @@ lgd.Position(2) = 0.4;
 % Change size of legend icons
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
+%%%%%%%%%%%%%%%%%% Rotation Vec1 and Matrix %%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%% Rotation Vec1 and Matrix diff plot %%%%%%%%%%%%
+%%%%%%%%%%%%% Rotation Vec1 and Matrix diff plot %%%%%%%%%%%%%
 figure(Name="RotationDifference1")
 sgtitle("Rotation Matrix Element Difference: Vec1 - QTM")
 
@@ -228,17 +262,16 @@ end
 % Add a bit space to the figure
 fig = gcf;
 fig.Position(3) = fig.Position(3) + 250;
-
 % Add common legend outside subplots
 [lgd, icons] = legend('Vec1-QTM');
 lgd.Position(1) = 0.01;
 lgd.Position(2) = 0.4;
-
 % Change size of legend icons
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
+%%%%%%%%%%%%% Rotation Vec1 and Matrix diff plot %%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%% Angle diff plot %%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%% Angle diff plot %%%%%%%%%%%%%%%%%%%%%%
 figure(Name="Angle")
 hold on
 angles0 = zeros(length(time), 1);
@@ -284,8 +317,9 @@ title("Difference from Axis-Angle")
 ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
 ylim([-50 50])
+%%%%%%%%%%%%%%%%%%%%%%% Angle diff plot %%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%% Projection Plot %%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%% XY Projection Plot - Azimuth %%%%%%%%%%%%%%%%
 CV0anglesX = zeros(length(time), 1);
 CV0anglesY = zeros(length(time), 1);
 QTManglesX = zeros(length(time), 1);
@@ -360,3 +394,4 @@ ylim([-30 30])
 % Change size of legend icons
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
+%%%%%%%%%%%%%%%% XY Projection Plot - Azimuth %%%%%%%%%%%%%%%%
