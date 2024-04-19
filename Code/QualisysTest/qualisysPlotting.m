@@ -17,7 +17,7 @@ zCV1 = data(:,37);
 
 trans = [0.190 0.143 1.564]; % Physically measured in m
 
-%%%%%%%%%%%%%%%%%%%%%% Translation Analysis %%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%% Translation Analysis %%%%%%%%%%%%%%%%%%%%
 %validIndicesX = (QTM ~= 0) & (xCV0 ~= 0);
 %validIndicesY = (QTM ~= 0) & (yCV0 ~= 0);
 %validIndicesZ = (QTM ~= 0) & (zCV0 ~= 0);
@@ -33,8 +33,8 @@ diffzCVQTM = zeros(length(time), 1);
 timeTol = 1e-3;
 zStartTime = 192.379;
 zStopTime = 243.111;
-zStartAvgDiff = find(abs(time-zStartTime) < timeTol)
-zStopAvgDiff = find(abs(time-zStopTime) < timeTol)
+zStartAvgDiff = find(abs(time-zStartTime) < timeTol);
+zStopAvgDiff = find(abs(time-zStopTime) < timeTol);
 % Append differences to lists
 for i = 1 : length(time)
     if (xQTM(i) ~= trans(1)) && (xCV0(i) ~= 0)
@@ -64,8 +64,9 @@ avgDiffzCVQTM = mean(diffzCVQTM);
 % Present average differences
 avgDiffMeters = table(avgDiffxVecs, avgDiffyVecs, avgDiffzVecs, ...
                      avgDiffxCVQTM, avgDiffyCVQTM, avgDiffzCVQTM)
+%%%%%%%%%%%%%%%%%%%% Translation Analysis %%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%%%% Translation Plotting %%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%% Translation Plotting %%%%%%%%%%%%%%%%%%%%
 figure(Name="Plot of Translation comparison")
 
 % X plotting
@@ -108,8 +109,7 @@ xlabel('Time [seconds]')
 % Change size of legend icons
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
-
-%%%%%%%%%%%%%%%%%%%%%% Rotation Plotting %%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%% Translation Plotting %%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%% Rotation Vec0 and Matrix %%%%%%%%%%%%%%%%%%
 figure(Name="Rotation comparison0")
@@ -132,7 +132,7 @@ for i = 1:9
             '.', 'Color',[109/255, 209/255, 255/255])
     end
     hold on
-    plot(time(validIndices), QTM(validIndices), '.k', MarkerSize=1)
+    q = plot(time(validIndices), QTM(validIndices), '.k', MarkerSize=1);
     
     xlabel('Time [seconds]');
     title(['Element ', num2str(i)])
@@ -146,7 +146,12 @@ fig = gcf;
 fig.Position(3) = fig.Position(3) + 250;
 
 % Add common legend outside subplots
-[lgd, icons] = legend('Vec0', 'QTM');
+lgdEntries = {'rVec0x','rVec0y','rVec0z', 'QTM'};
+hold on
+v1 = plot(nan, nan, '.r');
+v2 = plot(nan, nan, '.g');
+v3 = plot(nan, nan, '.', 'Color',[109/255, 209/255, 255/255]);
+[lgd, icons] = legend([v1 v2 v3 q], lgdEntries);
 lgd.Position(1) = 0.01;
 lgd.Position(2) = 0.4;
 
@@ -178,18 +183,18 @@ for i = 1:9
     ylim([-1 1])
 end
 
-% Add a bit space to the figure
-fig = gcf;
-fig.Position(3) = fig.Position(3) + 250;
-
-% Add common legend outside subplots
-[lgd, icons] = legend('Vec0-QTM');
-lgd.Position(1) = 0.01;
-lgd.Position(2) = 0.4;
-
-% Change size of legend icons
-icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
-set(icons, 'MarkerSize', 20)
+% % Add a bit space to the figure
+% fig = gcf;
+% fig.Position(3) = fig.Position(3) + 250;
+% 
+% % Add common legend outside subplots
+% [lgd, icons] = legend('$\Delta R_{nm}$', 'Interpreter', 'latex');
+% lgd.Position(1) = 0.465;
+% lgd.Position(2) = 0.008;
+% 
+% % Change size of legend icons
+% icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
+% set(icons, 'MarkerSize', 20)
 %%%%%%%%%%%%% Rotation Vec0 and Matrix diff plot %%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%% Rotation Vec1 and Matrix %%%%%%%%%%%%%%%%%%
@@ -227,7 +232,13 @@ fig = gcf;
 fig.Position(3) = fig.Position(3) + 250;
 
 % Add common legend outside subplots
-[lgd, icons] = legend('Vec1', 'QTM');
+lgdEntries = {'rVec1x','rVec1y','rVec1z', 'QTM'};
+hold on
+v1 = plot(nan, nan, '.r');
+v2 = plot(nan, nan, '.g');
+v3 = plot(nan, nan, '.', 'Color',[109/255, 209/255, 255/255]);
+[lgd, icons] = legend([v1 v2 v3 q], lgdEntries);
+%[lgd, icons] = legend('Vec1', 'QTM');
 lgd.Position(1) = 0.01;
 lgd.Position(2) = 0.4;
 
@@ -260,25 +271,25 @@ for i = 1:9
 end
 
 % Add a bit space to the figure
-fig = gcf;
-fig.Position(3) = fig.Position(3) + 250;
-% Add common legend outside subplots
-[lgd, icons] = legend('Vec1-QTM');
-lgd.Position(1) = 0.01;
-lgd.Position(2) = 0.4;
-% Change size of legend icons
-icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
-set(icons, 'MarkerSize', 20)
+% fig = gcf;
+% fig.Position(3) = fig.Position(3) + 250;
+% % Add common legend outside subplots
+% [lgd, icons] = legend('$\Delta R_{nm}$', 'Interpreter', 'latex');
+% lgd.Position(1) = 0.465;
+% lgd.Position(2) = 0.008;
+% % Change size of legend icons
+% icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
+% set(icons, 'MarkerSize', 20)
 %%%%%%%%%%%%% Rotation Vec1 and Matrix diff plot %%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%% Angle diff plot %%%%%%%%%%%%%%%%%%%%%%
 figure(Name="Angle")
 hold on
-angles0 = zeros(length(time), 1);
-angles1 = zeros(length(time), 1);
+% angles0 = zeros(length(time), 1);
+% angles1 = zeros(length(time), 1);
 angChoice = zeros(length(time), 1);
-eul0 = zeros(length(time), 3);
-eul1 = zeros(length(time), 3);
+% eul0 = zeros(length(time), 3);
+% eul1 = zeros(length(time), 3);
 for i = 1 : length(time)
     rotMat0 = [data(i,8), data(i,9), data(i,10);
                data(i,11), data(i,12), data(i,13);
@@ -291,13 +302,13 @@ for i = 1 : length(time)
                  data(i,32), data(i,33), data(i,34)];
     rotMatDiff0 = rotMat0' * rotMatQTM;
     rotMatDiff1 = rotMat1' * rotMatQTM;
-    eul0(i,:) = rotm2eul(rotMatDiff0);
-    eul1(i,:) = rotm2eul(rotMatDiff1);
+    % eul0(i,:) = rotm2eul(rotMatDiff0);
+    % eul1(i,:) = rotm2eul(rotMatDiff1);
 
     rotVecDiff0 = rotm2axang(rotMatDiff0);
     rotVecDiff1 = rotm2axang(rotMatDiff1);
-    angles0(i) = rad2deg(rotVecDiff0(4));
-    angles1(i) = rad2deg(rotVecDiff1(4));
+    % angles0(i) = rad2deg(rotVecDiff0(4));
+    % angles1(i) = rad2deg(rotVecDiff1(4));
     
     ang0 = rad2deg(rotVecDiff0(4));
     ang1 = rad2deg(rotVecDiff1(4));
@@ -310,13 +321,14 @@ for i = 1 : length(time)
 end
 
 % Plot only when QTM rotation matrix != 0
-plotY = rad2deg(eul0(:,1));
+%plotY = rad2deg(eul0(:,1));
+plotY = angChoice;
 validIndices = (plotY ~= 0);
 plot(time(validIndices), plotY(validIndices), '.k', MarkerSize=1)
-title("Difference from Axis-Angle")
+title("Difference from Axis-Angle: Closest choice")
 ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
-ylim([-50 50])
+ylim([0 90])
 %%%%%%%%%%%%%%%%%%%%%%% Angle diff plot %%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%% XY Projection Plot - Azimuth %%%%%%%%%%%%%%%%
@@ -324,10 +336,10 @@ CV0anglesX = zeros(length(time), 1);
 CV0anglesY = zeros(length(time), 1);
 QTManglesX = zeros(length(time), 1);
 QTManglesY = zeros(length(time), 1);
-% diff0AnglesX = zeros(length(time), 1);
-% diff0AnglesY = zeros(length(time), 1);
-% diff1AnglesX = zeros(length(time), 1);
-% diff1AnglesY = zeros(length(time), 1);
+% diff0AnglesX = zeros(length(time),1);
+% diff0AnglesY = zeros(length(time),1);
+% diff1AnglesX = zeros(length(time),1);
+% diff1AnglesY = zeros(length(time),1);
 diffAnglesX = zeros(length(time), 1);
 diffAnglesY = zeros(length(time), 1);
 
