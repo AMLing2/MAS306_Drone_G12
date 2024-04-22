@@ -1,8 +1,8 @@
 clc; clear; close all;
 
-%% Plotting results Qualisys Test 
+% Plotting results Qualisys Test 
 
-testNr = 4;
+testNr = 2;
 fileName = ['ExportedResults_', num2str(testNr), '.csv'];
 data = csvread(fileName, 1,0);
 
@@ -20,9 +20,6 @@ zCV1 = data(:,37);
 trans = [0.190 0.143 1.564]; % Physically measured in m
 
 %%%%%%%%%%%%%%%%%%%% Translation Analysis %%%%%%%%%%%%%%%%%%%%
-%validIndicesX = (QTM ~= 0) & (xCV0 ~= 0);
-%validIndicesY = (QTM ~= 0) & (yCV0 ~= 0);
-%validIndicesZ = (QTM ~= 0) & (zCV0 ~= 0);
 
 % Initialize difference lists
 diffxV01 = zeros(length(time), 1);
@@ -68,19 +65,27 @@ avgDiffMeters = table(avgDiffxVecs, avgDiffyVecs, avgDiffzVecs, ...
                      avgDiffxCVQTM, avgDiffyCVQTM, avgDiffzCVQTM)
 %%%%%%%%%%%%%%%%%%%% Translation Analysis %%%%%%%%%%%%%%%%%%%%
 
+% Plotting
+
+startTime = 140;
+stopTime = 186;
+% startTime = 0;
+% stopTime = time(end);
+
 %%%%%%%%%%%%%%%%%%%% Translation Plotting %%%%%%%%%%%%%%%%%%%%
 transPlot = figure(Name="Plot of Translation comparison");
 
 % X plotting
 transIndicesX = (xQTM ~= trans(1));
-sgtitle("Position Comparison: rotVector[0] and QTM")
+sgtitle("Position Comparison: transVector[0] and QTM")
 subplot(3,1,1)
 plot(time(transIndicesX),xCV0(transIndicesX), '.r')
 hold on
 plot(time(transIndicesX),xQTM(transIndicesX), '.k', MarkerSize=1)
 ylabel('x [m]')
 xlabel('Time [seconds]')
-xlim([0 time(end)])
+% xlim([0 time(end)])
+xlim([startTime stopTime])
 [a, icons] = legend('xCV', 'xQTM', 'Location','eastoutside');
 % Change size of legend icons
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
@@ -94,7 +99,8 @@ hold on
 plot(time(transIndicesY),yQTM(transIndicesY), '.k', MarkerSize=1)
 ylabel('y [m]')
 xlabel('Time [seconds]')
-xlim([0 time(end)])
+% xlim([0 time(end)])
+xlim([startTime stopTime])
 [a, icons] = legend('yCV0', 'yQTM', 'Location','eastoutside');
 % Change size of legend icons
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
@@ -109,7 +115,8 @@ hold on
 plot(time(transIndicesZ),zQTM(transIndicesZ), '.k', MarkerSize=1)
 ylabel('z [m]')
 xlabel('Time [seconds]')
-xlim([0 time(end)])
+% xlim([0 time(end)])
+xlim([startTime stopTime])
 [a, icons] = legend('zCV0', 'zQTM', 'Location','eastoutside');
 % Change size of legend icons
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
@@ -118,9 +125,111 @@ set(icons, 'MarkerSize', 20)
 % Export figure
 %set(transPlot,'units','normalized','outerposition',[0 0 1 1])
 saveas(transPlot, ['poseTest_',num2str(testNr), '_TransPlot'])
-saveas(transPlot, ['poseTest_',num2str(testNr), '_TransPlot.png'])
+%saveas(transPlot, ['poseTest_',num2str(testNr), '_TransPlot.pdf'])
+exportgraphics(transPlot, ['poseTest_',num2str(testNr), '_TransPlot.pdf'], ...
+               'ContentType', 'vector');
 %%%%%%%%%%%%%%%%%%%% Translation Plotting %%%%%%%%%%%%%%%%%%%%
 
+%%%%%%%%%%%%% Temporal Translation Diff Plotting %%%%%%%%%%%%%
+transDiffPlot = figure(Name='TransDiffPlot');
+sgtitle('Difference between transVector[0] and QTM as function of time')
+dLims = 0.3;
+
+% X plotting
+transIndicesX = (xQTM ~= trans(1));
+subplot(3,1,1)
+xDiff = xQTM(transIndicesX) - xCV0(transIndicesX);
+plot(time(transIndicesX),xDiff, '.r')
+ylabel('x [m]')
+xlabel('Time [seconds]')
+% xlim([0 time(end)])
+xlim([startTime stopTime])
+ylim([-dLims dLims])
+%[a, icons] = legend('Diff', 'Location','eastoutside');
+% Change size of legend icons
+%icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
+%set(icons, 'MarkerSize', 20)
+
+% Y plotting - Remember to flip sign, only axis which is aligned
+transIndicesY = (yQTM ~= trans(2));
+subplot(3,1,2)
+yDiff = yQTM(transIndicesY) - yCV0(transIndicesY);
+plot(time(transIndicesY),yDiff, '.g')
+ylabel('y [m]')
+xlabel('Time [seconds]')
+% xlim([0 time(end)])
+xlim([startTime stopTime])
+ylim([-dLims dLims])
+
+% Z plotting
+transIndicesZ = (zQTM ~= trans(3));
+subplot(3,1,3)
+zDiff = zQTM(transIndicesZ) - zCV0(transIndicesZ);
+plot(time(transIndicesZ),zDiff, '.', 'Color',[109/255, 209/255, 255/255])
+ylabel('z [m]')
+xlabel('Time [seconds]')
+% xlim([0 time(end)])
+xlim([startTime stopTime])
+ylim([-dLims dLims])
+
+% Export figure
+%set(transPlot,'units','normalized','outerposition',[0 0 1 1])
+saveas(transDiffPlot, ['poseTest_',num2str(testNr), '_transDiffPlot'])
+%saveas(transPlot, ['poseTest_',num2str(testNr), '_TransPlot.pdf'])
+exportgraphics(transPlot, ['poseTest_',num2str(testNr), '_transDiffPlot.pdf'], ...
+               'ContentType', 'vector');
+%%%%%%%%%%%%% Temporal Translation Diff Plotting %%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%% Translation Diff Plotting - Pos %%%%%%%%%%%%%%
+transDiffPlot = figure(Name='TransDiffPlot2');
+sgtitle('Difference between transVector[0] and QTM as function of QTM')
+dLims = 0.3;
+
+% X plotting
+transIndicesX = (xQTM ~= trans(1));
+subplot(3,1,1)
+xDiff = xQTM(transIndicesX) - xCV0(transIndicesX);
+plot(xQTM(transIndicesX),xDiff, '.r')
+ylabel('difference [m]')
+xlabel('x [m]')
+% xlim([0 time(end)])
+% xlim([startTime stopTime])
+ylim([-dLims dLims])
+%[a, icons] = legend('Diff', 'Location','eastoutside');
+% Change size of legend icons
+%icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
+%set(icons, 'MarkerSize', 20)
+
+% Y plotting - Remember to flip sign, only axis which is aligned
+transIndicesY = (yQTM ~= trans(2));
+subplot(3,1,2)
+yDiff = yQTM(transIndicesY) - yCV0(transIndicesY);
+plot(yQTM(transIndicesY),yDiff, '.g')
+ylabel('difference [m]')
+xlabel('y [m]')
+% xlim([0 time(end)])
+% xlim([startTime stopTime])
+ylim([-dLims dLims])
+
+% Z plotting
+transIndicesZ = (zQTM ~= trans(3));
+subplot(3,1,3)
+zDiff = zQTM(transIndicesZ) - zCV0(transIndicesZ);
+plot(zQTM(transIndicesZ),zDiff, '.', 'Color',[109/255, 209/255, 255/255])
+ylabel('difference [m]')
+xlabel('z [m]')
+% xlim([0 time(end)])
+% xlim([startTime stopTime])
+ylim([-dLims dLims])
+
+% Export figure
+%set(transPlot,'units','normalized','outerposition',[0 0 1 1])
+saveas(transDiffPlot, ['poseTest_',num2str(testNr), '_transDiffPlot'])
+%saveas(transPlot, ['poseTest_',num2str(testNr), '_TransPlot.pdf'])
+exportgraphics(transPlot, ['poseTest_',num2str(testNr), '_transDiffPlot.pdf'], ...
+               'ContentType', 'vector');
+%%%%%%%%%%%%%%% Translation Diff Plotting - Pos %%%%%%%%%%%%%%
+%%
 %%%%%%%%%%%%%%%%%% Rotation Vec0 and Matrix %%%%%%%%%%%%%%%%%%
 rot0matPlot = figure(Name="Rotation comparison0");
 sgtitle("Rotation Matrix Comparison: Vec0 and QTM")
@@ -145,7 +254,8 @@ for i = 1:9
     q = plot(time(validIndices), QTM(validIndices), '.k', MarkerSize=1);
     
     xlabel('Time [seconds]');
-    xlim([0 time(end)])
+    % xlim([0 time(end)])
+    xlim([startTime stopTime])
     title(['Element ', num2str(i)])
     hold off
     %xlim([25 125])
@@ -173,7 +283,9 @@ set(icons, 'MarkerSize', 20)
 % Export figure
 set(rot0matPlot,'units','normalized','outerposition',[0 0 1 1])
 saveas(rot0matPlot, ['poseTest_',num2str(testNr), '_rot0matPlot'])
-saveas(rot0matPlot, ['poseTest_',num2str(testNr), '_rot0matPlot.png'])
+%saveas(rot0matPlot, ['poseTest_',num2str(testNr), '_rot0matPlot.png'])
+exportgraphics(rot0matPlot, ['poseTest_',num2str(testNr), '_rot0matPlot.pdf'], ...
+               'ContentType', 'vector');
 %%%%%%%%%%%%%%%%%% Rotation Vec0 and Matrix %%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%% Rotation Vec0 and Matrix diff plot %%%%%%%%%%%%%
@@ -193,7 +305,8 @@ for i = 1:9
          '.k', MarkerSize=1)
     
     xlabel('Time [seconds]');
-    xlim([0 time(end)])
+    % xlim([0 time(end)])
+    xlim([startTime stopTime])
     title(['Element ', num2str(i)])
     hold off
     %xlim([25 125])
@@ -216,7 +329,9 @@ end
 % Export figure
 set(rot0matDiffPlot,'units','normalized','outerposition',[0 0 1 1])
 saveas(rot0matDiffPlot, ['poseTest_',num2str(testNr), '_rot0matDiffPlot'])
-saveas(rot0matDiffPlot, ['poseTest_',num2str(testNr), '_rot0matDiffPlot.png'])
+% saveas(rot0matDiffPlot, ['poseTest_',num2str(testNr), '_rot0matDiffPlot.png'])
+exportgraphics(rot0matDiffPlot, ['poseTest_',num2str(testNr), '_rot0matDiffPlot.pdf'], ...
+               'ContentType', 'vector');
 %%%%%%%%%%%%% Rotation Vec0 and Matrix diff plot %%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%% Rotation Vec1 and Matrix %%%%%%%%%%%%%%%%%%
@@ -243,7 +358,8 @@ for i = 1:9
     plot(time(validIndices), QTM(validIndices), '.k', MarkerSize=1)
     
     xlabel('Time [seconds]');
-    xlim([0 time(end)])
+    % xlim([0 time(end)])
+    xlim([startTime stopTime])
     title(['Element ', num2str(i)])
     hold off
     %xlim([25 125])
@@ -272,7 +388,9 @@ set(icons, 'MarkerSize', 20)
 % Export figure
 set(rot1matPlot,'units','normalized','outerposition',[0 0 1 1])
 saveas(rot1matPlot, ['poseTest_',num2str(testNr), '_rot1matPlot'])
-saveas(rot1matPlot, ['poseTest_',num2str(testNr), '_rot1matPlot.png'])
+% saveas(rot1matPlot, ['poseTest_',num2str(testNr), '_rot1matPlot.png'])
+exportgraphics(rot1matPlot, ['poseTest_',num2str(testNr), '_rot1matPlot.pdf'], ...
+               'ContentType', 'vector');
 %%%%%%%%%%%%%%%%%% Rotation Vec1 and Matrix %%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%% Rotation Vec1 and Matrix diff plot %%%%%%%%%%%%%
@@ -292,7 +410,8 @@ for i = 1:9
          '.k', MarkerSize=1)
     
     xlabel('Time [seconds]');
-    xlim([0 time(end)])
+    % xlim([0 time(end)])
+    xlim([startTime stopTime])
     title(['Element ', num2str(i)])
     hold off
     %xlim([25 125])
@@ -313,7 +432,9 @@ end
 % Export figure
 set(rot1matDiffPlot,'units','normalized','outerposition',[0 0 1 1])
 saveas(rot1matDiffPlot, ['poseTest_',num2str(testNr), '_rot1matDiffPlot'])
-saveas(rot1matDiffPlot, ['poseTest_',num2str(testNr), '_rot1matDiffPlot.png'])
+% saveas(rot1matDiffPlot, ['poseTest_',num2str(testNr), '_rot1matDiffPlot.png'])
+exportgraphics(rot1matDiffPlot, ['poseTest_',num2str(testNr), '_rot1matDiffPlot.pdf'], ...
+               'ContentType', 'vector');
 %%%%%%%%%%%%% Rotation Vec1 and Matrix diff plot %%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%% Angle diff plot %%%%%%%%%%%%%%%%%%%%%%
@@ -361,13 +482,16 @@ plot(time(validIndices), angChoice(validIndices), '.k', MarkerSize=1)
 title("Difference from Axis-Angle: Closest choice")
 ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
-xlim([0 time(end)])
+% xlim([0 time(end)])
+xlim([startTime stopTime])
 ylim([0 90])
 
 % Export figure
 %set(rot1matDiffPlot,'units','normalized','outerposition',[0 0 1 1])
 saveas(angleDiffPlot, ['poseTest_',num2str(testNr), '_angleDiffPlot'])
-saveas(angleDiffPlot, ['poseTest_',num2str(testNr), '_angleDiffPlot.png'])
+% saveas(angleDiffPlot, ['poseTest_',num2str(testNr), '_angleDiffPlot.png'])
+exportgraphics(angleDiffPlot, ['poseTest_',num2str(testNr), '_angleDiffPlot.pdf'], ...
+               'ContentType', 'vector');
 %%%%%%%%%%%%%%%%%%%%%%% Angle diff plot %%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%% XY Projection Plot - Azimuth %%%%%%%%%%%%%%%%
@@ -451,8 +575,8 @@ for i = 1 : length(time)
     end
 end
 
-xStart = 180;
-yStart = -270;
+xStart = 90;
+yStart = -10;
 
 %%%%%%%% Angle Plot: Vec0 and QTM %%%%%%%%
 % Plot only when QTM rotation matrix != 0
@@ -469,7 +593,8 @@ hold on
 plot(time(validIndices), QTManglesXplot(validIndices), '.k', MarkerSize=1)
 ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
-xlim([0 time(end)])
+% xlim([0 time(end)])
+xlim([startTime stopTime])
 ylim([xStart (xStart+360)])
 
 [h, icons] = legend('CV0 $\theta$ from X-axis', 'QTM $\theta$ from Y-axis', ...
@@ -487,7 +612,8 @@ hold on
 plot(time(validIndices), QTManglesYplot(validIndices), '.k', MarkerSize=1)
 ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
-xlim([0 time(end)])
+% xlim([0 time(end)])
+xlim([startTime stopTime])
 ylim([yStart (yStart+360)])
 
 [h, icons] = legend('CV0 $\theta$ from Y-axis', 'QTM $\theta$ from Y-axis', ...
@@ -499,7 +625,9 @@ set(icons, 'MarkerSize', 20)
 % Export figure
 %set(rot1matDiffPlot,'units','normalized','outerposition',[0 0 1 1])
 saveas(XYprojVec0, ['poseTest_',num2str(testNr), '_XYprojVec0'])
-saveas(XYprojVec0, ['poseTest_',num2str(testNr), '_XYprojVec0.png'])
+% saveas(XYprojVec0, ['poseTest_',num2str(testNr), '_XYprojVec0.png'])
+exportgraphics(XYprojVec0, ['poseTest_',num2str(testNr), '_XYprojVec0.pdf'], ...
+               'ContentType', 'vector');
 
 %%%%%%%% Angle Plot: Vec1 and QTM %%%%%%%%
 % Plot only when QTM rotation matrix != 0
@@ -517,7 +645,8 @@ plot(time(validIndices), QTManglesXplot(validIndices), '.k', MarkerSize=1)
 ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
 ylim([xStart (xStart+360)])
-xlim([0 time(end)])
+% xlim([0 time(end)])
+xlim([startTime stopTime])
 
 [h, icons] = legend('CV1 $\theta$ from X-axis', 'QTM $\theta$ from Y-axis', ...
     'Interpreter', 'latex', 'Location','best');
@@ -535,7 +664,8 @@ plot(time(validIndices), QTManglesYplot(validIndices), '.k', MarkerSize=1)
 ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
 ylim([yStart (yStart+360)])
-xlim([0 time(end)])
+% xlim([0 time(end)])
+xlim([startTime stopTime])
 
 [h, icons] = legend('CV1 $\theta$ from Y-axis', 'QTM $\theta$ from Y-axis', ...
     'Interpreter', 'latex', 'Location','best');
@@ -546,7 +676,9 @@ set(icons, 'MarkerSize', 20)
 % Export figure
 %set(rot1matDiffPlot,'units','normalized','outerposition',[0 0 1 1])
 saveas(XYprojVec1, ['poseTest_',num2str(testNr), '_XYprojVec1'])
-saveas(XYprojVec1, ['poseTest_',num2str(testNr), '_XYprojVec1.png'])
+% saveas(XYprojVec1, ['poseTest_',num2str(testNr), '_XYprojVec1.png'])
+exportgraphics(XYprojVec1, ['poseTest_',num2str(testNr), '_XYprojVec1.pdf'], ...
+               'ContentType', 'vector');
 
 %%%%%%%% Angle Plot: Vector Choice and QTM %%%%%%%%
 % Plot only when QTM rotation matrix != 0
@@ -564,7 +696,8 @@ plot(time(validIndices), QTManglesXplot(validIndices), '.k', MarkerSize=1)
 ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
 ylim([xStart (xStart+360)])
-xlim([0 time(end)])
+% xlim([0 time(end)])
+xlim([startTime stopTime])
 
 [h, icons] = legend('CV $\theta$ from X-axis', 'QTM $\theta$ from Y-axis', ...
     'Interpreter', 'latex', 'Location','best');
@@ -582,7 +715,8 @@ plot(time(validIndices), QTManglesYplot(validIndices), '.k', MarkerSize=1)
 ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
 ylim([yStart (yStart+360)])
-xlim([0 time(end)])
+% xlim([0 time(end)])
+xlim([startTime stopTime])
 
 [h, icons] = legend('CV $\theta$ from Y-axis', 'QTM $\theta$ from Y-axis', ...
     'Interpreter', 'latex', 'Location','best');
@@ -593,7 +727,9 @@ set(icons, 'MarkerSize', 20)
 % Export figure
 %set(rot1matDiffPlot,'units','normalized','outerposition',[0 0 1 1])
 saveas(XYprojVecChoice, ['poseTest_',num2str(testNr), '_XYprojVecChoice'])
-saveas(XYprojVecChoice, ['poseTest_',num2str(testNr), '_XYprojVecChoice.png'])
+% saveas(XYprojVecChoice, ['poseTest_',num2str(testNr), '_XYprojVecChoice.png'])
+exportgraphics(XYprojVecChoice, ['poseTest_',num2str(testNr), '_XYprojVecChoice.pdf'], ...
+               'ContentType', 'vector');
 
 %%%%%%%% Difference Plot %%%%%%%%
 % Plot only when QTM rotation matrix != 0
@@ -617,5 +753,7 @@ set(icons, 'MarkerSize', 20)
 % Export figure
 %set(rot1matDiffPlot,'units','normalized','outerposition',[0 0 1 1])
 saveas(XYprojDiff, ['poseTest_',num2str(testNr), '_XYprojDiff'])
-saveas(XYprojDiff, ['poseTest_',num2str(testNr), '_XYprojDiff.png'])
+% saveas(XYprojDiff, ['poseTest_',num2str(testNr), '_XYprojDiff.png'])
+exportgraphics(XYprojDiff, ['poseTest_',num2str(testNr), '_XYprojDiff.pdf'], ...
+               'ContentType', 'vector');
 %%%%%%%%%%%%%%%% XY Projection Plot - Azimuth %%%%%%%%%%%%%%%%
