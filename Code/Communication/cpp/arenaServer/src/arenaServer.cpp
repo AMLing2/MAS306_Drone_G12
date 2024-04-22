@@ -8,6 +8,13 @@
 #include <thread>
 //#include <sys/time.h> //for timeval struct, not needed? chrono is better
 
+
+
+
+
+
+/* shove all this stuff below somewhere else*/
+
 class ArenaServer : public ClientSocket
 {
 public:
@@ -176,7 +183,7 @@ int ArenaServer::cSyncTime(dronePosVec::dataTransfers* pdroneInfoMsg) //sync cli
 		pdroneInfoMsg->set_id(1);
 		pdroneInfoMsg->set_timesync_ns(timeDiff);
 		pdroneInfoMsg->SerializeToArray(genBuffer_,bufferLen_);
-		sendDrone(genBuffer_,pdroneInfoMsg->ByteSizeLong());//adding an offset might be wierd, 0.2-0.7ms delay without it
+		sendDrone(genBuffer_,pdroneInfoMsg->ByteSizeLong());//adding an offset might be wierd, 0.2-0.7ms delay without it, but more consistent(?) and less delay with
 	}
 	return 0;
 }
