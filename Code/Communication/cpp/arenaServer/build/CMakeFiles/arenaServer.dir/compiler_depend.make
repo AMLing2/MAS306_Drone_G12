@@ -344,7 +344,7 @@ CMakeFiles/arenaServer.dir/src/arenaServer.cpp.o: ../src/arenaServer.cpp \
   /usr/include/google/protobuf/message.h \
   /usr/include/google/protobuf/extension_set.h \
   /usr/include/c++/11/cassert \
-  ../src/droneClient.h \
+  ../src/arenaServer.h \
   /usr/include/x86_64-linux-gnu/sys/socket.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_iovec.h \
   /usr/include/x86_64-linux-gnu/bits/socket.h \
@@ -782,8 +782,6 @@ CMakeFiles/arenaServer.dir/src/dronePosVec.pb.cc.o: ../src/dronePosVec.pb.cc \
 
 /usr/include/c++/11/ratio:
 
-../src/droneClient.h:
-
 /usr/include/c++/11/mutex:
 
 /usr/include/google/protobuf/stubs/once.h:
@@ -857,6 +855,8 @@ CMakeFiles/arenaServer.dir/src/dronePosVec.pb.cc.o: ../src/dronePosVec.pb.cc \
 /usr/include/c++/11/bits/istream.tcc:
 
 /usr/include/c++/11/istream:
+
+../src/arenaServer.h:
 
 /usr/include/c++/11/bits/ostream.tcc:
 

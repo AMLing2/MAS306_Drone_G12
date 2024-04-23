@@ -125,6 +125,35 @@ inline bool transferType_Parse(
   return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<transferType>(
     transferType_descriptor(), name, value);
 }
+enum progName : int {
+  server = 0,
+  drone = 1,
+  estimator = 2,
+  arena = 3,
+  camera = 4,
+  rl = 5,
+  progName_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
+  progName_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
+};
+bool progName_IsValid(int value);
+constexpr progName progName_MIN = server;
+constexpr progName progName_MAX = rl;
+constexpr int progName_ARRAYSIZE = progName_MAX + 1;
+
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* progName_descriptor();
+template<typename T>
+inline const std::string& progName_Name(T enum_t_value) {
+  static_assert(::std::is_same<T, progName>::value ||
+    ::std::is_integral<T>::value,
+    "Incorrect type passed to function progName_Name.");
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    progName_descriptor(), enum_t_value);
+}
+inline bool progName_Parse(
+    const std::string& name, progName* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<progName>(
+    progName_descriptor(), name, value);
+}
 // ===================================================================
 
 class dronePosition PROTOBUF_FINAL :
@@ -672,14 +701,17 @@ class dataTransfers PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMsgFieldNumber = 4,
-    kIPFieldNumber = 6,
+    kMsgFieldNumber = 3,
+    kIPFieldNumber = 5,
+    kSockaddrFieldNumber = 7,
     kIDFieldNumber = 1,
-    kTypeFieldNumber = 3,
-    kTimeSyncNsFieldNumber = 5,
-    kPortFieldNumber = 7,
+    kTypeFieldNumber = 2,
+    kTimeSyncNsFieldNumber = 4,
+    kPortFieldNumber = 6,
+    kSockaddrlenFieldNumber = 8,
+    kSaFamilyFieldNumber = 9,
   };
-  // string msg = 4;
+  // string msg = 3;
   void clear_msg();
   const std::string& msg() const;
   void set_msg(const std::string& value);
@@ -704,7 +736,7 @@ class dataTransfers PROTOBUF_FINAL :
   std::string* _internal_mutable_msg();
   public:
 
-  // string IP = 6;
+  // string IP = 5;
   void clear_ip();
   const std::string& ip() const;
   void set_ip(const std::string& value);
@@ -729,16 +761,41 @@ class dataTransfers PROTOBUF_FINAL :
   std::string* _internal_mutable_ip();
   public:
 
-  // int32 ID = 1;
-  void clear_id();
-  ::PROTOBUF_NAMESPACE_ID::int32 id() const;
-  void set_id(::PROTOBUF_NAMESPACE_ID::int32 value);
+  // bytes sockaddr = 7;
+  void clear_sockaddr();
+  const std::string& sockaddr() const;
+  void set_sockaddr(const std::string& value);
+  void set_sockaddr(std::string&& value);
+  void set_sockaddr(const char* value);
+  void set_sockaddr(const void* value, size_t size);
+  std::string* mutable_sockaddr();
+  std::string* release_sockaddr();
+  void set_allocated_sockaddr(std::string* sockaddr);
+  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
+  "    string fields are deprecated and will be removed in a"
+  "    future release.")
+  std::string* unsafe_arena_release_sockaddr();
+  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
+  "    string fields are deprecated and will be removed in a"
+  "    future release.")
+  void unsafe_arena_set_allocated_sockaddr(
+      std::string* sockaddr);
   private:
-  ::PROTOBUF_NAMESPACE_ID::int32 _internal_id() const;
-  void _internal_set_id(::PROTOBUF_NAMESPACE_ID::int32 value);
+  const std::string& _internal_sockaddr() const;
+  void _internal_set_sockaddr(const std::string& value);
+  std::string* _internal_mutable_sockaddr();
   public:
 
-  // .dronePosVec.transferType type = 3;
+  // .dronePosVec.progName ID = 1;
+  void clear_id();
+  ::dronePosVec::progName id() const;
+  void set_id(::dronePosVec::progName value);
+  private:
+  ::dronePosVec::progName _internal_id() const;
+  void _internal_set_id(::dronePosVec::progName value);
+  public:
+
+  // .dronePosVec.transferType type = 2;
   void clear_type();
   ::dronePosVec::transferType type() const;
   void set_type(::dronePosVec::transferType value);
@@ -747,7 +804,7 @@ class dataTransfers PROTOBUF_FINAL :
   void _internal_set_type(::dronePosVec::transferType value);
   public:
 
-  // int64 timeSync_ns = 5;
+  // int64 timeSync_ns = 4;
   void clear_timesync_ns();
   ::PROTOBUF_NAMESPACE_ID::int64 timesync_ns() const;
   void set_timesync_ns(::PROTOBUF_NAMESPACE_ID::int64 value);
@@ -756,13 +813,31 @@ class dataTransfers PROTOBUF_FINAL :
   void _internal_set_timesync_ns(::PROTOBUF_NAMESPACE_ID::int64 value);
   public:
 
-  // uint32 port = 7;
+  // uint32 port = 6;
   void clear_port();
   ::PROTOBUF_NAMESPACE_ID::uint32 port() const;
   void set_port(::PROTOBUF_NAMESPACE_ID::uint32 value);
   private:
   ::PROTOBUF_NAMESPACE_ID::uint32 _internal_port() const;
   void _internal_set_port(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // uint32 sockaddrlen = 8;
+  void clear_sockaddrlen();
+  ::PROTOBUF_NAMESPACE_ID::uint32 sockaddrlen() const;
+  void set_sockaddrlen(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_sockaddrlen() const;
+  void _internal_set_sockaddrlen(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // uint32 sa_family = 9;
+  void clear_sa_family();
+  ::PROTOBUF_NAMESPACE_ID::uint32 sa_family() const;
+  void set_sa_family(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_sa_family() const;
+  void _internal_set_sa_family(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
   // @@protoc_insertion_point(class_scope:dronePosVec.dataTransfers)
@@ -774,10 +849,13 @@ class dataTransfers PROTOBUF_FINAL :
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr msg_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr ip_;
-  ::PROTOBUF_NAMESPACE_ID::int32 id_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr sockaddr_;
+  int id_;
   int type_;
   ::PROTOBUF_NAMESPACE_ID::int64 timesync_ns_;
   ::PROTOBUF_NAMESPACE_ID::uint32 port_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 sockaddrlen_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 sa_family_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_dronePosVec_2eproto;
 };
@@ -1135,27 +1213,27 @@ inline void droneControl::set_motorbr(float value) {
 
 // dataTransfers
 
-// int32 ID = 1;
+// .dronePosVec.progName ID = 1;
 inline void dataTransfers::clear_id() {
   id_ = 0;
 }
-inline ::PROTOBUF_NAMESPACE_ID::int32 dataTransfers::_internal_id() const {
-  return id_;
+inline ::dronePosVec::progName dataTransfers::_internal_id() const {
+  return static_cast< ::dronePosVec::progName >(id_);
 }
-inline ::PROTOBUF_NAMESPACE_ID::int32 dataTransfers::id() const {
+inline ::dronePosVec::progName dataTransfers::id() const {
   // @@protoc_insertion_point(field_get:dronePosVec.dataTransfers.ID)
   return _internal_id();
 }
-inline void dataTransfers::_internal_set_id(::PROTOBUF_NAMESPACE_ID::int32 value) {
+inline void dataTransfers::_internal_set_id(::dronePosVec::progName value) {
   
   id_ = value;
 }
-inline void dataTransfers::set_id(::PROTOBUF_NAMESPACE_ID::int32 value) {
+inline void dataTransfers::set_id(::dronePosVec::progName value) {
   _internal_set_id(value);
   // @@protoc_insertion_point(field_set:dronePosVec.dataTransfers.ID)
 }
 
-// .dronePosVec.transferType type = 3;
+// .dronePosVec.transferType type = 2;
 inline void dataTransfers::clear_type() {
   type_ = 0;
 }
@@ -1175,7 +1253,7 @@ inline void dataTransfers::set_type(::dronePosVec::transferType value) {
   // @@protoc_insertion_point(field_set:dronePosVec.dataTransfers.type)
 }
 
-// string msg = 4;
+// string msg = 3;
 inline void dataTransfers::clear_msg() {
   msg_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }
@@ -1256,7 +1334,7 @@ inline void dataTransfers::unsafe_arena_set_allocated_msg(
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:dronePosVec.dataTransfers.msg)
 }
 
-// int64 timeSync_ns = 5;
+// int64 timeSync_ns = 4;
 inline void dataTransfers::clear_timesync_ns() {
   timesync_ns_ = PROTOBUF_LONGLONG(0);
 }
@@ -1276,7 +1354,7 @@ inline void dataTransfers::set_timesync_ns(::PROTOBUF_NAMESPACE_ID::int64 value)
   // @@protoc_insertion_point(field_set:dronePosVec.dataTransfers.timeSync_ns)
 }
 
-// string IP = 6;
+// string IP = 5;
 inline void dataTransfers::clear_ip() {
   ip_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }
@@ -1357,7 +1435,7 @@ inline void dataTransfers::unsafe_arena_set_allocated_ip(
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:dronePosVec.dataTransfers.IP)
 }
 
-// uint32 port = 7;
+// uint32 port = 6;
 inline void dataTransfers::clear_port() {
   port_ = 0u;
 }
@@ -1375,6 +1453,127 @@ inline void dataTransfers::_internal_set_port(::PROTOBUF_NAMESPACE_ID::uint32 va
 inline void dataTransfers::set_port(::PROTOBUF_NAMESPACE_ID::uint32 value) {
   _internal_set_port(value);
   // @@protoc_insertion_point(field_set:dronePosVec.dataTransfers.port)
+}
+
+// bytes sockaddr = 7;
+inline void dataTransfers::clear_sockaddr() {
+  sockaddr_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline const std::string& dataTransfers::sockaddr() const {
+  // @@protoc_insertion_point(field_get:dronePosVec.dataTransfers.sockaddr)
+  return _internal_sockaddr();
+}
+inline void dataTransfers::set_sockaddr(const std::string& value) {
+  _internal_set_sockaddr(value);
+  // @@protoc_insertion_point(field_set:dronePosVec.dataTransfers.sockaddr)
+}
+inline std::string* dataTransfers::mutable_sockaddr() {
+  // @@protoc_insertion_point(field_mutable:dronePosVec.dataTransfers.sockaddr)
+  return _internal_mutable_sockaddr();
+}
+inline const std::string& dataTransfers::_internal_sockaddr() const {
+  return sockaddr_.Get();
+}
+inline void dataTransfers::_internal_set_sockaddr(const std::string& value) {
+  
+  sockaddr_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
+}
+inline void dataTransfers::set_sockaddr(std::string&& value) {
+  
+  sockaddr_.Set(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:dronePosVec.dataTransfers.sockaddr)
+}
+inline void dataTransfers::set_sockaddr(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  sockaddr_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
+              GetArena());
+  // @@protoc_insertion_point(field_set_char:dronePosVec.dataTransfers.sockaddr)
+}
+inline void dataTransfers::set_sockaddr(const void* value,
+    size_t size) {
+  
+  sockaddr_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
+      reinterpret_cast<const char*>(value), size), GetArena());
+  // @@protoc_insertion_point(field_set_pointer:dronePosVec.dataTransfers.sockaddr)
+}
+inline std::string* dataTransfers::_internal_mutable_sockaddr() {
+  
+  return sockaddr_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline std::string* dataTransfers::release_sockaddr() {
+  // @@protoc_insertion_point(field_release:dronePosVec.dataTransfers.sockaddr)
+  return sockaddr_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline void dataTransfers::set_allocated_sockaddr(std::string* sockaddr) {
+  if (sockaddr != nullptr) {
+    
+  } else {
+    
+  }
+  sockaddr_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), sockaddr,
+      GetArena());
+  // @@protoc_insertion_point(field_set_allocated:dronePosVec.dataTransfers.sockaddr)
+}
+inline std::string* dataTransfers::unsafe_arena_release_sockaddr() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:dronePosVec.dataTransfers.sockaddr)
+  GOOGLE_DCHECK(GetArena() != nullptr);
+  
+  return sockaddr_.UnsafeArenaRelease(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      GetArena());
+}
+inline void dataTransfers::unsafe_arena_set_allocated_sockaddr(
+    std::string* sockaddr) {
+  GOOGLE_DCHECK(GetArena() != nullptr);
+  if (sockaddr != nullptr) {
+    
+  } else {
+    
+  }
+  sockaddr_.UnsafeArenaSetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      sockaddr, GetArena());
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:dronePosVec.dataTransfers.sockaddr)
+}
+
+// uint32 sockaddrlen = 8;
+inline void dataTransfers::clear_sockaddrlen() {
+  sockaddrlen_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 dataTransfers::_internal_sockaddrlen() const {
+  return sockaddrlen_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 dataTransfers::sockaddrlen() const {
+  // @@protoc_insertion_point(field_get:dronePosVec.dataTransfers.sockaddrlen)
+  return _internal_sockaddrlen();
+}
+inline void dataTransfers::_internal_set_sockaddrlen(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  sockaddrlen_ = value;
+}
+inline void dataTransfers::set_sockaddrlen(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_sockaddrlen(value);
+  // @@protoc_insertion_point(field_set:dronePosVec.dataTransfers.sockaddrlen)
+}
+
+// uint32 sa_family = 9;
+inline void dataTransfers::clear_sa_family() {
+  sa_family_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 dataTransfers::_internal_sa_family() const {
+  return sa_family_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 dataTransfers::sa_family() const {
+  // @@protoc_insertion_point(field_get:dronePosVec.dataTransfers.sa_family)
+  return _internal_sa_family();
+}
+inline void dataTransfers::_internal_set_sa_family(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  sa_family_ = value;
+}
+inline void dataTransfers::set_sa_family(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_sa_family(value);
+  // @@protoc_insertion_point(field_set:dronePosVec.dataTransfers.sa_family)
 }
 
 #ifdef __GNUC__
@@ -1400,6 +1599,11 @@ template <> struct is_proto_enum< ::dronePosVec::transferType> : ::std::true_typ
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::dronePosVec::transferType>() {
   return ::dronePosVec::transferType_descriptor();
+}
+template <> struct is_proto_enum< ::dronePosVec::progName> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::dronePosVec::progName>() {
+  return ::dronePosVec::progName_descriptor();
 }
 
 PROTOBUF_NAMESPACE_CLOSE

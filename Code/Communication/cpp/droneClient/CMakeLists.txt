@@ -14,7 +14,7 @@ find_package(Protobuf 3.12.4 REQUIRED)
 include_directories(${Protobuf_INCLUDE_DIRS})
 include_directories(${HOME}/.local/include)
 
-add_executable(droneClient src/messengerClass.cpp src/serverMain.cpp src/threadMembers.cpp src/droneClient.cpp src/dronePosVec.pb.cc)
+add_executable(droneClient src/messengerClass.cpp src/serverMain.cpp src/dronePosVec.pb.cc)
 
 target_link_libraries(droneClient protobuf::libprotobuf protobuf::libprotobuf-lite)
 

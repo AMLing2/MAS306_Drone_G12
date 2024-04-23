@@ -9,7 +9,7 @@
 #include <netdb.h>
 #include <thread>
 
-class ServerMain : public ServerSocket{
+class ServerMain : public ServerSocket {
 public:
     ServerMain(std::chrono::nanoseconds time,std::string addr,const int port)
     :ServerSocket(time,addr,port)
@@ -20,8 +20,7 @@ public:
 	virtual int mainRecvloop() override;
 };
 
-class CameraMessenger : public AbMessenger
-{
+class CameraMessenger : public AbMessenger {
 public:
     CameraMessenger(ns_t timer, std::string addr, long int recvInterval, long int sendInterval)
     :AbMessenger(timer,addr,recvInterval,sendInterval)
@@ -32,8 +31,7 @@ public:
 	virtual void sendThread() override;
 }; //CameraMessenger
 
-class EstimatorMessenger : public AbMessenger
-{
+class EstimatorMessenger : public AbMessenger {
 public:
     EstimatorMessenger(ns_t timer, std::string addr, long int recvInterval, long int sendInterval)
     :AbMessenger(timer,addr,recvInterval,sendInterval)

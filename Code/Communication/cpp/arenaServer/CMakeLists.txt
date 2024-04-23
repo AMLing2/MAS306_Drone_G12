@@ -11,7 +11,7 @@ include_directories(${Protobuf_INCLUDE_DIRS})
 include_directories(${HOME}/.local/include)
 
 add_executable(test src/test.cpp src/dronePosVec.pb.cc)
-add_executable(arenaServer src/arenaServer.cpp src/dronePosVec.pb.cc)
+add_executable(arenaServer src/messengerClass.cpp src/msgThreads.cpp src/serverMain.cpp src/dronePosVec.pb.cc)
 
 target_link_libraries(test protobuf::libprotobuf protobuf::libprotobuf-lite)
 target_link_libraries(arenaServer protobuf::libprotobuf protobuf::libprotobuf-lite)
