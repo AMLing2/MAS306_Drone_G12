@@ -46,30 +46,29 @@ public:
 	:serverTimer_(timer)
 	,addr_(addr)
 	{
-		//no code
+		clientAddrLen_ = sizeof(clientAddr_);
 	}
 	virtual ssize_t initRecv() = 0;
 	socklen_t getClassAddr(struct addrinfo* localAddr); //localAddr_ needs to be found in constructor with getsockname()
-	int clientConnect(struct addrinfo* clientAddr,size_t clientAddrSize);
+	int clientConnect(struct sockaddr* clientAddr,socklen_t addrLen);
 	ssize_t clientSend(const char* msg, size_t msgSize);
 	ssize_t clientRecv(char* buffer, size_t bufferSize);
 	void setTimeout();
 	void setTimeout(const long int sec,const long int microSec);
 
 protected:
+	const ns_t serverTimer_; //needs to be set in constructor
+	void sleeptoInterval_(ns_t interval); //might be separated into two functions with get nanoseconds to interval, its nice to have sometimes
+	ns_t monoTimeNow_();
+
 	dronePosVec::dataTransfers data_; 
 	const std::string addr_; //likely 127.0.0.1 for all implementations
 	int socketSetup_(int port); //creates and binds socket, returns 0 if successful, must be called in constructor
 	int f_socket_;
 	struct addrinfo* localAddr_;
 	socklen_t localAddrLen_;
-	struct addrinfo* clientAddr_;
+	struct sockaddr* clientAddr_;
 	socklen_t clientAddrLen_;
-	
-	void sleeptoInterval_(ns_t interval); //might be separated into two functions with get nanoseconds to interval, its nice to have sometimes
-	ns_t monoTimeNow_();
-	const ns_t serverTimer_; //needs to be set in constructor
-
 }; //SocketMethods
 
 class ServerSocket : public SocketMethods {
@@ -91,7 +90,6 @@ public:
 
 	ns_t calcSleepTime(ns_t interval);
 	int socketShutdown();
-	int passSocketInfo();
 
 	ns_t getServerTimer();
 	void setSocketList(EstimatorMessenger* estimator,CameraMessenger* camera);//update later
@@ -156,7 +154,7 @@ public:
     }
     virtual dronePosVec::progName checklistLoop() override;
 	virtual dronePosVec::progName mainRecvloop() override;
-	addrinfo* getClientAddr();
+	sockaddr* getClientAddr();
 	socklen_t getClientAddrSize();
 };
 

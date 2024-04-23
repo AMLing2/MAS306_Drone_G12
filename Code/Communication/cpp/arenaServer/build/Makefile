@@ -187,30 +187,6 @@ arenaServer/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/arenaServer.dir/build.make CMakeFiles/arenaServer.dir/build
 .PHONY : arenaServer/fast
 
-src/arenaServer.o: src/arenaServer.cpp.o
-.PHONY : src/arenaServer.o
-
-# target to build an object file
-src/arenaServer.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/arenaServer.dir/build.make CMakeFiles/arenaServer.dir/src/arenaServer.cpp.o
-.PHONY : src/arenaServer.cpp.o
-
-src/arenaServer.i: src/arenaServer.cpp.i
-.PHONY : src/arenaServer.i
-
-# target to preprocess a source file
-src/arenaServer.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/arenaServer.dir/build.make CMakeFiles/arenaServer.dir/src/arenaServer.cpp.i
-.PHONY : src/arenaServer.cpp.i
-
-src/arenaServer.s: src/arenaServer.cpp.s
-.PHONY : src/arenaServer.s
-
-# target to generate assembly for a file
-src/arenaServer.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/arenaServer.dir/build.make CMakeFiles/arenaServer.dir/src/arenaServer.cpp.s
-.PHONY : src/arenaServer.cpp.s
-
 src/dronePosVec.pb.o: src/dronePosVec.pb.cc.o
 .PHONY : src/dronePosVec.pb.o
 
@@ -237,6 +213,78 @@ src/dronePosVec.pb.cc.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/src/dronePosVec.pb.cc.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/arenaServer.dir/build.make CMakeFiles/arenaServer.dir/src/dronePosVec.pb.cc.s
 .PHONY : src/dronePosVec.pb.cc.s
+
+src/messengerClass.o: src/messengerClass.cpp.o
+.PHONY : src/messengerClass.o
+
+# target to build an object file
+src/messengerClass.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/arenaServer.dir/build.make CMakeFiles/arenaServer.dir/src/messengerClass.cpp.o
+.PHONY : src/messengerClass.cpp.o
+
+src/messengerClass.i: src/messengerClass.cpp.i
+.PHONY : src/messengerClass.i
+
+# target to preprocess a source file
+src/messengerClass.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/arenaServer.dir/build.make CMakeFiles/arenaServer.dir/src/messengerClass.cpp.i
+.PHONY : src/messengerClass.cpp.i
+
+src/messengerClass.s: src/messengerClass.cpp.s
+.PHONY : src/messengerClass.s
+
+# target to generate assembly for a file
+src/messengerClass.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/arenaServer.dir/build.make CMakeFiles/arenaServer.dir/src/messengerClass.cpp.s
+.PHONY : src/messengerClass.cpp.s
+
+src/msgThreads.o: src/msgThreads.cpp.o
+.PHONY : src/msgThreads.o
+
+# target to build an object file
+src/msgThreads.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/arenaServer.dir/build.make CMakeFiles/arenaServer.dir/src/msgThreads.cpp.o
+.PHONY : src/msgThreads.cpp.o
+
+src/msgThreads.i: src/msgThreads.cpp.i
+.PHONY : src/msgThreads.i
+
+# target to preprocess a source file
+src/msgThreads.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/arenaServer.dir/build.make CMakeFiles/arenaServer.dir/src/msgThreads.cpp.i
+.PHONY : src/msgThreads.cpp.i
+
+src/msgThreads.s: src/msgThreads.cpp.s
+.PHONY : src/msgThreads.s
+
+# target to generate assembly for a file
+src/msgThreads.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/arenaServer.dir/build.make CMakeFiles/arenaServer.dir/src/msgThreads.cpp.s
+.PHONY : src/msgThreads.cpp.s
+
+src/serverMain.o: src/serverMain.cpp.o
+.PHONY : src/serverMain.o
+
+# target to build an object file
+src/serverMain.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/arenaServer.dir/build.make CMakeFiles/arenaServer.dir/src/serverMain.cpp.o
+.PHONY : src/serverMain.cpp.o
+
+src/serverMain.i: src/serverMain.cpp.i
+.PHONY : src/serverMain.i
+
+# target to preprocess a source file
+src/serverMain.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/arenaServer.dir/build.make CMakeFiles/arenaServer.dir/src/serverMain.cpp.i
+.PHONY : src/serverMain.cpp.i
+
+src/serverMain.s: src/serverMain.cpp.s
+.PHONY : src/serverMain.s
+
+# target to generate assembly for a file
+src/serverMain.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/arenaServer.dir/build.make CMakeFiles/arenaServer.dir/src/serverMain.cpp.s
+.PHONY : src/serverMain.cpp.s
 
 src/test.o: src/test.cpp.o
 .PHONY : src/test.o
@@ -276,12 +324,18 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... arenaServer"
 	@echo "... test"
-	@echo "... src/arenaServer.o"
-	@echo "... src/arenaServer.i"
-	@echo "... src/arenaServer.s"
 	@echo "... src/dronePosVec.pb.o"
 	@echo "... src/dronePosVec.pb.i"
 	@echo "... src/dronePosVec.pb.s"
+	@echo "... src/messengerClass.o"
+	@echo "... src/messengerClass.i"
+	@echo "... src/messengerClass.s"
+	@echo "... src/msgThreads.o"
+	@echo "... src/msgThreads.i"
+	@echo "... src/msgThreads.s"
+	@echo "... src/serverMain.o"
+	@echo "... src/serverMain.i"
+	@echo "... src/serverMain.s"
 	@echo "... src/test.o"
 	@echo "... src/test.i"
 	@echo "... src/test.s"

@@ -6,6 +6,7 @@
 #include <netdb.h> //for getaddrinfo
 #include <arpa/inet.h> //for inet_ntop
 //rename this file 
+#include <cerrno>
 
 /* Generic socket methods*/
 int SocketMethods::socketSetup_(int port)
@@ -77,11 +78,11 @@ ssize_t SocketMethods::clientRecv(char* buffer, size_t bufferSize)
 	return recvLen;
 }
 
-int SocketMethods::clientConnect(struct addrinfo* clientAddr,size_t addrLen)
+int SocketMethods::clientConnect(struct sockaddr* clientAddr,socklen_t addrLen)
 {
     clientAddr_ = clientAddr;
     clientAddrLen_ = addrLen;
-    return connect(f_socket_,clientAddr->ai_addr,clientAddr->ai_addrlen);
+    return connect(f_socket_,clientAddr,addrLen);
 }
 
 void SocketMethods::setTimeout()
@@ -98,6 +99,11 @@ void SocketMethods::setTimeout(const long int sec,const long int microSec)
 	timeoutTime.tv_sec = sec;
 	timeoutTime.tv_usec = microSec;
 	setsockopt(f_socket_,SOL_SOCKET,SO_RCVTIMEO,&timeoutTime,sizeof(timeoutTime));
+}
+
+ns_t ServerSocket::getServerTimer()
+{
+    return serverTimer_;
 }
 /* socket related functions for AbMessenger */
 /* other */
@@ -124,7 +130,7 @@ ssize_t ServerSocket::initRecv()
 {
     setTimeout();
     ssize_t msgSize;
-    msgSize = serverRecvfrom(buffer_,bufferSize_);
+    msgSize = serverRecvfrom(&buffer_[0],bufferSize_);
     try
     {
         data_.ParseFromArray(buffer_,msgSize);
@@ -142,17 +148,12 @@ ssize_t ServerSocket::initRecv()
 
 int ServerSocket::socketShutdown()
 {
-    shutdown(f_socket_,SHUT_RDWR);
+    return shutdown(f_socket_,SHUT_RDWR);
 }
 
-ssize_t ServerSocket::serverRecvfrom(char* buffer, size_t bufferSize)
+ssize_t ServerSocket::serverRecvfrom(char* buffer,const size_t bufferSize)
 {
-    return recvfrom(f_socket_, buffer, bufferSize,0,clientAddr_->ai_addr,&clientAddr_->ai_addrlen);
-}
-
-int ServerSocket::passSocketInfo()
-{
-
+    return recvfrom(f_socket_, buffer, bufferSize,0,clientAddr_,&clientAddrLen_);
 }
 
 ns_t ServerSocket::calcSleepTime(ns_t interval)
@@ -162,10 +163,10 @@ ns_t ServerSocket::calcSleepTime(ns_t interval)
 
 dronePosVec::progName ServerMain::mainRecvloop()
 {
-    char tempmsg[5] = {'hello'};
+    char tempmsg[6] = {'h','e','l','l','o','\0'}; //make not temporary >:(
     if (initRecv() >= 0)
     {
-        memcpy(buffer_,&tempmsg,5);
+        memcpy(buffer_,&tempmsg,6);
         //serverSendto(buffer_,5);//temporary msg
         if ((clientConnect(clientAddr_,sizeof(clientAddr_))) >= 0)
         {
@@ -266,7 +267,6 @@ int ServerSocket::sendSocketInfo()
 {
     std::string addr;
     socklen_t addrLen;
-    int port;
     struct addrinfo* sendingAddr;
     memset(sendingAddr,0,sizeof(sendingAddr));
     switch (clientProgram_)
@@ -319,7 +319,7 @@ void ServerSocket::setSocketList(EstimatorMessenger* estimator,CameraMessenger* 
     programSockets_.pCamera = camera;
 }
 
-addrinfo* ServerMain::getClientAddr()
+sockaddr* ServerMain::getClientAddr()
 {
     return clientAddr_;
 }
@@ -332,7 +332,7 @@ ssize_t AbMessenger::initRecv()
 {
     setTimeout();
     ssize_t msgSize;
-    msgSize = recvfrom(f_socket_,recvMsg_,bufferSize_,0,clientAddr_->ai_addr,&clientAddr_->ai_addrlen);
+    msgSize = recvfrom(f_socket_,recvMsg_,bufferSize_,0,clientAddr_,&clientAddrLen_);
     try
     {
         data_.ParseFromArray(recvMsg_,msgSize);
@@ -352,12 +352,20 @@ int AbMessenger::startThread()
 {
     if (classProgram_ == dronePosVec::camera) //this class does not have a send thread
     {
-        tRecv_ = std::thread(&AbMessenger::recvThread, this);
+        tRecv_ = std::thread([this]()
+		{
+            recvThread();
+        });
+        
+        //std::thread(&AbMessenger::recvThread, this);
+        tRecv_.detach();
     }
     else
     {
-        tRecv_ = std::thread(&AbMessenger::recvThread, this);
-        tSend_ = std::thread(&AbMessenger::sendThread, this);
+        //tRecv_ = std::thread(&AbMessenger::recvThread, this);
+        //tSend_ = std::thread(&AbMessenger::sendThread, this);
+       // tRecv_.detach();
+        //tSend_.detach();
     }
-    
+    return 0;
 }

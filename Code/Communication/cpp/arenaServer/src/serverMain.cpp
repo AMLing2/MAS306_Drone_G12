@@ -14,7 +14,7 @@ int main()
     const int queueCount = 10;
     std::queue<std::string> queues[queueCount]; //would prefer to have char* queue type but cant pass length that way :/
 
-    std::string connectedClients[5] = {"Drone","Camera","RL","Estimator","Arena"};//unused
+    std::string connectedClients[6] = {"Drone","Camera","RL","Estimator","Arena"};//unused
     std::string localAddr = "127.0.0.1";
     ns_t timenow = std::chrono::duration_cast<ns_t>(std::chrono::steady_clock::now().time_since_epoch());
     ServerMain serverMain(timenow,localAddr,20002);

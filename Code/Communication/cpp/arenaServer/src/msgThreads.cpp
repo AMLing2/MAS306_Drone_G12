@@ -12,7 +12,7 @@ void CameraMessenger::recvThread()
     while(threadloop_)
     {
         data.Clear();
-        msgsize = (recvMsg_,bufferSize_);
+        msgsize = clientRecv(recvMsg_,bufferSize_);
         data.ParseFromArray(recvMsg_,msgsize);
         q.push(data.SerializeAsString());
 
@@ -20,6 +20,10 @@ void CameraMessenger::recvThread()
     }
     std::cout<<"Camera recvThread ready to join"<<std::endl;
 }
+
+void CameraMessenger::sendThread(){ } 
+
+void EstimatorMessenger::recvThread(){ }
 
 void EstimatorMessenger::sendThread()
 {

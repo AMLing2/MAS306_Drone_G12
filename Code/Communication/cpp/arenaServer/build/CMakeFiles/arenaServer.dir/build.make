@@ -69,24 +69,52 @@ include CMakeFiles/arenaServer.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/arenaServer.dir/flags.make
 
-CMakeFiles/arenaServer.dir/src/arenaServer.cpp.o: CMakeFiles/arenaServer.dir/flags.make
-CMakeFiles/arenaServer.dir/src/arenaServer.cpp.o: ../src/arenaServer.cpp
-CMakeFiles/arenaServer.dir/src/arenaServer.cpp.o: CMakeFiles/arenaServer.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/arenaServer.dir/src/arenaServer.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/arenaServer.dir/src/arenaServer.cpp.o -MF CMakeFiles/arenaServer.dir/src/arenaServer.cpp.o.d -o CMakeFiles/arenaServer.dir/src/arenaServer.cpp.o -c /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/src/arenaServer.cpp
+CMakeFiles/arenaServer.dir/src/messengerClass.cpp.o: CMakeFiles/arenaServer.dir/flags.make
+CMakeFiles/arenaServer.dir/src/messengerClass.cpp.o: ../src/messengerClass.cpp
+CMakeFiles/arenaServer.dir/src/messengerClass.cpp.o: CMakeFiles/arenaServer.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/arenaServer.dir/src/messengerClass.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/arenaServer.dir/src/messengerClass.cpp.o -MF CMakeFiles/arenaServer.dir/src/messengerClass.cpp.o.d -o CMakeFiles/arenaServer.dir/src/messengerClass.cpp.o -c /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/src/messengerClass.cpp
 
-CMakeFiles/arenaServer.dir/src/arenaServer.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/arenaServer.dir/src/arenaServer.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/src/arenaServer.cpp > CMakeFiles/arenaServer.dir/src/arenaServer.cpp.i
+CMakeFiles/arenaServer.dir/src/messengerClass.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/arenaServer.dir/src/messengerClass.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/src/messengerClass.cpp > CMakeFiles/arenaServer.dir/src/messengerClass.cpp.i
 
-CMakeFiles/arenaServer.dir/src/arenaServer.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/arenaServer.dir/src/arenaServer.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/src/arenaServer.cpp -o CMakeFiles/arenaServer.dir/src/arenaServer.cpp.s
+CMakeFiles/arenaServer.dir/src/messengerClass.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/arenaServer.dir/src/messengerClass.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/src/messengerClass.cpp -o CMakeFiles/arenaServer.dir/src/messengerClass.cpp.s
+
+CMakeFiles/arenaServer.dir/src/msgThreads.cpp.o: CMakeFiles/arenaServer.dir/flags.make
+CMakeFiles/arenaServer.dir/src/msgThreads.cpp.o: ../src/msgThreads.cpp
+CMakeFiles/arenaServer.dir/src/msgThreads.cpp.o: CMakeFiles/arenaServer.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/arenaServer.dir/src/msgThreads.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/arenaServer.dir/src/msgThreads.cpp.o -MF CMakeFiles/arenaServer.dir/src/msgThreads.cpp.o.d -o CMakeFiles/arenaServer.dir/src/msgThreads.cpp.o -c /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/src/msgThreads.cpp
+
+CMakeFiles/arenaServer.dir/src/msgThreads.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/arenaServer.dir/src/msgThreads.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/src/msgThreads.cpp > CMakeFiles/arenaServer.dir/src/msgThreads.cpp.i
+
+CMakeFiles/arenaServer.dir/src/msgThreads.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/arenaServer.dir/src/msgThreads.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/src/msgThreads.cpp -o CMakeFiles/arenaServer.dir/src/msgThreads.cpp.s
+
+CMakeFiles/arenaServer.dir/src/serverMain.cpp.o: CMakeFiles/arenaServer.dir/flags.make
+CMakeFiles/arenaServer.dir/src/serverMain.cpp.o: ../src/serverMain.cpp
+CMakeFiles/arenaServer.dir/src/serverMain.cpp.o: CMakeFiles/arenaServer.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/arenaServer.dir/src/serverMain.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/arenaServer.dir/src/serverMain.cpp.o -MF CMakeFiles/arenaServer.dir/src/serverMain.cpp.o.d -o CMakeFiles/arenaServer.dir/src/serverMain.cpp.o -c /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/src/serverMain.cpp
+
+CMakeFiles/arenaServer.dir/src/serverMain.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/arenaServer.dir/src/serverMain.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/src/serverMain.cpp > CMakeFiles/arenaServer.dir/src/serverMain.cpp.i
+
+CMakeFiles/arenaServer.dir/src/serverMain.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/arenaServer.dir/src/serverMain.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/src/serverMain.cpp -o CMakeFiles/arenaServer.dir/src/serverMain.cpp.s
 
 CMakeFiles/arenaServer.dir/src/dronePosVec.pb.cc.o: CMakeFiles/arenaServer.dir/flags.make
 CMakeFiles/arenaServer.dir/src/dronePosVec.pb.cc.o: ../src/dronePosVec.pb.cc
 CMakeFiles/arenaServer.dir/src/dronePosVec.pb.cc.o: CMakeFiles/arenaServer.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/arenaServer.dir/src/dronePosVec.pb.cc.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/arenaServer.dir/src/dronePosVec.pb.cc.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/arenaServer.dir/src/dronePosVec.pb.cc.o -MF CMakeFiles/arenaServer.dir/src/dronePosVec.pb.cc.o.d -o CMakeFiles/arenaServer.dir/src/dronePosVec.pb.cc.o -c /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/src/dronePosVec.pb.cc
 
 CMakeFiles/arenaServer.dir/src/dronePosVec.pb.cc.i: cmake_force
@@ -99,19 +127,23 @@ CMakeFiles/arenaServer.dir/src/dronePosVec.pb.cc.s: cmake_force
 
 # Object files for target arenaServer
 arenaServer_OBJECTS = \
-"CMakeFiles/arenaServer.dir/src/arenaServer.cpp.o" \
+"CMakeFiles/arenaServer.dir/src/messengerClass.cpp.o" \
+"CMakeFiles/arenaServer.dir/src/msgThreads.cpp.o" \
+"CMakeFiles/arenaServer.dir/src/serverMain.cpp.o" \
 "CMakeFiles/arenaServer.dir/src/dronePosVec.pb.cc.o"
 
 # External object files for target arenaServer
 arenaServer_EXTERNAL_OBJECTS =
 
-arenaServer: CMakeFiles/arenaServer.dir/src/arenaServer.cpp.o
+arenaServer: CMakeFiles/arenaServer.dir/src/messengerClass.cpp.o
+arenaServer: CMakeFiles/arenaServer.dir/src/msgThreads.cpp.o
+arenaServer: CMakeFiles/arenaServer.dir/src/serverMain.cpp.o
 arenaServer: CMakeFiles/arenaServer.dir/src/dronePosVec.pb.cc.o
 arenaServer: CMakeFiles/arenaServer.dir/build.make
 arenaServer: /usr/lib/x86_64-linux-gnu/libprotobuf.so
 arenaServer: /usr/lib/x86_64-linux-gnu/libprotobuf-lite.so
 arenaServer: CMakeFiles/arenaServer.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable arenaServer"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable arenaServer"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/arenaServer.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

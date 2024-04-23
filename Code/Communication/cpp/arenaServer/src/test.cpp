@@ -23,7 +23,7 @@ int main()
 	dronePosVec::dataTransfers dronemsg;
 	//::dataTransfers dronemsg;
 
-	dronemsg.set_id(2);
+	dronemsg.set_id(dronePosVec::drone);
 	dronemsg.set_type(dronePosVec::socketInfo);
 	std::string msg = "1234567";
 	dronemsg.set_msg(msg);

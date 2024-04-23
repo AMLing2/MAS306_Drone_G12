@@ -1,8 +1,12 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/arenaServer.dir/src/arenaServer.cpp.o"
-  "CMakeFiles/arenaServer.dir/src/arenaServer.cpp.o.d"
   "CMakeFiles/arenaServer.dir/src/dronePosVec.pb.cc.o"
   "CMakeFiles/arenaServer.dir/src/dronePosVec.pb.cc.o.d"
+  "CMakeFiles/arenaServer.dir/src/messengerClass.cpp.o"
+  "CMakeFiles/arenaServer.dir/src/messengerClass.cpp.o.d"
+  "CMakeFiles/arenaServer.dir/src/msgThreads.cpp.o"
+  "CMakeFiles/arenaServer.dir/src/msgThreads.cpp.o.d"
+  "CMakeFiles/arenaServer.dir/src/serverMain.cpp.o"
+  "CMakeFiles/arenaServer.dir/src/serverMain.cpp.o.d"
   "arenaServer"
   "arenaServer.pdb"
 )

@@ -1,1 +1,1 @@
-/usr/bin/c++ CMakeFiles/test.dir/src/test.cpp.o CMakeFiles/test.dir/src/dronePosVec.pb.cc.o -o test  /usr/lib/x86_64-linux-gnu/libprotobuf.so /usr/lib/x86_64-linux-gnu/libprotobuf-lite.so 
+/usr/bin/c++ -g -g CMakeFiles/test.dir/src/test.cpp.o CMakeFiles/test.dir/src/dronePosVec.pb.cc.o -o test  /usr/lib/x86_64-linux-gnu/libprotobuf.so /usr/lib/x86_64-linux-gnu/libprotobuf-lite.so 
