@@ -4,8 +4,97 @@ import cv2.aruco as aruco # For simplification
 import pyrealsense2 as rs
 import numpy
 import time
-# --------------------------------------- Libraries ---------------------------------------
+import multiprocessing as mp
+import socket
+import dronePosVec_pb2 #should be protobuf.dronePosVec_pb2 but wont work for some reason
 
+# --------------------------------------- Libraries ---------------------------------------
+# --------------------------------------- Socket Class -----------------------------------
+class DataSending:
+    globalTimer = None
+    offset = 0
+    buffersize = 1024
+    sendinterval = 100000000
+    serverAddress = ("128.39.200.239",20002)
+    dataMsg = dronePosVec_pb2.dataTransfers()
+    dp = dronePosVec_pb2.dronePosition()
+
+    def __init__(self,serverAddress):
+        self.serverAddress = serverAddress
+        self.sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+
+    def send(self,msg):
+        self.sock.send(msg)
+
+    def sSyncTimer(self): #sync local timer from server, probably outdated...
+        self.dataMsg.Clear()
+        self.sock.settimeout(None)
+        msg = self.recv()
+        self.globalTimer = time.time_ns()
+        self.dataMsg.ParseFromString(msg)
+        print("globalTImer: " +str(self.dataMsg.timeSync_ns))
+        syncInterval = 100000000 #100ms
+        sleepLen = self.sleepTimeCalc(syncInterval,self.globalTimer)
+        time.sleep(sleepLen) #sleep until sync time
+        responseTime = time.time_ns()
+        print("responseTime: " + str(responseTime))
+
+        self.dataMsg.Clear()
+        self.dataMsg.ID = dronePosVec_pb2.drone #for drone probably
+        self.dataMsg.timeSync_ns = responseTime
+        self.dataMsg.msg = "responseTime" #probably ignored
+        self.send(self.dataMsg.SerializeToString())
+
+        self.dataMsg.ParseFromString(self.recv())
+        self.offset = self.dataMsg.timeSync_ns
+        self.globalTimer = self.globalTimer + self.offset
+        print("offset: " + str(self.offset))
+
+    def sleepTimeCalc(interval,timer):
+        return float(interval - ((time.time_ns() - timer) % interval))/1000000000.0
+    
+    def send(self,msg):
+        self.sock.send(msg)
+
+    def dserverConnect(self): #needs to be updated, and pbstring changed 
+        stringRecv = None
+        pbstring = "hi"
+        for i in range(10):
+            self.sock.sendto(pbstring,self.serverAddress) #initsend
+            try:
+                self.sock.settimeout(3.0)
+                stringRecv = self.initRecv() #inital send
+                print("string recieved: " + str(stringRecv))
+            except:
+                print("timeout, retrying " + str(i))
+            if not stringRecv == None:
+                break
+        if stringRecv == None:
+            return 1 #failure to send
+        print("connecting to:" + str(stringRecv[1]))
+        self.connect(stringRecv[1])
+        self.send(pbstring) #connection msg
+        return 0 #sucess
+    
+    def checklist(self):
+        checkList = True
+        while(checkList):
+            if self.sock.globalTimer == None:
+                print("timer missing, getting")
+                self.dataMsg.Clear()
+                self.dataMsg.ID = 2
+                self.dataMsg.type = 0 #timeSync, MAKE ENUM!!!!!!!!!!!!!!!
+                self.dataMsg.msg = "syncReq"
+                self.send(self.dataMsg.SerializeToString())
+                self.sSyncTimer(self.dataMsg)
+                continue
+            else:
+                print("checkList completed")
+                checkList = False
+
+
+
+# --------------------------------------- Socket Class -----------------------------------
 # ------------------- Constant variables for simple changes -------------------
 axesLength = 0.1
 screenHeight = 480   # pixels
