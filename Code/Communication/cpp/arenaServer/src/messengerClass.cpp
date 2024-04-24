@@ -8,6 +8,8 @@
 //rename this file 
 #include <cerrno>
 
+//std::cout<<"errno:"<<strerror(errno)<<", "<<errno<<std::endl;
+
 /* Generic socket methods*/
 int SocketMethods::socketSetup_(int port)
 {
@@ -19,40 +21,64 @@ int SocketMethods::socketSetup_(int port)
     int r = -1;
     if (port == 0)
     {
-        r = getaddrinfo(addr_.c_str(), 0, &hints, &localAddr_); //port as 0 gets automatic unused port
+        r = getaddrinfo(addr_.c_str(), 0, &hints, &plocalAddr_); //port as 0 gets automatic unused port
     }
     else
     {
         char decimal_port[16];
 		snprintf(decimal_port, 16, "%d", port);
 		decimal_port[15] = '\0';
-        r = getaddrinfo(addr_.c_str(), decimal_port, &hints, &localAddr_); //connect with port
+        r = getaddrinfo(addr_.c_str(), decimal_port, &hints, &plocalAddr_); //connect with port
     }
-    if(r != 0 || localAddr_ == NULL)
+    clientAddrLen_ = plocalAddr_->ai_addrlen;
+    if(r != 0 || plocalAddr_ == NULL)
     {
         std::cout<<"invalid address or port"<<std::endl;
         return r;
     }
-    f_socket_ = socket(localAddr_->ai_family, SOCK_DGRAM | SOCK_CLOEXEC, IPPROTO_UDP);
+    f_socket_ = socket(plocalAddr_->ai_family, SOCK_DGRAM | SOCK_CLOEXEC, IPPROTO_UDP);
     if(f_socket_ == 1)
     {
         std::cout<<"failed to create udp socket"<<std::endl;
     }
     int reusenum = 1;
     setsockopt(f_socket_,SOL_SOCKET,SO_REUSEADDR,&reusenum,1); //allow reuse of local address, primarily for main server class
-    r = bind(f_socket_, localAddr_->ai_addr,localAddr_->ai_addrlen);
+    r = bind(f_socket_, plocalAddr_->ai_addr,plocalAddr_->ai_addrlen);
     if(r != 0)
     {
         std::cout<<"failed to bind socket"<<std::endl;
     }
-    localAddrLen_ = sizeof(localAddr_);
+    localAddrLen_ = sizeof(plocalAddr_);
     static_cast<const int>(f_socket_); //cast to const so nothing writes it while threads read
     return r;
 }
 
-socklen_t SocketMethods::getClassAddr(struct addrinfo* localAddr)
+void SocketMethods::genAddrProtoc(dronePosVec::dataTransfers &data)
 {
-    localAddr = localAddr_;
+    char strIP[INET_ADDRSTRLEN];
+    getsockname(f_socket_,plocalAddr_->ai_addr,&plocalAddr_->ai_addrlen);
+
+    inet_ntop(AF_INET,&(((struct sockaddr_in*)plocalAddr_->ai_addr)->sin_addr),&strIP[0],INET_ADDRSTRLEN);
+    uint32_t port = ntohs(((struct sockaddr_in*)plocalAddr_->ai_addr)->sin_port);
+    std::cout<<"ip address base: " <<strIP<<":"<<port<<std::endl;
+
+    data.Clear();
+    data.set_sa_family(((struct sockaddr_in*)plocalAddr_)->sin_family);
+    data.set_sockaddr(plocalAddr_->ai_addr->sa_data); //for sending to c++ programs
+    data.set_sockaddrlen(plocalAddr_->ai_addrlen);
+    data.set_ip(strIP); //for sending to python and matlab programs
+    data.set_port(port);//ntohs() converts from network byte order, (sockaddr_in*)... converts sockaddr to human readable form
+    data.set_id(dronePosVec::server);
+}
+
+
+socklen_t SocketMethods::getClassAddr(struct addrinfo passAddr,size_t addrinfosize) //depracated? was replaced wtih genAddrProtoc but should return to using this
+{
+    char strIP[INET_ADDRSTRLEN];
+    inet_ntop(AF_INET,&(((struct sockaddr_in*)plocalAddr_->ai_addr)->sin_addr),&strIP[0],INET_ADDRSTRLEN);
+    std::cout<<"ip address base: " <<strIP<<std::endl;
+    memcpy(&passAddr,plocalAddr_,sizeof(plocalAddr_));
+    //passAddr = plocalAddr_; //bad very bad
     return localAddrLen_;
 }
 
@@ -80,9 +106,13 @@ ssize_t SocketMethods::clientRecv(char* buffer, size_t bufferSize)
 
 int SocketMethods::clientConnect(struct sockaddr* clientAddr,socklen_t addrLen)
 {
-    clientAddr_ = clientAddr;
-    clientAddrLen_ = addrLen;
-    return connect(f_socket_,clientAddr,addrLen);
+    int r = connect(f_socket_,clientAddr,addrLen);
+    if (r == 0) //for connecting in the future, useless for initial loop
+    {
+        memcpy(&clientAddr_,clientAddr,addrLen);
+        clientAddrLen_ = addrLen;
+    }
+    return r;
 }
 
 void SocketMethods::setTimeout()
@@ -134,6 +164,9 @@ ssize_t ServerSocket::initRecv()
     try
     {
         data_.ParseFromArray(buffer_,msgSize);
+        //if no exception:
+        std::cout<<"msg recivied: '" << data_.msg()<< "' with ID: "<<data_.id() <<std::endl;
+        clientProgram_ = data_.id();
     }
     catch(const std::exception& e)
     {
@@ -141,19 +174,19 @@ ssize_t ServerSocket::initRecv()
         std::cout<<"invalid message"<<std::endl;
         return -1;
     }
-    std::cout<<"msg recivied: '" << data_.msg()<< "' with ID: "<<data_.id() <<std::endl;
-    clientProgram_ = data_.id(); //change to enum
     return msgSize;
 }
 
 int ServerSocket::socketShutdown()
 {
-    return shutdown(f_socket_,SHUT_RDWR);
+    shutdown(f_socket_,SHUT_RDWR);
+    return close(f_socket_);
 }
 
 ssize_t ServerSocket::serverRecvfrom(char* buffer,const size_t bufferSize)
 {
-    return recvfrom(f_socket_, buffer, bufferSize,0,clientAddr_,&clientAddrLen_);
+    ssize_t r = recvfrom(f_socket_, buffer, bufferSize,0,&clientAddr_,&clientAddrLen_);
+    return r;
 }
 
 ns_t ServerSocket::calcSleepTime(ns_t interval)
@@ -164,13 +197,13 @@ ns_t ServerSocket::calcSleepTime(ns_t interval)
 dronePosVec::progName ServerMain::mainRecvloop()
 {
     char tempmsg[6] = {'h','e','l','l','o','\0'}; //make not temporary >:(
-    if (initRecv() >= 0)
+    if (initRecv() > 0) //wierd check
     {
         memcpy(buffer_,&tempmsg,6);
         //serverSendto(buffer_,5);//temporary msg
-        if ((clientConnect(clientAddr_,sizeof(clientAddr_))) >= 0)
+        if ((clientConnect(&clientAddr_,clientAddrLen_)) >= 0)
         {
-            clientSend(tempmsg,5);//temporary msg
+            clientSend(tempmsg,6);//temporary msg
 
             dronePosVec::progName a = checklistLoop();
             //restart mainloop
@@ -210,6 +243,7 @@ dronePosVec::progName ServerMain::checklistLoop()
                     }
                 case dronePosVec::stateChange:
                     {
+                        //TODO: CONTINUE HERE
                         std::cout<<"statechange req"<<std::endl;
                         if(true)// why
                         {
@@ -267,8 +301,8 @@ int ServerSocket::sendSocketInfo()
 {
     std::string addr;
     socklen_t addrLen;
-    struct addrinfo* sendingAddr;
-    memset(sendingAddr,0,sizeof(sendingAddr));
+    //struct addrinfo sendingAddr;
+    //memset(sendingAddr,0,sizeof(sendingAddr));
     switch (clientProgram_)
     {
         case dronePosVec::drone: //DRONE
@@ -277,7 +311,7 @@ int ServerSocket::sendSocketInfo()
         }
         case dronePosVec::estimator: //ESTIMATOR
         {
-            addrLen = programSockets_.pEstimator->getClassAddr(sendingAddr);
+            //addrLen = programSockets_.pEstimator->getClassAddr(sendingAddr,sizeof(sendingAddr));
             break;
         }
         case dronePosVec::arena: //ARENA
@@ -286,7 +320,8 @@ int ServerSocket::sendSocketInfo()
         }
         case dronePosVec::camera: //CAMERA
         {
-            addrLen = programSockets_.pCamera->getClassAddr(sendingAddr);
+            programSockets_.pCamera->genAddrProtoc(data_);
+            //addrLen = programSockets_.pCamera->getClassAddr(sendingAddr,sizeof(sendingAddr));
             break;
         }
         case dronePosVec::rl: //RL
@@ -298,17 +333,18 @@ int ServerSocket::sendSocketInfo()
             break;
         }
     }
+    /*
     char strIP[INET_ADDRSTRLEN];
-    inet_ntop(AF_INET,sendingAddr->ai_addr,strIP,INET_ADDRSTRLEN);
-    std::cout<<"ip address"<<strIP<<std::endl;
+    inet_ntop(AF_INET,&(((struct sockaddr_in*)sendingAddr.ai_addr)->sin_addr),&strIP[0],INET_ADDRSTRLEN); //segfault here
+    std::cout<<"ip address: "<<strIP<<std::endl;
     data_.Clear();
-    data_.set_sa_family(sendingAddr->ai_addr->sa_family);
-    data_.set_sockaddr(sendingAddr->ai_addr->sa_data); //for sending to c++ programs
-    data_.set_sockaddrlen(sendingAddr->ai_addrlen);
+    data_.set_sa_family(sendingAddr.ai_addr->sa_family);
+    data_.set_sockaddr(sendingAddr.ai_addr->sa_data); //for sending to c++ programs
+    data_.set_sockaddrlen(sendingAddr.ai_addrlen);
     data_.set_ip(strIP); //for sending to python and matlab programs
-    data_.set_port(ntohs(((struct sockaddr_in*)sendingAddr->ai_addr)->sin_port));//ntohs() converts from network byte order, (sockaddr_in*)... converts sockaddr to human readable form
+    data_.set_port(ntohs(((struct sockaddr_in*)sendingAddr.ai_addr)->sin_port));//ntohs() converts from network byte order, (sockaddr_in*)... converts sockaddr to human readable form
     data_.set_id(dronePosVec::server);
-
+    */
     data_.SerializeToArray(buffer_,bufferSize_);
     return clientSend(buffer_,data_.ByteSizeLong());
 }
@@ -321,7 +357,7 @@ void ServerSocket::setSocketList(EstimatorMessenger* estimator,CameraMessenger* 
 
 sockaddr* ServerMain::getClientAddr()
 {
-    return clientAddr_;
+    return &clientAddr_;
 }
 socklen_t ServerMain::getClientAddrSize()
 {
@@ -332,7 +368,7 @@ ssize_t AbMessenger::initRecv()
 {
     setTimeout();
     ssize_t msgSize;
-    msgSize = recvfrom(f_socket_,recvMsg_,bufferSize_,0,clientAddr_,&clientAddrLen_);
+    msgSize = recvfrom(f_socket_,recvMsg_,bufferSize_,0,&clientAddr_,&clientAddrLen_);
     try
     {
         data_.ParseFromArray(recvMsg_,msgSize);
@@ -344,7 +380,7 @@ ssize_t AbMessenger::initRecv()
         return -1;
     }
     std::cout<<"msg recivied: '" << data_.msg()<< "' with ID: "<<data_.id() <<std::endl;
-    clientConnect(clientAddr_,sizeof(clientAddr_));
+    clientConnect(&clientAddr_,sizeof(clientAddr_));
     return msgSize;
 }
 

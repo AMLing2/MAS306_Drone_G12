@@ -15,7 +15,7 @@ int main()
     std::queue<std::string> queues[queueCount]; //would prefer to have char* queue type but cant pass length that way :/
 
     std::string connectedClients[6] = {"Drone","Camera","RL","Estimator","Arena"};//unused
-    std::string localAddr = "127.0.0.1";
+    std::string localAddr = "128.39.200.239"; //127.0.0.1
     ns_t timenow = std::chrono::duration_cast<ns_t>(std::chrono::steady_clock::now().time_since_epoch());
     ServerMain serverMain(timenow,localAddr,20002);
     CameraMessenger cameraMessenger(serverMain.getServerTimer(),localAddr,10000000,10000000,queues[0]); // do this for all 5 programs...?

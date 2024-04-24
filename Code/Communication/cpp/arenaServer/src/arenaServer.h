@@ -49,7 +49,11 @@ public:
 		clientAddrLen_ = sizeof(clientAddr_);
 	}
 	virtual ssize_t initRecv() = 0;
-	socklen_t getClassAddr(struct addrinfo* localAddr); //localAddr_ needs to be found in constructor with getsockname()
+	/*
+	more like copy class addr than get class addr...
+	*/
+	socklen_t getClassAddr(struct addrinfo passAddr,size_t addrinfosize); //localAddr_ needs to be found in constructor with getsockname()
+	void genAddrProtoc(dronePosVec::dataTransfers &data);
 	int clientConnect(struct sockaddr* clientAddr,socklen_t addrLen);
 	ssize_t clientSend(const char* msg, size_t msgSize);
 	ssize_t clientRecv(char* buffer, size_t bufferSize);
@@ -65,9 +69,10 @@ protected:
 	const std::string addr_; //likely 127.0.0.1 for all implementations
 	int socketSetup_(int port); //creates and binds socket, returns 0 if successful, must be called in constructor
 	int f_socket_;
-	struct addrinfo* localAddr_;
+	struct addrinfo* plocalAddr_ ; //this is needed because getaddrinfo() wants an addrinfo** type
+	//struct addrinfo localAddr_; //breaks everything dont use
 	socklen_t localAddrLen_;
-	struct sockaddr* clientAddr_;
+	struct sockaddr clientAddr_;
 	socklen_t clientAddrLen_;
 }; //SocketMethods
 
