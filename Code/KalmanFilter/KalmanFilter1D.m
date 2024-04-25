@@ -36,11 +36,12 @@ R = 0.05; % Covariance Matrix
 % two = eye(2);
 % three = one*two*one'
 
-dt = time(2)-time(1);
-B = [0 dt];
-% B = [B Vd 0*B];
-P = B*Q*B';
-x = zeros(2);
+% dt = time(2)-time(1);
+% B = [0 dt];
+% % B = [B Vd 0*B];
+% P = B*Q*B';
+x = zeros(2,1);
+
 
 %%%%%%%%%%%%%%%%%%%% Translation Plotting %%%%%%%%%%%%%%%%%%%%
 % startTime = 140;
@@ -54,45 +55,63 @@ transIndicesZ = (zQTM ~= trans(3));
 plot(time(transIndicesZ),zCV0(transIndicesZ), ...
     '.', 'Color',[109/255, 209/255, 255/255])
 hold on
-plot(time(transIndicesZ),zQTM(transIndicesZ), '.k', MarkerSize=1)
+plot(time(transIndicesZ),zQTM(transIndicesZ), '.k'); %, MarkerSize=1)
 ylabel('z [m]')
 xlabel('Time [seconds]')
 xlim([startTime stopTime])
 
-[a, icons] = legend('zCV0', 'zQTM', 'Location','eastoutside');
+%%%%%%%%%%%%%%%%%%%% Translation Plotting %%%%%%%%%%%%%%%%%%%%
+iter = 1;
+
+% Time-Varying Kalman Filter
+for i = 1 : length(time)-1
+    if (zQTM(i) ~= trans(3))
+       
+        curTime = time(i);
+        if iter ~= 1
+            dt = curTime - prevTime;
+        end
+
+        if iter == 1
+            dt = time(i+1) - time(i);
+            B = [0 dt];
+            P = B*Q*B';
+        end
+
+        % Current iteration variables
+        % dt = time(i+1)-time(i);
+        u = (zQTM(i+1) - zQTM(i))/(dt^2);
+        y = xCV0(i);
+
+        deltaTime(i) = dt;
+        acc(i) = u;
+        
+        % State Transition Matrix
+        A = [ 1   dt ;
+              0   1 ];
+        % Control Input Matrix
+        B = [ 0  ;
+              dt ];
+        
+        % Measurement Update - Update
+        Kk = (P*C')/(C*P*C' + R);
+        x = x + Kk*(y - C*x);
+        P = (I - Kk*C)*P;
+    
+        % Time Update - Prediction
+        x = A*x + B*u;
+        P = A*P*A' + B*Q*B';
+    
+        % Add points to list
+        xKFestimate(i) = x(1);
+        plot(time(i), x(1), '.r', MarkerSize=1)
+
+        iter = iter + 1;
+        prevTime = curTime;
+    end
+end
+
+[a, icons] = legend('zCV0', 'zQTM', 'zKalman', 'Location','eastoutside');
 % Change size of legend icons
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
-%%%%%%%%%%%%%%%%%%%% Translation Plotting %%%%%%%%%%%%%%%%%%%%
-
-hold on
-% Time-Varying Kalman Filter
-for i = 1 : length(time)-1
-
-    % Current iteration variables
-    dt = time(i+1)-time(i);
-    u = zQTM(i)/(dt^2);
-    y = xCV0(i);
-    
-    % State Transition Matrix
-    A = [ 1   dt ;
-          0   1 ];
-    % Control Input Matrix - Time variant
-    B = [ 0  ;
-          dt ];
-    
-    % Measurement Update - Update
-    Kk = (P*C')/(C*P*C' + R);
-    x = x + Kk*(y - C*x);
-    P = (I - Kk*C)*P;
-
-    % Time Update - Prediction
-    x = A*x + B*u;
-    P = A*P*A' + B*Q*B';
-
-    % Add points to list
-    if (zQTM(i) ~= trans(3))
-        xKFestimate(i) = x(1);
-        plot(time(i), x(1), '.r')
-    end
-end
