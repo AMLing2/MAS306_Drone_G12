@@ -18,33 +18,27 @@ trans = [0.190 0.143 1.564]; % Physically measured in m
 
 %% Kalman Filter
 
-% State Transition Matrix
-A = [ 0   1  ;
-      0   0 ];
-
 % Measurement Matrix
-C = [ 1 0;
-      0 0 ];
+C = [ 1 0 ];
 % Feedthrough Matrix
-D = [ 0;
-      1];
+D = 0;
 
-% Disturbance Covariance
-Vd = .1*eye(2);
+% Identity matrix
+I = eye(2);
 
-% Noice Covariance
-Vn = .1*eye(2);
+% Process Noise w_n
+Q = 0.1; % Covariance Matrix
 
-Q = .1*eye(2);
-R = Q;
+% Measurement Noise v_n
+R = 0.05; % Covariance Matrix
 
 % one = [1; 2];
 % two = eye(2);
 % three = one*two*one'
 
 dt = time(2)-time(1);
-B = [dt; 1];
-B = [B Vd 0*B];
+B = [0 dt];
+% B = [B Vd 0*B];
 P = B*Q*B';
 x = zeros(2);
 
@@ -71,26 +65,34 @@ icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
 %%%%%%%%%%%%%%%%%%%% Translation Plotting %%%%%%%%%%%%%%%%%%%%
 
+hold on
+% Time-Varying Kalman Filter
 for i = 1 : length(time)-1
 
+    % Current iteration variables
     dt = time(i+1)-time(i);
     u = zQTM(i)/(dt^2);
-    y = [xCV0(i); u];
+    y = xCV0(i);
     
+    % State Transition Matrix
+    A = [ 1   dt ;
+          0   1 ];
     % Control Input Matrix - Time variant
-    B = [dt;
-         1];
+    B = [ 0  ;
+          dt ];
     
     % Measurement Update - Update
     Kk = (P*C')/(C*P*C' + R);
     x = x + Kk*(y - C*x);
-    P = (eye(2)-Kk*C)*P;
+    P = (I - Kk*C)*P;
 
     % Time Update - Prediction
     x = A*x + B*u;
     P = A*P*A' + B*Q*B';
 
-    if (zQTM ~= trans(3))
-        plot(time(i), x(1))
+    % Add points to list
+    if (zQTM(i) ~= trans(3))
+        xKFestimate(i) = x(1);
+        plot(time(i), x(1), '.r')
     end
 end
