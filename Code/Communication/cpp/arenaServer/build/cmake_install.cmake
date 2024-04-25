@@ -1,4 +1,4 @@
-# Install script for directory: /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer
+# Install script for directory: /home/thomaz/MAS306_Drone_G12/Code/Communication/cpp/arenaServer
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -49,7 +49,7 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/arenaServer/arenaServer"
          RPATH "")
   endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/arenaServer" TYPE EXECUTABLE FILES "/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build/arenaServer")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/arenaServer" TYPE EXECUTABLE FILES "/home/thomaz/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build/arenaServer")
   if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/arenaServer/arenaServer" AND
      NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/arenaServer/arenaServer")
     if(CMAKE_INSTALL_DO_STRIP)
@@ -66,5 +66,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/thomaz/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

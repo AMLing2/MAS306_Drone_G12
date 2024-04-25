@@ -142,18 +142,20 @@ def multiprocessFunc(serverAddress,queueCam):
     c = DataSending(serverAddress,queueCam)
 
     #TEST REMOVE LATER
-    dataMsg = dronePosVec_pb2.dataTransfers()
-    dataMsg.ID = dronePosVec_pb2.camera
-    dataMsg.msg = "asdadasdasd"
-    msg = dataMsg.SerializeToString()
+    #dataMsg = dronePosVec_pb2.dataTransfers()
+    #dataMsg.ID = dronePosVec_pb2.camera
+    #dataMsg.msg = "asdadasdasd"
+    #msg = dataMsg.SerializeToString()
     #TEST REMOVE LATER
+    timeout = None
     if c.dserverConnect() == 0:
         c.checklist()
         while(c.mpLoop):
             time.sleep(c.sleepTimeCalc(c.sendinterval,c.globalTimer))
             try:
-                c.send(msg) #test
-                #c.send(q.get(block= True, timeout=5)) #real
+                #c.send(msg) #test
+                c.send(q.get(block= True, timeout=timeout)) #real
+                timeout = 5 # set to 5s after initial
             except Exception as e:
                 c.mpLoop = False #timeout 
                 print("exception:" + repr(e))
@@ -167,11 +169,11 @@ p.start()
 dpCam = dronePosVec_pb2.dronePosition()
 dpCam.Clear()
 dpCam.deviceType = dronePosVec_pb2.CameraOnly
-matrixSize = [3,3]
+matrixSize = [2,3]
 dpCam.matrixSize[:] = matrixSize
-input()
+#input()
 
-if False: #UNINDEX LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+if True: #UNINDEX LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     # --------------------------------------- Socket Class -----------------------------------
     # ------------------- Constant variables for simple changes -------------------
     axesLength = 0.1
@@ -229,6 +231,9 @@ if False: #UNINDEX LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     rotVectors = []
     transVectors = []
     reprojError = 0
+    m  = 0
+    rotVectorsExp = numpy.empty(matrixSize[0] * matrixSize[1],dtype=float)
+    transVectorsExp = numpy.empty(matrixSize[0] * matrixSize[1],dtype=float)
 
     while(True):
 
@@ -312,14 +317,29 @@ if False: #UNINDEX LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         #print("\nThis frame [ns]: ", diffTime)
         #print("\nTimestamp [ns]: ", startTime)
 
-        # Variabler for Adrian export:
-        dpCam.rotMatrix[:] = rotVectors
-        dpCam.position[:] = transVectors[0]
-        if q.full == True:
-            q.get() #empty if previous is still not read
-        q.put(dpCam.SerializeToString())
-            # startTime, rotVectors, transVectors[0], depthDist, markerID
+        m  = 0
+        del dpCam.rotMatrix[:]
+        del dpCam.position[:]
+        if (len(rotVectors) > 0) & (len(transVectors) > 0):
+            for i in range(matrixSize[0]-1):
+                for n in range(matrixSize[1]-1):
+                    rotVectorsExp[m] = rotVectors[i][n]
+                    transVectorsExp[m] = transVectors[i][n]
+                    m += 1
 
+            dpCam.rotMatrix[:] = rotVectorsExp
+            dpCam.position[:] = transVectorsExp
+            
+        if q.full() == True:
+            try:
+                q.get_nowait() #empty if previous is still not read
+            except Exception: #will be called if both threads try to get() at the same time
+                pass
+
+        q.put(dpCam.SerializeToString())
+
+        #TODO: Variabler for Adrian export: # startTime, rotVectors, transVectors[0], depthDist, markerID
+
+pipe.stop()             # Stop recording
+cv2.destroyAllWindows() # Free resources
 p.join()
-#pipe.stop()             # Stop recording
-#cv2.destroyAllWindows() # Free resources

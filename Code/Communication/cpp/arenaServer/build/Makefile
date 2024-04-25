@@ -57,10 +57,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer
+CMAKE_SOURCE_DIR = /home/thomaz/MAS306_Drone_G12/Code/Communication/cpp/arenaServer
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build
+CMAKE_BINARY_DIR = /home/thomaz/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -132,9 +132,9 @@ install/strip/fast: preinstall/fast
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build/CMakeFiles /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/thomaz/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build/CMakeFiles /home/thomaz/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/adrian/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/thomaz/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target

@@ -7,8 +7,8 @@
 void CameraMessenger::recvThread()
 {
     std::cout<<"Camera recvThread up"<<std::endl;
-    dronePosVec::dataTransfers data; 
-    setTimeout(1,0);//too high for 100ms
+    dronePosVec::dronePosition data; 
+    setTimeout(5,0);//too high for 100ms
     ssize_t msgsize = 0;
     while(threadloop_)
     {
@@ -17,7 +17,12 @@ void CameraMessenger::recvThread()
         if (msgsize > 0)
         {
             data.ParseFromArray(recvMsg_,msgsize);
-            std::cout<<data.msg()<<std::endl; //TODO: test, remove
+            std::cout<<data.rotmatrix().size()<<std::endl; //TODO: test, remove
+            if (data.rotmatrix().size() > 0)
+            {
+                std::cout<<data.rotmatrix().Get(0)<<std::endl; //TODO: test, remove
+            }
+            
             //q.push(data.SerializeAsString()); //uncomment
         }
         else
