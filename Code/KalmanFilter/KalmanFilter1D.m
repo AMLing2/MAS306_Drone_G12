@@ -35,59 +35,62 @@ Vd = .1*eye(2);
 % Noice Covariance
 Vn = .1*eye(2);
 
-u = zeros(2);
-y = zeros(2);
+Q = .1*eye(2);
+R = Q;
+
+% one = [1; 2];
+% two = eye(2);
+% three = one*two*one'
+
+dt = time(2)-time(1);
+B = [dt; 1];
+B = [B Vd 0*B];
+P = B*Q*B';
+x = zeros(2);
+
+%%%%%%%%%%%%%%%%%%%% Translation Plotting %%%%%%%%%%%%%%%%%%%%
+% startTime = 140;
+% stopTime = 186;
+startTime = 0;
+stopTime = time(end);
+
+transPlot = figure(Name="Plot of Translation comparison");
+
+transIndicesZ = (zQTM ~= trans(3));
+plot(time(transIndicesZ),zCV0(transIndicesZ), ...
+    '.', 'Color',[109/255, 209/255, 255/255])
+hold on
+plot(time(transIndicesZ),zQTM(transIndicesZ), '.k', MarkerSize=1)
+ylabel('z [m]')
+xlabel('Time [seconds]')
+xlim([startTime stopTime])
+
+[a, icons] = legend('zCV0', 'zQTM', 'Location','eastoutside');
+% Change size of legend icons
+icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
+set(icons, 'MarkerSize', 20)
+%%%%%%%%%%%%%%%%%%%% Translation Plotting %%%%%%%%%%%%%%%%%%%%
 
 for i = 1 : length(time)-1
+
     dt = time(i+1)-time(i);
-    u = [zQTM(i)/(dt^2) zQTM(i)/(dt^2)];
-    y = [xCV0(i); u(1)];
+    u = zQTM(i)/(dt^2);
+    y = [xCV0(i); u];
     
     % Control Input Matrix - Time variant
     B = [dt;
          1];
+    
+    % Measurement Update - Update
+    Kk = (P*C')/(C*P*C' + R);
+    x = x + Kk*(y - C*x);
+    P = (eye(2)-Kk*C)*P;
 
-    % Build State Space Model
-    sysSS = ss(A,B,C,D);
-    
-    % Build Kalman Filter
-    [Kf, P, E] = lqe(A, Vd, C, Vd, Vn);
-    
-    % New State Space for Kalman Filter
-    sysKF = ss(A-Kf*C, [B Kf], eye(2), 0*[B Kf]);
-    
-    % Extract Kalman Filter Values
-    % [zKF, t] = lsim(sysKF, [u; y], time(i));
-    [zKF, L,~,Mx,Z] = kalman(sysKF,Vd,Vn);
-    zKF = zKF(1,:);
+    % Time Update - Prediction
+    x = A*x + B*u;
+    P = A*P*A' + B*Q*B';
 
     if (zQTM ~= trans(3))
-        plot(time(i), zCV0(i))
-        hold on
-        plot(time(i), zKF)
+        plot(time(i), x(1))
     end
 end
-
-%% Plotting
-
-% startTime = 140;
-% stopTime = 186;
-% % startTime = 0;
-% % stopTime = time(end);
-% 
-% %%%%%%%%%%%%%%%%%%%% Translation Plotting %%%%%%%%%%%%%%%%%%%%
-% transPlot = figure(Name="Plot of Translation comparison");
-% 
-% transIndicesZ = (zQTM ~= trans(3));
-% plot(time(transIndicesZ),zCV0(transIndicesZ), ...
-%     '.', 'Color',[109/255, 209/255, 255/255])
-% hold on
-% plot(time(transIndicesZ),zQTM(transIndicesZ), '.k', MarkerSize=1)
-% ylabel('z [m]')
-% xlabel('Time [seconds]')
-% xlim([startTime stopTime])
-% 
-% [a, icons] = legend('zCV0', 'zQTM', 'Location','eastoutside');
-% % Change size of legend icons
-% icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
-% set(icons, 'MarkerSize', 20)
