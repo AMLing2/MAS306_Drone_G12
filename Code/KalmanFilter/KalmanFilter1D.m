@@ -27,7 +27,7 @@ D = 0;
 I = eye(2);
 
 % Process Noise w_n
-Q = 0.1; % Covariance Matrix
+Q = 50; % Covariance Matrix
 
 % Measurement Noise v_n
 R = 0.05; % Covariance Matrix
@@ -40,14 +40,12 @@ R = 0.05; % Covariance Matrix
 % B = [0 dt];
 % % B = [B Vd 0*B];
 % P = B*Q*B';
-x = zeros(2,1);
-
 
 %%%%%%%%%%%%%%%%%%%% Translation Plotting %%%%%%%%%%%%%%%%%%%%
 % startTime = 140;
-% stopTime = 186;
+stopTime = 2.5;
 startTime = 0;
-stopTime = time(end);
+% stopTime = time(end);
 
 transPlot = figure(Name="Plot of Translation comparison");
 
@@ -56,32 +54,32 @@ plot(time(transIndicesZ),zCV0(transIndicesZ), ...
     '.', 'Color',[109/255, 209/255, 255/255])
 hold on
 plot(time(transIndicesZ),zQTM(transIndicesZ), '.k'); %, MarkerSize=1)
-ylabel('z [m]')
-xlabel('Time [seconds]')
-xlim([startTime stopTime])
 
 %%%%%%%%%%%%%%%%%%%% Translation Plotting %%%%%%%%%%%%%%%%%%%%
-iter = 1;
+% iter = 1;
 
 % Time-Varying Kalman Filter
-for i = 1 : length(time)-1
+for i = 2 : length(time)
     if (zQTM(i) ~= trans(3))
        
-        curTime = time(i);
-        if iter ~= 1
-            dt = curTime - prevTime;
-        end
+        curTime = time(i);                             % [seconds]
 
-        if iter == 1
-            dt = time(i+1) - time(i);
-            B = [0 dt];
+        % First iteration
+        if i == 2
+            dt = time(i) - time(i-1);                  % [seconds]
+            B = [dt^2/2; dt];
             P = B*Q*B';
+            % Acceleration
+            u = (zQTM(i) - zQTM(i-1))/(dt^2);          % [m/s^2]
+            x = [ zQTM(i); 0 ];
+        else
+            dt = curTime - prevTime;                   % [seconds]
+            u = ( zQTM(i) - zQTM(prevIter) ) / (dt^2); % [m/s^2]
         end
 
         % Current iteration variables
         % dt = time(i+1)-time(i);
-        u = (zQTM(i+1) - zQTM(i))/(dt^2);
-        y = xCV0(i);
+        y = zCV0(i);
 
         deltaTime(i) = dt;
         acc(i) = u;
@@ -90,7 +88,7 @@ for i = 1 : length(time)-1
         A = [ 1   dt ;
               0   1 ];
         % Control Input Matrix
-        B = [ 0  ;
+        B = [ dt^2  ;
               dt ];
         
         % Measurement Update - Update
@@ -98,16 +96,20 @@ for i = 1 : length(time)-1
         x = x + Kk*(y - C*x);
         P = (I - Kk*C)*P;
     
+        % Extract Filtered Value of position
+        yEstimated = C*x;
+
         % Time Update - Prediction
         x = A*x + B*u;
         P = A*P*A' + B*Q*B';
     
         % Add points to list
-        xKFestimate(i) = x(1);
-        plot(time(i), x(1), '.r', MarkerSize=1)
+        xKFestimate(i) = yEstimated;
+        plot(time(i), yEstimated, '.r', MarkerSize=1)
 
-        iter = iter + 1;
+        % iter = iter + 1;
         prevTime = curTime;
+        prevIter = i;
     end
 end
 
@@ -115,3 +117,8 @@ end
 % Change size of legend icons
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
+
+ylabel('z [m]')
+xlabel('Time [seconds]')
+xlim([startTime stopTime])
+% ylim([-40 40])
