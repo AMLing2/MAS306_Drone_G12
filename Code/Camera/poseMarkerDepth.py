@@ -297,6 +297,14 @@ if True: #UNINDEX LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
                 # Print Depth
                 print("Depth Distance: ", depthDist)
+                m  = 0
+                for i in range(matrixSize[0]-1):
+                    for n in range(matrixSize[1]-1):
+                        rotVectorsExp[m] = rotVectors[i][n]
+                        transVectorsExp[m] = transVectors[i][n]
+                        m += 1
+                dpCam.rotMatrix[:] = rotVectorsExp
+                dpCam.position[:] = transVectorsExp
 
         # Depth Stream: Add color map
         depth_image = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.15), cv2.COLORMAP_TURBO)
@@ -316,19 +324,6 @@ if True: #UNINDEX LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         diffTime = endTime - startTime
         #print("\nThis frame [ns]: ", diffTime)
         #print("\nTimestamp [ns]: ", startTime)
-
-        m  = 0
-        del dpCam.rotMatrix[:]
-        del dpCam.position[:]
-        if (len(rotVectors) > 0) & (len(transVectors) > 0):
-            for i in range(matrixSize[0]-1):
-                for n in range(matrixSize[1]-1):
-                    rotVectorsExp[m] = rotVectors[i][n]
-                    transVectorsExp[m] = transVectors[i][n]
-                    m += 1
-
-            dpCam.rotMatrix[:] = rotVectorsExp
-            dpCam.position[:] = transVectorsExp
             
         if q.full() == True:
             try:
@@ -337,6 +332,8 @@ if True: #UNINDEX LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 pass
 
         q.put(dpCam.SerializeToString())
+        del dpCam.rotMatrix[:]
+        del dpCam.position[:]
 
         #TODO: Variabler for Adrian export: # startTime, rotVectors, transVectors[0], depthDist, markerID
 
