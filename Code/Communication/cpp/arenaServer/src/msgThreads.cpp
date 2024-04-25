@@ -2,20 +2,30 @@
 #include "arenaServer.h"
 #include <thread>
 #include <queue>
+#include <cerrno>
 
 void CameraMessenger::recvThread()
 {
     std::cout<<"Camera recvThread up"<<std::endl;
     dronePosVec::dataTransfers data; 
     setTimeout(1,0);//too high for 100ms
-    ssize_t msgsize;
+    ssize_t msgsize = 0;
     while(threadloop_)
     {
         data.Clear();
         msgsize = clientRecv(recvMsg_,bufferSize_);
-        data.ParseFromArray(recvMsg_,msgsize);
-        q.push(data.SerializeAsString());
-
+        if (msgsize > 0)
+        {
+            data.ParseFromArray(recvMsg_,msgsize);
+            std::cout<<data.msg()<<std::endl; //TODO: test, remove
+            //q.push(data.SerializeAsString()); //uncomment
+        }
+        else
+        {
+            std::cout<<"errno:"<<strerror(errno)<<": "<<errno<<std::endl;
+            threadloop_ = false;
+            break;
+        }
         sleeptoInterval_(recvInterval_);
     }
     std::cout<<"Camera recvThread ready to join"<<std::endl;

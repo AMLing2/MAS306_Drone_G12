@@ -113,6 +113,10 @@ class DataSending:
 
         self.sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM) #shutdown and then generate new socket
         self.sock.connect(self.nextAddress)
+        self.dataMsg.Clear()
+        self.dataMsg.ID = dronePosVec_pb2.camera
+        self.dataMsg.msg = "hi"
+        self.send(self.dataMsg.SerializeToString())
     
     def checklist(self):
         checkList = True
@@ -136,13 +140,20 @@ class DataSending:
 def multiprocessFunc(serverAddress,queueCam):
     print("sender multiprocess starting")
     c = DataSending(serverAddress,queueCam)
-    queueMsg = "aa"
+
+    #TEST REMOVE LATER
+    dataMsg = dronePosVec_pb2.dataTransfers()
+    dataMsg.ID = dronePosVec_pb2.camera
+    dataMsg.msg = "asdadasdasd"
+    msg = dataMsg.SerializeToString()
+    #TEST REMOVE LATER
     if c.dserverConnect() == 0:
         c.checklist()
         while(c.mpLoop):
             time.sleep(c.sleepTimeCalc(c.sendinterval,c.globalTimer))
             try:
-                c.send(q.get(block= True, timeout=5))
+                c.send(msg) #test
+                #c.send(q.get(block= True, timeout=5)) #real
             except Exception as e:
                 c.mpLoop = False #timeout 
                 print("exception:" + repr(e))

@@ -161,6 +161,9 @@ public:
 	virtual dronePosVec::progName mainRecvloop() override;
 	sockaddr* getClientAddr();
 	socklen_t getClientAddrSize();
+
+private:
+	void stateChange_();
 };
 
 class CameraMessenger : public AbMessenger {

@@ -205,11 +205,12 @@ dronePosVec::progName ServerMain::mainRecvloop()
         {
             clientSend(tempmsg,6);//temporary msg
 
-            dronePosVec::progName a = checklistLoop();
+            checklistLoop();
+            std::cout<<"checklist done"<<std::endl;
             //restart mainloop
             socketShutdown();
             socketSetup_(port_);
-            return a;
+            return clientProgram_;
         }
         else
         {
@@ -244,17 +245,12 @@ dronePosVec::progName ServerMain::checklistLoop()
                 case dronePosVec::stateChange:
                     {
                         //TODO: CONTINUE HERE
+                        //start threads
                         std::cout<<"statechange req"<<std::endl;
-                        if(true)// why
-                        {
+                        //stateChange_();
+                        //tempReader();
 
-                            looping = false;
-                            //tempReader();
-                        }
-                        else
-                        {
-                            std::cout<<"unexpected request"<<std::endl;
-                        }
+                        looping = false;
                         break;
                     }
                 default:
@@ -264,7 +260,39 @@ dronePosVec::progName ServerMain::checklistLoop()
                     }
             }
     }
-    return data_.id();
+    return data_.id();//TODO: pointless, repalce with void?
+}
+
+void ServerMain::stateChange_() //REMOVE, THIS IS IN MAIN FUNCTION
+{
+    switch (clientProgram_)
+    {
+        case dronePosVec::drone: //DRONE
+        {
+            break;
+        }
+        case dronePosVec::estimator: //ESTIMATOR
+        {
+            break;
+        }
+        case dronePosVec::arena: //ARENA
+        {
+            break;
+        }
+        case dronePosVec::camera: //CAMERA
+        {
+            break;
+        }
+        case dronePosVec::rl: //RL
+        {
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+       
 }
 
 int ServerSocket::syncTimer()
@@ -398,10 +426,17 @@ int AbMessenger::startThread()
     }
     else
     {
-        //tRecv_ = std::thread(&AbMessenger::recvThread, this);
-        //tSend_ = std::thread(&AbMessenger::sendThread, this);
-       // tRecv_.detach();
-        //tSend_.detach();
+        tRecv_ = std::thread([this]()
+		{
+            recvThread();
+        });
+        tSend_ = std::thread([this]()
+		{
+            recvThread();
+        });
+
+        tRecv_.detach();
+        tSend_.detach();
     }
     return 0;
 }
