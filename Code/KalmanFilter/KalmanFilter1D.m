@@ -27,10 +27,10 @@ D = 0;
 I = eye(2);
 
 % Process Noise w_n
-Q = 50; % Covariance Matrix
+Q = 10000; % Covariance Matrix
 
 % Measurement Noise v_n
-R = 0.05; % Covariance Matrix
+R = 0.1; % Covariance Matrix
 
 % one = [1; 2];
 % two = eye(2);
@@ -42,10 +42,10 @@ R = 0.05; % Covariance Matrix
 % P = B*Q*B';
 
 %%%%%%%%%%%%%%%%%%%% Translation Plotting %%%%%%%%%%%%%%%%%%%%
-% startTime = 140;
-stopTime = 2.5;
+% startTime = 2.5;
+% stopTime = 2.5;
 startTime = 0;
-% stopTime = time(end);
+stopTime = time(end);
 
 transPlot = figure(Name="Plot of Translation comparison");
 
@@ -71,7 +71,7 @@ for i = 2 : length(time)
             P = B*Q*B';
             % Acceleration
             u = (zQTM(i) - zQTM(i-1))/(dt^2);          % [m/s^2]
-            x = [ zQTM(i); 0 ];
+            x = [ zQTM(i); (zQTM(i) - zQTM(i-1))/(dt) ];
         else
             dt = curTime - prevTime;                   % [seconds]
             u = ( zQTM(i) - zQTM(prevIter) ) / (dt^2); % [m/s^2]
