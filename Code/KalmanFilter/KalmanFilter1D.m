@@ -46,6 +46,58 @@ zQTMi = interp1(time(~isnan(zQTMi)), zQTMi(~isnan(zQTMi)), t);
 
 %% Kalman Filter
 
+%%%%%%%%%%%%%%%%%%%% Translation Plotting %%%%%%%%%%%%%%%%%%%%
+% startTime = 2.5;
+% stopTime = 2.5;
+startTime = 0;
+stopTime = time(end);
+
+transPlot = figure(Name="TranslationPlot");
+
+transIndicesZ = (zQTM ~= trans(3));
+plot(time,zCV0, ...
+    '.', 'Color',[109/255, 209/255, 255/255])
+hold on
+plot(t,zQTMi, '.k', MarkerSize=1)
+% plot(time(transIndicesZ),zQTM(transIndicesZ), '.k'); %, MarkerSize=1)
+
+%%%%%%%%%%%%%%%%%%%% Translation Plotting %%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%% Speed Plotting %%%%%%%%%%%%%%%%%%%%
+speedPlot = figure(Name="SpeedPlot");
+
+% Preallocate Space
+zDotQTM = zeros(length(zCV0)-1,1);
+% Save Recorded Speed
+for i = 2 : length(zQTMi)
+    zDotQTM(i) = (zQTMi(i) - zQTMi(i-1))/dt;
+end
+
+% zDotQTM = normalize(zDotQTM); % Normalization for troubleshooting
+plot(t,zDotQTM, '.k')
+
+%%%%%%%%%%%%%%%%%%%% Speed Plotting %%%%%%%%%%%%%%%%%%%%
+figure(transPlot)
+% Initialization
+timeTol = 0.01;     % Sync low sps to high sps
+yPrev = zCV0(1);    % Start measurement
+x = [ zQTM(1); zDotQTM(1)];  % Start [z, zDot]
+
+% u = (zQTM(i) - zQTM(i-1))/(dt^2);          % [m/s^2]
+% x = [ zQTMi(i); (zQTMi(i) - zQTMi(i-1))/(dt) ];
+
+% Preallocate Space
+zKalman = zeros(length(t),1);
+IMUsim  = zeros(length(t),1);
+zDotKalman = zeros(length(t),1);
+% detected = false;
+% detectList = zeros(length(t), 1);
+
+% State Transition Matrix
+A = [ 1   dt ;
+      0   1 ];
+% Control Input Matrix
+B = [ dt^2/2  ;
+      dt     ];
 % Measurement Matrix
 C = [ 1 0 ];
 % Feedthrough Matrix
@@ -55,76 +107,45 @@ D = 0;
 I = eye(2);
 
 % Process Noise w_n
-Q = 10; % Covariance Matrix
-
+Q = 500; % Covariance Matrix
 % Measurement Noise v_n
 R = 0.1; % Covariance Matrix
 
-%%%%%%%%%%%%%%%%%%%% Translation Plotting %%%%%%%%%%%%%%%%%%%%
-% startTime = 2.5;
-% stopTime = 2.5;
-startTime = 0;
-stopTime = time(end);
-
-transPlot = figure(Name="Plot of Translation comparison");
-
-transIndicesZ = (zQTM ~= trans(3));
-plot(time,zCV0, ...
-    '.', 'Color',[109/255, 209/255, 255/255])
-hold on
-plot(t,zQTMi, '.k', MarkerSize=1)
-% plot(time(transIndicesZ),zQTM(transIndicesZ), '.k'); %, MarkerSize=1)
-
-
-%%%%%%%%%%%%%%%%%%%% Translation Plotting %%%%%%%%%%%%%%%%%%%%
-
-% Initialization
-timeTol = 0.01;     % Sync low sps to high sps
-yPrev = zCV0(1);    % Start measurement
-x = [ zQTM(1); 0];  % Start [z, zDot]
-
-% u = (zQTM(i) - zQTM(i-1))/(dt^2);          % [m/s^2]
-% x = [ zQTMi(i); (zQTMi(i) - zQTMi(i-1))/(dt) ];
-
-% Preallocate Space
-zKalman = zeros(length(t),1);
-
-% State Transition Matrix
-A = [ 1   dt ;
-      0   1 ];
-% Control Input Matrix
-B = [ dt^2  ;
-      dt   ];
 % Covariance?
 P = B*Q*B';
 
-% Time-Varying Kalman Filter
+% Constant Rate: Kalman Filter
 for i = 2 : length(t)
 
     % Find closest value
     for CViter = 1 : length(time)
         if (abs(time(CViter) - t(i)) < timeTol)
             y = zCV0(CViter);
+            % detected = true;
             break
         elseif (i ~= 1)
-            y = yPrev;
+            y = NaN;
+            % y = yPrev;
+            % detected = false;
         end
     end
+    % detectList(i) = detected;
 
     % Update Input: Simulated Acceleration
     u = (zQTMi(i) - zQTMi(i-1))/(dt^2);          % [m/s^2]
-
-    deltaTime(i) = dt;
-    acc(i) = u;
+    IMUsim(i) = u;
     
     % Measurement Update - Update
-    Kk = (P*C')/(C*P*C' + R);
-    x = x + Kk*(y - C*x);
-    P = (I - Kk*C)*P;
+    % if detected
+    if ~isnan(y)
+        Kk = (P*C')/(C*P*C' + R);
+        x = x + Kk*(y - C*x);
+        P = (I - Kk*C)*P;
+    end
 
     % Extract Filtered Value of position
-    yEstimated = C*x;
-    zKalman(i) = yEstimated;
+    zKalman(i)    = x(1);
+    zDotKalman(i) = x(2);
 
     % Time Update - Prediction
     x = A*x + B*u;
@@ -147,3 +168,20 @@ ylabel('z [m]')
 xlabel('Time [seconds]')
 xlim([startTime stopTime])
 % ylim([-40 40])
+
+
+%%%%%%%%%%%%%%%%%% Plot Speeds %%%%%%%%%%%%%%%%%%
+figure(speedPlot)
+hold on
+
+% zDotKalman = normalize(zDotKalman); % Normalization for troubleshooting
+plot(t,zDotKalman, '.r', MarkerSize=1)
+
+[a, icons] = legend('zDotQTM', 'zDotKalman', 'Location','eastoutside');
+% Change size of legend icons
+icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
+set(icons, 'MarkerSize', 20)
+
+ylabel('zDot [m/s]')
+xlabel('Time [seconds]')
+xlim([startTime stopTime])
