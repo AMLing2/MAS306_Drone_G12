@@ -4,11 +4,12 @@
 #include <queue>
 #include <cerrno>
 
+//CAMERA --------------------------------------------------------------------------------
 void CameraMessenger::recvThread()
 {
     std::cout<<"Camera recvThread up"<<std::endl;
     dronePosVec::dronePosition data; 
-    setTimeout(5,0);//too high for 100ms
+    setTimeout(5,0);//too high for 100ms interval
     ssize_t msgsize = 0;
     while(threadloop_)
     {
@@ -38,6 +39,7 @@ void CameraMessenger::recvThread()
 
 void CameraMessenger::sendThread(){ } 
 
+//ESTIMATOR --------------------------------------------------------------------------------
 void EstimatorMessenger::recvThread(){ }
 
 void EstimatorMessenger::sendThread()
@@ -57,4 +59,18 @@ void EstimatorMessenger::sendThread()
         }
     }
     std::cout<<"estimator sendThread ready to join"<<std::endl;
+}
+
+//DRONE --------------------------------------------------------------------------------
+
+void DroneMessenger::recvThread()
+{
+    std::cout<<"drone recvThread up"<<std::endl;
+
+    std::cout<<"drone recvThread ready to join"<<std::endl;
+}
+
+void DroneMessenger::sendThread()
+{
+
 }

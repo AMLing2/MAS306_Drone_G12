@@ -1,8 +1,0 @@
-/home/thomaz/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build/CMakeFiles/test.dir
-/home/thomaz/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build/CMakeFiles/arenaServer.dir
-/home/thomaz/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build/CMakeFiles/edit_cache.dir
-/home/thomaz/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build/CMakeFiles/rebuild_cache.dir
-/home/thomaz/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build/CMakeFiles/list_install_components.dir
-/home/thomaz/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build/CMakeFiles/install.dir
-/home/thomaz/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build/CMakeFiles/install/local.dir
-/home/thomaz/MAS306_Drone_G12/Code/Communication/cpp/arenaServer/build/CMakeFiles/install/strip.dir

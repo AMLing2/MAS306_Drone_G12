@@ -11,19 +11,22 @@
 
 using ns_t = std::chrono::nanoseconds;
 
+enum threadStartType
+{
+	recvOnly,
+	sendOnly,
+	sendRecv
+};
+
 class SocketMethods{
 public:
 	SocketMethods(std::string addr,dronePosVec::progName clientName)
 	:addr_(addr)
-    ,clientName_()
+    ,clientName_(clientName)
 	{
 		clientAddrLen_ = sizeof(clientAddr_);
 	}
-	//virtual ssize_t initRecv() = 0;
-	/*
-	more like copy class addr than get class addr...
-	*/
-	socklen_t getClassAddr(struct addrinfo passAddr,size_t addrinfosize); //localAddr_ needs to be found in constructor with getsockname()
+
 	void genAddrProtoc(dronePosVec::dataTransfers &data);
 	int clientConnect(struct sockaddr* clientAddr,socklen_t addrLen);
 	ssize_t clientSend(const char* msg, size_t msgSize);
@@ -54,26 +57,36 @@ protected:
 class ClientClass : protected SocketMethods
 {
 public:
-    ClientClass(std::string addr,dronePosVec::progName clientName,std::string serverAddr,int serverPort)
+    ClientClass(std::string addr,dronePosVec::progName clientName,std::string serverAddr,int serverPort,threadStartType threadFuncs)
     :SocketMethods(addr, clientName)
     ,serverAddr_(serverAddr)
     ,serverPort_(serverPort)
+	,threadFuncs_(threadFuncs)
     {
         socketSetup_(0);
     }
     int connectServer();
     int checkList();
 
+	void recvThread();
+	void sendThread();
+
+	threadStartType getThreadStart();
+
 private:
     //int connectNewServer_();
+	void getNextAddr_();
+    int cSyncTime_();
+    const std::string serverAddr_;
+
     int statechange_();
     struct sockaddr nextAddress_;
     socklen_t nextAddrLen_ = 0;
     const int serverPort_;
 
-    void getNextAddr_();
-    int cSyncTime_();
-    const std::string serverAddr_;
+	const threadStartType threadFuncs_;
+	int startThread(threadStartType startType);
+	int joinThread(); //TODO: make
 
     ssize_t initSend(char* msg, size_t msgLen);
     const size_t bufferSize_ = 1024;

@@ -162,6 +162,7 @@ int ArenaServer::cSyncTime(dronePosVec::dataTransfers* pdroneInfoMsg) //sync cli
 	long int intervalTime = 100000000; //100ms
 	pdroneInfoMsg->Clear();
 	pdroneInfoMsg->set_id(1);
+	pdroneInfoMsg->set_msg("timesyncReq");
 	pdroneInfoMsg->set_type(dronePosVec::timeSync);
 	pdroneInfoMsg->set_timesync_ns(monoTimeStart_.count()); //this is pointless
 	pdroneInfoMsg->SerializeToArray(genBuffer_,bufferLen_);

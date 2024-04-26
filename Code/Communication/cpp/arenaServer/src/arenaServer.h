@@ -9,22 +9,21 @@
 #include <netdb.h>
 #include <thread>
 #include <queue>
+#include <atomic>
 
 using ns_t = std::chrono::nanoseconds;
 
 //forward declarations
 class EstimatorMessenger;
 class CameraMessenger;
+class DroneMessenger;
+class AbMessenger;
 
-
-enum clientProgram
+enum threadStartType
 {
-	serverProg,
-	droneProg,
-	cameraprog,
-	estimatorProg,
-	RLProg,
-	ArenaProg
+	recvOnly,
+	sendOnly,
+	sendRecv
 };
 
 class ClientSocket {
@@ -49,10 +48,6 @@ public:
 		clientAddrLen_ = sizeof(clientAddr_);
 	}
 	virtual ssize_t initRecv() = 0;
-	/*
-	more like copy class addr than get class addr...
-	*/
-	socklen_t getClassAddr(struct addrinfo passAddr,size_t addrinfosize); //localAddr_ needs to be found in constructor with getsockname()
 	void genAddrProtoc(dronePosVec::dataTransfers &data);
 	int clientConnect(struct sockaddr* clientAddr,socklen_t addrLen);
 	ssize_t clientSend(const char* msg, size_t msgSize);
@@ -97,7 +92,7 @@ public:
 	int socketShutdown();
 
 	ns_t getServerTimer();
-	void setSocketList(EstimatorMessenger* estimator,CameraMessenger* camera);//update later
+	void setSocketList(std::vector<std::unique_ptr<AbMessenger>>* socketClasses);
 
 
 protected:
@@ -106,21 +101,20 @@ protected:
 	const size_t bufferSize_ = 1024;
 	char buffer_[1024];
 	const int port_;
-	struct 
-    {
-        EstimatorMessenger* pEstimator;
-        CameraMessenger* pCamera;
-    } programSockets_;
+	std::vector<std::unique_ptr<AbMessenger>>* vpSocketClasses_;
 
 }; //ServerSocket
 
 class AbMessenger : public SocketMethods {
 public:
-	AbMessenger(ns_t timer, std::string addr, long int recvInterval, long int sendInterval,std::queue<std::string> sharedQueue)
+	AbMessenger(ns_t timer, std::string addr, long int recvInterval, long int sendInterval,std::queue<std::string> sharedQueue,const dronePosVec::progName progType, threadStartType threadfuncs,std::string stringName)
 	:SocketMethods(timer,addr)
+	,strName(stringName)
 	,recvInterval_(ns_t(recvInterval))
 	,sendInterval_(ns_t(sendInterval))
 	,q(sharedQueue)
+	,classProgram_(progType)
+	,threadFuncs_(threadfuncs)
 	{
 		//no code
 	}
@@ -130,23 +124,31 @@ public:
 	virtual void recvThread() = 0;
 	virtual void sendThread() = 0;
 
-	int startThread();
-	int joinThread();
-	ssize_t getThreadList(std::thread* tbuffer[], size_t tbufferlen);
+	int startThread(threadStartType startType);
+	int joinThread(); //TODO: make
+	ssize_t getThreadList(std::thread* tbuffer[], size_t tbufferlen); //currently unused 
+	dronePosVec::progName getName();
+	bool getConnection();
+	void setConnection(bool status);
+	const std::string strName;
+	threadStartType getThreadStart();
 
-protected:	
-	dronePosVec::progName classProgram_;
-	clientProgram messageProgram_;
-	const size_t bufferSize_ = 1024;
-	char recvMsg_[1024]; //fix to bufferSize_
-	char sendMsg_[1024]; // do these really need to be that big?
-	std::thread tRecv_;
-	std::thread tSend_;
-
+protected:
 	const ns_t recvInterval_;
 	const ns_t sendInterval_;
 	std::queue<std::string> q;
-	volatile bool threadloop_ = true;//unsure if this should be volatile or not
+	std::atomic_bool threadloop_ = true;
+
+	bool connected_ = false;
+	const dronePosVec::progName classProgram_; //change to const
+	dronePosVec::progName messageProgram_; //unused because classProgram_ = messageProgram_ TODO: CONSIDER REMOVING
+
+	const threadStartType threadFuncs_;
+	const size_t bufferSize_ = 1024;
+	char recvMsg_[1024]; //fix to bufferSize_
+	char sendMsg_[1024]; //do these really need to be that big?
+	std::thread tRecv_;
+	std::thread tSend_;
 //in private, add protobuf stuff
 }; //AbMessenger
 
@@ -159,7 +161,7 @@ public:
     }
     virtual dronePosVec::progName checklistLoop() override;
 	virtual dronePosVec::progName mainRecvloop() override;
-	sockaddr* getClientAddr();
+	struct sockaddr* getClientAddr();
 	socklen_t getClientAddrSize();
 
 private:
@@ -169,11 +171,14 @@ private:
 class CameraMessenger : public AbMessenger {
 public:
     CameraMessenger(ns_t timer, std::string addr, long int recvInterval, long int sendInterval,std::queue<std::string> sharedQueue)
-    :AbMessenger(timer,addr,recvInterval,sendInterval,sharedQueue)
+    :AbMessenger(timer,addr,recvInterval,sendInterval,sharedQueue,dronePosVec::camera,threadStartType::recvOnly,"Camera")
     {
-		classProgram_ = dronePosVec::camera;
         socketSetup_(0);
     }
+	~CameraMessenger()
+	{
+
+	}
     virtual void recvThread() override;
 	virtual void sendThread() override; //unused for camera
 }; //CameraMessenger
@@ -181,7 +186,7 @@ public:
 class EstimatorMessenger : public AbMessenger {
 public:
     EstimatorMessenger(ns_t timer, std::string addr, long int recvInterval, long int sendInterval,std::queue<std::string> sharedQueue)
-    :AbMessenger(timer,addr,recvInterval,sendInterval,sharedQueue)
+    :AbMessenger(timer,addr,recvInterval,sendInterval,sharedQueue,dronePosVec::estimator,threadStartType::sendRecv,"Estimator")
     {
         socketSetup_(0);
     }
@@ -190,8 +195,17 @@ public:
 
 private:
 
+};
 
-}; //CameraMessenger
-
+class DroneMessenger : public AbMessenger {
+public:
+    DroneMessenger(ns_t timer, std::string addr, long int recvInterval, long int sendInterval,std::queue<std::string> sharedQueue)
+    :AbMessenger(timer,addr,recvInterval,sendInterval,sharedQueue,dronePosVec::drone,threadStartType::sendRecv,"Drone")
+    {
+        socketSetup_(0);
+    }
+    virtual void recvThread() override;
+	virtual void sendThread() override; //unsure if i will separate these
+}; //DroneMessenger
 
 #endif //SOCKETCLASS_H

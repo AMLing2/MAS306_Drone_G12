@@ -35,14 +35,13 @@ int SocketMethods::socketSetup_(int port)
         std::cout<<"failed to create udp socket"<<std::endl;
     }
     int reusenum = 1;
-    setsockopt(f_socket_,SOL_SOCKET,SO_REUSEADDR,&reusenum,1); //allow reuse of local address, primarily for main server class
+    setsockopt(f_socket_,SOL_SOCKET,0,&reusenum,1); //allow reuse of local address, primarily for main server class
     r = bind(f_socket_, plocalAddr_->ai_addr,plocalAddr_->ai_addrlen);
     if(r != 0)
     {
         std::cout<<"failed to bind socket"<<std::endl;
     }
     localAddrLen_ = sizeof(plocalAddr_);
-    static_cast<const int>(f_socket_); //cast to const so nothing writes it while threads read
     return r;
 }
 
@@ -62,17 +61,6 @@ void SocketMethods::genAddrProtoc(dronePosVec::dataTransfers &data)
     data.set_ip(strIP); //for sending to python and matlab programs
     data.set_port(port);//ntohs() converts from network byte order, (sockaddr_in*)... converts sockaddr to human readable form
     data.set_id(clientName_);
-}
-
-
-socklen_t SocketMethods::getClassAddr(struct addrinfo passAddr,size_t addrinfosize) //depracated? was replaced wtih genAddrProtoc but should return to using this
-{
-    char strIP[INET_ADDRSTRLEN];
-    inet_ntop(AF_INET,&(((struct sockaddr_in*)plocalAddr_->ai_addr)->sin_addr),&strIP[0],INET_ADDRSTRLEN);
-    std::cout<<"ip address base: " <<strIP<<std::endl;
-    memcpy(&passAddr,plocalAddr_,sizeof(plocalAddr_));
-    //passAddr = plocalAddr_; //bad very bad
-    return localAddrLen_;
 }
 
 void SocketMethods::sleeptoInterval_(ns_t interval)
@@ -104,6 +92,11 @@ int SocketMethods::clientConnect(struct sockaddr* clientAddr,socklen_t addrLen)
     {
         memcpy(&clientAddr_,clientAddr,addrLen);
         clientAddrLen_ = addrLen;
+    }
+    else
+    {
+        std::cout<<"connection failure"<<std::endl;
+        std::cout<<"errno:"<<strerror(errno)<<", "<<errno<<std::endl;
     }
     return r;
 }
@@ -164,7 +157,7 @@ int ClientClass::connectServer()
 	}
 	else
 	{
-		int connstat = connect(f_socket_,&serverAddress,serverAddrLen);
+		int connstat = clientConnect(&serverAddress,serverAddrLen);
 		return connstat;
 	}
 }
@@ -206,11 +199,15 @@ int ClientClass::checkList() //checklist before starting streaming
         else
         {
             std::cout<<"checklist complete, requesting state change"<<std::endl;
-            statechange_();
+            if (statechange_() > 0)
+            {
+                std::cout<<"connection wtih new socket success"<<std::endl;
+            }
             checklistLoop = false;
             return 0;
         }
     }
+    return -1;
     //droneClient.mainloop(&dataMsg);
 }
 
@@ -255,28 +252,73 @@ void ClientClass::getNextAddr_() //TODO: CONTINUE AND FIX HERE
     data_.ParseFromArray(recvMsg_,msgLen);
     std::cout<<"next address: "<<data_.ip()<<":"<<data_.port()<<std::endl;
 
-
-    memcpy(&nextAddress_,data_.sockaddr().c_str(),data_.sockaddrlen());
+    memcpy(&nextAddress_.sa_data,data_.sockaddr().c_str(),data_.sockaddrlen());
+    nextAddress_.sa_family = data_.sa_family();
     nextAddrLen_ = data_.sockaddrlen();
 }
 
-int ClientClass::statechange_()
+int ClientClass::statechange_() //TODO: fix
 {
     data_.Clear();
     data_.set_id(clientName_);
     data_.set_type(dronePosVec::stateChange);
     data_.set_msg("stateChangeReq");
     data_.SerializeToArray(sendMsg_,bufferSize_);
+    clientSend(sendMsg_,data_.ByteSizeLong());
 
     setTimeout();
-    int msgLen = clientRecv(recvMsg_,bufferSize_);
+    //int msgLen = clientRecv(recvMsg_,bufferSize_);
     socketShutdown();
     //generate new socket and connect to next socket
-    socketSetup_(0);
-    connect(f_socket_,&nextAddress_,nextAddrLen_);
+    int r = socketSetup_(0);
+    if (r != 0)
+    {
+        std::cout<<"failure to set up socket"<<std::endl;
+        return -1;
+    }
+    clientConnect(&nextAddress_,nextAddrLen_);
 
+    data_.Clear();
     data_.set_id(clientName_);
     data_.set_msg("hi");
-    size_t msgSize = data_.SerializeToArray(sendMsg_,bufferSize_);
-    return clientSend(sendMsg_,msgSize);
+    data_.SerializeToArray(sendMsg_,bufferSize_);
+    return clientSend(sendMsg_,data_.ByteSizeLong());
+}
+
+int ClientClass::startThread(threadStartType startType)
+{
+    if (startType == threadStartType::recvOnly)
+    {
+        tRecv_ = std::thread([this]()
+		{
+            recvThread();
+        });
+        
+        //std::thread(&AbMessenger::recvThread, this);
+        tRecv_.detach();
+    }
+    else if (startType == threadStartType::sendOnly)
+    {
+        tRecv_ = std::thread([this]()
+		{
+            recvThread();
+        });
+
+        tSend_.detach();
+    }
+    else
+    {
+        tRecv_ = std::thread([this]()
+		{
+            recvThread();
+        });
+        tSend_ = std::thread([this]()
+		{
+            sendThread();
+        });
+
+        tRecv_.detach();
+        tSend_.detach();
+    }
+    return 0;
 }

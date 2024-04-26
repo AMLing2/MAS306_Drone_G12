@@ -49,7 +49,6 @@ int SocketMethods::socketSetup_(int port)
         std::cout<<"failed to bind socket"<<std::endl;
     }
     localAddrLen_ = sizeof(plocalAddr_);
-    static_cast<const int>(f_socket_); //cast to const so nothing writes it while threads read
     return r;
 }
 
@@ -63,23 +62,13 @@ void SocketMethods::genAddrProtoc(dronePosVec::dataTransfers &data)
     std::cout<<"ip address base: " <<strIP<<":"<<port<<std::endl;
 
     data.Clear();
-    data.set_sa_family(((struct sockaddr_in*)plocalAddr_)->sin_family);
-    data.set_sockaddr(plocalAddr_->ai_addr->sa_data); //for sending to c++ programs
+    data.set_sa_family(plocalAddr_->ai_addr->sa_family); //for sending to c++ programs
+    data.set_sockaddr(plocalAddr_->ai_addr->sa_data); 
     data.set_sockaddrlen(plocalAddr_->ai_addrlen);
+
     data.set_ip(strIP); //for sending to python and matlab programs
     data.set_port(port);//ntohs() converts from network byte order, (sockaddr_in*)... converts sockaddr to human readable form
     data.set_id(dronePosVec::server);
-}
-
-
-socklen_t SocketMethods::getClassAddr(struct addrinfo passAddr,size_t addrinfosize) //depracated? was replaced wtih genAddrProtoc but should return to using this
-{
-    char strIP[INET_ADDRSTRLEN];
-    inet_ntop(AF_INET,&(((struct sockaddr_in*)plocalAddr_->ai_addr)->sin_addr),&strIP[0],INET_ADDRSTRLEN);
-    std::cout<<"ip address base: " <<strIP<<std::endl;
-    memcpy(&passAddr,plocalAddr_,sizeof(plocalAddr_));
-    //passAddr = plocalAddr_; //bad very bad
-    return localAddrLen_;
 }
 
 void SocketMethods::sleeptoInterval_(std::chrono::nanoseconds interval)
@@ -111,6 +100,11 @@ int SocketMethods::clientConnect(struct sockaddr* clientAddr,socklen_t addrLen)
     {
         memcpy(&clientAddr_,clientAddr,addrLen);
         clientAddrLen_ = addrLen;
+    }
+    else
+    {
+        std::cout<<"connection failure"<<std::endl;
+        std::cout<<"errno:"<<strerror(errno)<<", "<<errno<<std::endl;
     }
     return r;
 }
@@ -167,6 +161,11 @@ ssize_t ServerSocket::initRecv()
         //if no exception:
         std::cout<<"msg recivied: '" << data_.msg()<< "' with ID: "<<data_.id() <<std::endl;
         clientProgram_ = data_.id();
+        if (clientProgram_ == dronePosVec::server)
+        {
+            std::cout<<"ERROR: ID not specified in message"<<std::endl;
+            return -1;
+        }
     }
     catch(const std::exception& e)
     {
@@ -196,16 +195,16 @@ ns_t ServerSocket::calcSleepTime(ns_t interval)
 
 dronePosVec::progName ServerMain::mainRecvloop()
 {
-    char tempmsg[6] = {'h','e','l','l','o','\0'}; //make not temporary >:(
-    if (initRecv() > 0) //wierd check
+    clientProgram_ = dronePosVec::server; //default;
+    char tempmsg[6] = {'h','e','l','l','o','\0'}; //TODO: make not temporary >:(
+    if (initRecv() > 0) //wait for first recvTo
     {
-        memcpy(buffer_,&tempmsg,6);
-        //serverSendto(buffer_,5);//temporary msg
+        memcpy(buffer_,&tempmsg,6); //temporary
         if ((clientConnect(&clientAddr_,clientAddrLen_)) >= 0)
         {
             clientSend(tempmsg,6);//temporary msg
 
-            checklistLoop();
+            checklistLoop(); //checklist 
             std::cout<<"checklist done"<<std::endl;
             //restart mainloop
             socketShutdown();
@@ -226,6 +225,7 @@ dronePosVec::progName ServerMain::checklistLoop()
     bool looping = true;
     while(looping)
     {
+        setTimeout(5,0);
         clientRecv(buffer_,bufferSize_);
         data_.ParseFromArray(buffer_,bufferSize_);
         switch(data_.type())
@@ -248,7 +248,6 @@ dronePosVec::progName ServerMain::checklistLoop()
                         //start threads
                         std::cout<<"statechange req"<<std::endl;
                         //stateChange_();
-                        //tempReader();
 
                         looping = false;
                         break;
@@ -300,11 +299,12 @@ int ServerSocket::syncTimer()
     long int intervalTime = 100000000; //100ms
 	data_.Clear();
 	data_.set_id(dronePosVec::server);
+    data_.set_msg("GlobalTimer");
 	data_.set_type(dronePosVec::timeSync);
 	data_.SerializeToArray(buffer_,bufferSize_);
-	setTimeout(1,0);
+	setTimeout(10,0);
 
-	ns_t sendTime = calcSleepTime(ns_t(intervalTime)); //send next relaive 100ms
+	ns_t sendTime = calcSleepTime(ns_t(intervalTime)); //send next relative 100ms
 	std::this_thread::sleep_for(sendTime);
 	clientSend(buffer_,data_.ByteSizeLong());
 	sendTime = monoTimeNow_();
@@ -318,69 +318,32 @@ int ServerSocket::syncTimer()
 		long int timeDiff = (recvTime - sendTime).count() - intervalTime;
 		std::cout<<"time difference = "<<timeDiff<<std::endl;
 		data_.set_id(dronePosVec::server);
+        data_.set_msg("offset");
 		data_.set_timesync_ns(timeDiff);
 		data_.SerializeToArray(buffer_,bufferSize_);
 		clientSend(buffer_,data_.ByteSizeLong());//adding an offset might be wierd, 0.2-0.7ms delay without it
+        return 0;
 	}
-	return 0;
+	return -1; //failed to recv msg
 }
 
 int ServerSocket::sendSocketInfo()
 {
-    std::string addr;
-    socklen_t addrLen;
-    //struct addrinfo sendingAddr;
-    //memset(sendingAddr,0,sizeof(sendingAddr));
-    switch (clientProgram_)
+    for(const std::unique_ptr<AbMessenger>& i: *vpSocketClasses_)
     {
-        case dronePosVec::drone: //DRONE
+        if (i->getName() == clientProgram_)
         {
-            break;
-        }
-        case dronePosVec::estimator: //ESTIMATOR
-        {
-            //addrLen = programSockets_.pEstimator->getClassAddr(sendingAddr,sizeof(sendingAddr));
-            break;
-        }
-        case dronePosVec::arena: //ARENA
-        {
-            break;
-        }
-        case dronePosVec::camera: //CAMERA
-        {
-            programSockets_.pCamera->genAddrProtoc(data_);
-            //addrLen = programSockets_.pCamera->getClassAddr(sendingAddr,sizeof(sendingAddr));
-            break;
-        }
-        case dronePosVec::rl: //RL
-        {
-            break;
-        }
-        default:
-        {
+            i->genAddrProtoc(data_);
             break;
         }
     }
-    /*
-    char strIP[INET_ADDRSTRLEN];
-    inet_ntop(AF_INET,&(((struct sockaddr_in*)sendingAddr.ai_addr)->sin_addr),&strIP[0],INET_ADDRSTRLEN); //segfault here
-    std::cout<<"ip address: "<<strIP<<std::endl;
-    data_.Clear();
-    data_.set_sa_family(sendingAddr.ai_addr->sa_family);
-    data_.set_sockaddr(sendingAddr.ai_addr->sa_data); //for sending to c++ programs
-    data_.set_sockaddrlen(sendingAddr.ai_addrlen);
-    data_.set_ip(strIP); //for sending to python and matlab programs
-    data_.set_port(ntohs(((struct sockaddr_in*)sendingAddr.ai_addr)->sin_port));//ntohs() converts from network byte order, (sockaddr_in*)... converts sockaddr to human readable form
-    data_.set_id(dronePosVec::server);
-    */
     data_.SerializeToArray(buffer_,bufferSize_);
     return clientSend(buffer_,data_.ByteSizeLong());
 }
 
-void ServerSocket::setSocketList(EstimatorMessenger* estimator,CameraMessenger* camera)
+void ServerSocket::setSocketList(std::vector<std::unique_ptr<AbMessenger>>* socketClasses) // is supposed to be type: std::vector<std::unique_prt<AbMessenger>>* 
 {
-    programSockets_.pEstimator = estimator;
-    programSockets_.pCamera = camera;
+    vpSocketClasses_ = socketClasses;
 }
 
 sockaddr* ServerMain::getClientAddr()
@@ -407,14 +370,30 @@ ssize_t AbMessenger::initRecv()
         std::cout<<"invalid message"<<std::endl;
         return -1;
     }
-    std::cout<<"msg recivied: '" << data_.msg()<< "' with ID: "<<data_.id() <<std::endl;
-    clientConnect(&clientAddr_,sizeof(clientAddr_));
-    return msgSize;
+    std::cout<<"msg recieved: '" << data_.msg()<< "' with ID: "<<data_.id() <<std::endl;
+    return clientConnect(&clientAddr_,sizeof(clientAddr_));
 }
 
-int AbMessenger::startThread()
+dronePosVec::progName AbMessenger::getName()
 {
-    if (classProgram_ == dronePosVec::camera) //this class does not have a send thread
+    return classProgram_;
+}
+bool AbMessenger::getConnection()
+{
+    return connected_;
+}
+
+int AbMessenger::joinThread()
+{
+    threadloop_ = false;
+    tRecv_.join();
+    tSend_.join();
+    return 0;
+}
+
+int AbMessenger::startThread(threadStartType startType)
+{
+    if (startType == threadStartType::recvOnly)
     {
         tRecv_ = std::thread([this]()
 		{
@@ -424,6 +403,15 @@ int AbMessenger::startThread()
         //std::thread(&AbMessenger::recvThread, this);
         tRecv_.detach();
     }
+    else if (startType == threadStartType::sendOnly)
+    {
+        tRecv_ = std::thread([this]()
+		{
+            recvThread();
+        });
+
+        tSend_.detach();
+    }
     else
     {
         tRecv_ = std::thread([this]()
@@ -432,11 +420,21 @@ int AbMessenger::startThread()
         });
         tSend_ = std::thread([this]()
 		{
-            recvThread();
+            sendThread();
         });
 
         tRecv_.detach();
         tSend_.detach();
     }
     return 0;
+}
+
+threadStartType AbMessenger::getThreadStart()
+{
+    return threadFuncs_;
+}
+
+void AbMessenger::setConnection(bool status)
+{
+    connected_ = status;
 }
