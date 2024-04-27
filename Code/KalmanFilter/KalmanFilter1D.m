@@ -54,7 +54,7 @@ stopTime = time(end);
 
 transPlot = figure(Name="TranslationPlot");
 
-transIndicesZ = (zQTM ~= trans(3));
+% transIndicesZ = (zQTM ~= trans(3));
 plot(time,zCV0, ...
     '.', 'Color',[109/255, 209/255, 255/255])
 hold on
@@ -66,10 +66,20 @@ plot(t,zQTMi, '.k', MarkerSize=1)
 speedPlot = figure(Name="SpeedPlot");
 
 % Preallocate Space
-zDotQTM = zeros(length(zCV0)-1,1);
-% Save Recorded Speed
+zDotQTM = zeros(length(zQTMi)-1,1);
+zDotDotQTM = zeros(length(zQTMi)-1,1);
+
+% Save Recorded Speed z'
+zDotQTM(1) = 0;
 for i = 2 : length(zQTMi)
     zDotQTM(i) = (zQTMi(i) - zQTMi(i-1))/dt;
+end
+
+% Save Recorded Acceleration z''
+% zDotDotQTM(1) = 0;
+for i = 2 : length(zQTMi)
+    zDotDotQTM(i) = (zDotQTM(i) - zDotQTM(i-1))/(dt); % [m/s^2]
+    % zDotDotQTM(i) = (zQTMi(i+1) - 2*zQTMi(i) + zQTMi(i-1))/(dt^2); % [m/s^2]
 end
 
 % zDotQTM = normalize(zDotQTM); % Normalization for troubleshooting
@@ -107,7 +117,7 @@ D = 0;
 I = eye(2);
 
 % Process Noise w_n
-Q = 500; % Covariance Matrix
+Q = 1; % Covariance Matrix
 % Measurement Noise v_n
 R = 0.1; % Covariance Matrix
 
@@ -132,12 +142,14 @@ for i = 2 : length(t)
     % detectList(i) = detected;
 
     % Update Input: Simulated Acceleration
-    u = (zQTMi(i) - zQTMi(i-1))/(dt^2);          % [m/s^2]
-    IMUsim(i) = u;
+    u = zDotDotQTM(i);
     
-    % Measurement Update - Update
-    % if detected
-    if ~isnan(y)
+    % Prediction
+    x = A*x + B*u;
+    P = A*P*A' + B*Q*B';
+
+    % Measurement Update
+    if ~isnan(y) % if detected
         Kk = (P*C')/(C*P*C' + R);
         x = x + Kk*(y - C*x);
         P = (I - Kk*C)*P;
@@ -146,10 +158,6 @@ for i = 2 : length(t)
     % Extract Filtered Value of position
     zKalman(i)    = x(1);
     zDotKalman(i) = x(2);
-
-    % Time Update - Prediction
-    x = A*x + B*u;
-    P = A*P*A' + B*Q*B';
 
     % Previous measurement if not detected
     yPrev = y;
