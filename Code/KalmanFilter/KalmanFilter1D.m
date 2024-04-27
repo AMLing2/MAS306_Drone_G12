@@ -48,18 +48,22 @@ zDotQTM =    zeros(length(zQTMi)-1,1);
 zDotDotQTM = zeros(length(zQTMi)-1,1);
 
 % Save Recorded Speed z'
-for i = 2 : length(zQTMi)
+for i = 2 : length(t)
     zDotQTM(i) = (zQTMi(i) - zQTMi(i-1))/dt;
 end
 
 % Save Recorded Acceleration z''
-for i = 2 : length(zQTMi)
+for i = 2 : length(t)
     zDotDotQTM(i) = (zDotQTM(i) - zDotQTM(i-1))/(dt); % [m/s^2]
 end
 
-Wn = wgn(1,2,3);
+pow = 10;
+Wn = wgn(length(zDotDotQTM),1,pow);
+% Signal-to-Noise Ratio
+% signal2noise = 1/50;
+% simIMU = awgn(zDotDotQTM, signal2noise);
 
-simIMU = zDotDotQTM;
+simIMU = zDotDotQTM + Wn;
 
 %%%%%%%%%% Speed/Acceleration Setup %%%%%%%%%%
 
@@ -69,7 +73,7 @@ x = [ zQTM(1); zDotQTM(1)];  % Start [z, zDot]
 
 % Preallocate Space
 zKalman = zeros(length(t),1);
-IMUsim  = zeros(length(t),1);
+% IMUsim  = zeros(length(t),1);
 zDotKalman = zeros(length(t),1);
 
 % State Transition Matrix
@@ -171,5 +175,24 @@ icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
 
 ylabel('zDot [m/s]')
+xlabel('Time [seconds]')
+xlim([startTime stopTime])
+
+%%%%%%%%%%%%%%%%%% Plot Accelerations %%%%%%%%%%%%%%%%%%
+accPlot = figure(Name="AccPlot");
+
+% Plot Simulation with Noise
+plot(t,simIMU, '.g')
+hold on
+
+% Plot QTM Acceleration
+plot(t,zDotDotQTM, '.k')
+
+[a, icons] = legend('zDotDotQTM', 'IMUsim', 'Location','eastoutside');
+% Change size of legend icons
+icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
+set(icons, 'MarkerSize', 20)
+
+ylabel('zDotDot [m/s^2]')
 xlabel('Time [seconds]')
 xlim([startTime stopTime])
