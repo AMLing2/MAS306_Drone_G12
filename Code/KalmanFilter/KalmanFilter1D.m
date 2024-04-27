@@ -57,11 +57,13 @@ for i = 2 : length(t)
     zDotDotQTM(i) = (zDotQTM(i) - zDotQTM(i-1))/(dt); % [m/s^2]
 end
 
-pow = 10;
-Wn = wgn(length(zDotDotQTM),1,pow);
-% Signal-to-Noise Ratio
-% signal2noise = 1/50;
-% simIMU = awgn(zDotDotQTM, signal2noise);
+% Output Noise Density - Datasheet BMI088
+ond = 190;      % [ug/sqrt(Hz)]
+g = 9.80665;    % [m/s^2]
+% Convert to scalar
+scale = ond*g/(10^6)/sqrt(Hz);
+% Zero Mean White Gaussian Noise
+Wn = wgn(length(zDotDotQTM),1,scale, 'linear');
 
 simIMU = zDotDotQTM + Wn;
 
@@ -182,13 +184,13 @@ xlim([startTime stopTime])
 accPlot = figure(Name="AccPlot");
 
 % Plot Simulation with Noise
-plot(t,simIMU, '.g')
+plot(t,simIMU, 'og')
 hold on
 
 % Plot QTM Acceleration
 plot(t,zDotDotQTM, '.k')
 
-[a, icons] = legend('zDotDotQTM', 'IMUsim', 'Location','eastoutside');
+[a, icons] = legend('IMUsim', 'zDotDotQTM', 'Location','eastoutside');
 % Change size of legend icons
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
