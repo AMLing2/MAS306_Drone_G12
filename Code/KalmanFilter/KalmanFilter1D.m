@@ -41,7 +41,7 @@ zQTMi = interp1(time(~isnan(zQTMi)), zQTMi(~isnan(zQTMi)), t);
 
 %%%%%%%%%%%%%%%% Interpolation Setup %%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%% Speed Setup %%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%% Speed/Acceleration Setup %%%%%%%%%%
 
 % Preallocate Space
 zDotQTM =    zeros(length(zQTMi)-1,1);
@@ -57,7 +57,11 @@ for i = 2 : length(zQTMi)
     zDotDotQTM(i) = (zDotQTM(i) - zDotQTM(i-1))/(dt); % [m/s^2]
 end
 
-%%%%%%%%%%%%%%%%%%%% Speed Setup %%%%%%%%%%%%%%%%%%%%
+Wn = wgn(1,2,3);
+
+simIMU = zDotDotQTM;
+
+%%%%%%%%%% Speed/Acceleration Setup %%%%%%%%%%
 
 % Initialization
 timeTol = 0.01;     % Sync low sps to high sps
