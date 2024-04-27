@@ -131,7 +131,7 @@ exportgraphics(transPlot, ['poseTest_',num2str(testNr), '_TransPlot.pdf'], ...
 %%%%%%%%%%%%%%%%%%%% Translation Plotting %%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%% Temporal Translation Diff Plotting %%%%%%%%%%%%%
-transDiffPlot = figure(Name='TransDiffPlot');
+transDiffTemporalPlot = figure(Name='TransDiffPlot');
 sgtitle('Difference between transVector[0] and QTM as function of time')
 dLims = 0.3;
 
@@ -174,9 +174,9 @@ ylim([-dLims dLims])
 
 % Export figure
 %set(transPlot,'units','normalized','outerposition',[0 0 1 1])
-saveas(transDiffPlot, ['poseTest_',num2str(testNr), '_transDiffPlot'])
+saveas(transDiffTemporalPlot, ['poseTest_',num2str(testNr), '_transDiffTemporalPlot'])
 %saveas(transPlot, ['poseTest_',num2str(testNr), '_TransPlot.pdf'])
-exportgraphics(transPlot, ['poseTest_',num2str(testNr), '_transDiffPlot.pdf'], ...
+exportgraphics(transDiffTemporalPlot, ['poseTest_',num2str(testNr), '_transDiffTemporalPlot.pdf'], ...
                'ContentType', 'vector');
 %%%%%%%%%%%%% Temporal Translation Diff Plotting %%%%%%%%%%%%%
 
@@ -226,7 +226,7 @@ ylim([-dLims dLims])
 %set(transPlot,'units','normalized','outerposition',[0 0 1 1])
 saveas(transDiffPlot, ['poseTest_',num2str(testNr), '_transDiffPlot'])
 %saveas(transPlot, ['poseTest_',num2str(testNr), '_TransPlot.pdf'])
-exportgraphics(transPlot, ['poseTest_',num2str(testNr), '_transDiffPlot.pdf'], ...
+exportgraphics(transDiffPlot, ['poseTest_',num2str(testNr), '_transDiffPlot.pdf'], ...
                'ContentType', 'vector');
 %%%%%%%%%%%%%%% Translation Diff Plotting - Pos %%%%%%%%%%%%%%
 %%
