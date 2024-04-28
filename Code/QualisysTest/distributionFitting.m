@@ -1,70 +1,122 @@
 clc; clear; close all;
 
 %%%%%%%%%%%%%%% Translation Diff Plotting - Pos %%%%%%%%%%%%%%
+
+for testNr = 0 : 4
+    if testNr ~= 3
+        fileName = ['ExportedResults_', num2str(testNr), '.csv'];
+        data = csvread(fileName, 1,0);
+        if testNr == 0
+            time = data(:,1);
+            xQTM = data(:,2);
+            yQTM = data(:,3);
+            zQTM = data(:,4);
+            xCV0 = data(:,5);
+            yCV0 = -data(:,6); % Flip axis, different frames
+            zCV0 = data(:,7);
+        else
+            time = [time; data(:,1)];
+            xQTM = [xQTM; data(:,2)];
+            yQTM = [yQTM; data(:,3)];
+            zQTM = [zQTM; data(:,4)];
+            xCV0 = [xCV0; data(:,5)];
+            yCV0 = [yCV0; -data(:,6)]; % Flip axis, different frames
+            zCV0 = [zCV0; data(:,7)];
+            % xCV1 = data(:,35)];
+            % yCV1 = -data(:,36)]; % Same here
+            % zCV1 = data(:,37)];
+        end
+    end
+end
+trans = [0.190 0.143 1.564]; % Physically measured in m
+
 transDiffPlot = figure(Name='TransDiffPlot2');
 sgtitle('Difference between transVector[0] and QTM as function of QTM')
 dLims = 0.3;
 
-for testNr = 0 : 4
-    if testNr ~= 3
-    fileName = ['ExportedResults_', num2str(testNr), '.csv'];
-    data = csvread(fileName, 1,0);
-    
-    time = data(:,1);
-    xQTM = data(:,2);
-    yQTM = data(:,3);
-    zQTM = data(:,4);
-    xCV0 = data(:,5);
-    yCV0 = -data(:,6); % Flip axis, different frames
-    zCV0 = data(:,7);
-    xCV1 = data(:,35);
-    yCV1 = -data(:,36); % Same here
-    zCV1 = data(:,37);
-    
-    trans = [0.190 0.143 1.564]; % Physically measured in m
-    
-    % X plotting
-    transIndicesX = (xQTM ~= trans(1));
-    subplot(3,1,1)
-    hold on
-    xDiff = xQTM(transIndicesX) - xCV0(transIndicesX);
-    plot(xQTM(transIndicesX),xDiff, '.r')
-    ylabel('difference [m]')
-    xlabel('x [m]')
-    % xlim([startTime stopTime])
-    ylim([-dLims dLims])
-    
-    % Y plotting - Remember to flip sign, only axis which is aligned
-    transIndicesY = (yQTM ~= trans(2));
-    subplot(3,1,2)
-    hold on
-    yDiff = yQTM(transIndicesY) - yCV0(transIndicesY);
-    plot(yQTM(transIndicesY),yDiff, '.g')
-    ylabel('difference [m]')
-    xlabel('y [m]')
-    % xlim([startTime stopTime])
-    ylim([-dLims dLims])
-    
-    % Z plotting
-    transIndicesZ = (zQTM ~= trans(3));
-    subplot(3,1,3)
-    hold on
-    zDiff = zQTM(transIndicesZ) - zCV0(transIndicesZ);
-    plot(zQTM(transIndicesZ),zDiff, '.', 'Color',[109/255, 209/255, 255/255])
+% X plotting
+transIndicesX = (xQTM ~= trans(1));
+subplot(3,1,1)
+xDiff = xQTM(transIndicesX) - xCV0(transIndicesX);
+plot(xQTM(transIndicesX),xDiff, '.r')
+ylabel('difference [m]')
+xlabel('x [m]')
+% xlim([startTime stopTime])
+ylim([-dLims dLims])
+
+% Y plotting - Remember to flip sign, only axis which is aligned
+transIndicesY = (yQTM ~= trans(2));
+subplot(3,1,2)
+yDiff = yQTM(transIndicesY) - yCV0(transIndicesY);
+plot(yQTM(transIndicesY),yDiff, '.g')
+ylabel('difference [m]')
+xlabel('y [m]')
+% xlim([startTime stopTime])
+ylim([-dLims dLims])
+
+% Z plotting
+transIndicesZ = (zQTM ~= trans(3));
+subplot(3,1,3)
+zDiff = zQTM(transIndicesZ) - zCV0(transIndicesZ);
+plot(zQTM(transIndicesZ),zDiff, '.', 'Color',[109/255, 209/255, 255/255])
+ylabel('difference [m]')
+xlabel('z [m]')
+% xlim([startTime stopTime])
+ylim([-dLims dLims])
+
+%% Extract Intervals
+
+zQTM = zQTM(transIndicesZ);
+
+% Split the data into evenly distributed intervals
+distNums = 9;
+intervals = linspace(0.10, 1.55, (distNums+1));
+
+% Sort the lists to ascending order
+[zQTMsorted, zQTMindices] = sort(zQTM);
+zDiffSorted = zDiff(zQTMindices);
+
+[~, closestIdx] = min( abs(zQTMsorted - intervals));
+
+intervalPlots = figure(Name="intervalPlots");
+sgtitle('Interval Plots of z-axis')
+for i = 1 : distNums
+    subplot(3,3,i)
+    plot(zQTMsorted(closestIdx(i):closestIdx(i+1)), ...
+        zDiffSorted(closestIdx(i):closestIdx(i+1)),       ...
+        '.', 'Color',[109/255, 209/255, 255/255])
     ylabel('difference [m]')
     xlabel('z [m]')
-    % xlim([startTime stopTime])
     ylim([-dLims dLims])
-    
-    % Export figure
-    %set(transPlot,'units','normalized','outerposition',[0 0 1 1])
-    % saveas(transDiffPlot, ['poseTest_',num2str(testNr), '_transDiffPlot'])
-    %saveas(transPlot, ['poseTest_',num2str(testNr), '_TransPlot.pdf'])
-    % exportgraphics(transDiffPlot, ['poseTest_',num2str(testNr), '_transDiffPlot.pdf'], ...
-    %                'ContentType', 'vector');
-    %%%%%%%%%%%%%%% Translation Diff Plotting - Pos %%%%%%%%%%%%%%
-    end
 end
+
+% tolerance = 0.01;  % [m]
+% for i = 1 : length(intervals)
+    % closest = zQTM(idx)
+    
+    % closestIdx = find(zQTM == closest)
+% end
+
+% for i = 1 : distNums
+%     intervalIndices = (zQTMsorted >= intervals(i)) & (zQTM < intervals(i+1));
+%     figure
+%     plot(zQTM)
+% 
+% end
+
+
+
+% for i = 1 : length(intervals)
+%     if zDiff(i) < intervals
+% end
+
+% Export figure
+%set(transPlot,'units','normalized','outerposition',[0 0 1 1])
+% saveas(transDiffPlot, ['poseTest_',num2str(testNr), '_transDiffPlot'])
+%saveas(transPlot, ['poseTest_',num2str(testNr), '_TransPlot.pdf'])
+% exportgraphics(transDiffPlot, ['poseTest_',num2str(testNr), '_transDiffPlot.pdf'], ...
+%                'ContentType', 'vector');
+%%%%%%%%%%%%%%% Translation Diff Plotting - Pos %%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%% Translation Analysis %%%%%%%%%%%%%%%%%%%%
 % 
