@@ -107,7 +107,17 @@ for i = 1 : distNums
     % eval([curDiffName, '= curDiff;'])
 end
 
-pd = fitdist(intervalLists{1,1,2}, 'normal')
+subplot(3,3,1)
+midVal = mean(xlim);
+
+pd = fitdist(intervalLists{1,1,2}, 'normal');
+y = midVal - pdf(pd, zDiff)*0.0002;
+% pdfVals = normpdf(intervalLists{1,1,2}, mu, sigma);
+
+hold on
+plot(y,zDiff,'.k', MarkerSize=1)
+ylim([-0.015 0.015])
+
 
 % tolerance = 0.01;  % [m]
 % for i = 1 : length(intervals)
