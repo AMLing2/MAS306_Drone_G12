@@ -76,19 +76,38 @@ intervals = linspace(0.10, 1.55, (distNums+1));
 [zQTMsorted, zQTMindices] = sort(zQTM);
 zDiffSorted = zDiff(zQTMindices);
 
+% Find indices closest to bounds of intervals
 [~, closestIdx] = min( abs(zQTMsorted - intervals));
+
+% Make cell to export lists to
+intervalLists = cell(distNums,1,2);
 
 intervalPlots = figure(Name="intervalPlots");
 sgtitle('Interval Plots of z-axis')
 for i = 1 : distNums
+    % Save current interval values
+    curQTM = zQTMsorted( closestIdx(i):closestIdx(i+1) );
+    curDiff = zDiffSorted( closestIdx(i):closestIdx(i+1) );
+
+    % Plot intervals
     subplot(3,3,i)
-    plot(zQTMsorted(closestIdx(i):closestIdx(i+1)), ...
-        zDiffSorted(closestIdx(i):closestIdx(i+1)),       ...
-        '.', 'Color',[109/255, 209/255, 255/255])
+    plot(curQTM, curDiff,'.', 'Color',[109/255, 209/255, 255/255])
     ylabel('difference [m]')
     xlabel('z [m]')
     ylim([-dLims dLims])
+
+    % Export data
+    intervalLists{i,1,1} = curQTM;
+    intervalLists{i,1,2} = curDiff;
+
+    % Export intervals - UiO gpt tip
+    % curQTMname = ['zQTMs_', num2str(distNums)];
+    % curDiffName = ['zDiff_', num2str(distNums)];
+    % eval([curQTMname, '= curQTM;'])
+    % eval([curDiffName, '= curDiff;'])
 end
+
+pd = fitdist(intervalLists{1,1,2}, 'normal')
 
 % tolerance = 0.01;  % [m]
 % for i = 1 : length(intervals)
