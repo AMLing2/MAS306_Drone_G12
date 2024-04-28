@@ -93,9 +93,14 @@ D = 0;
 I = eye(2);
 
 % Process Noise w_n
-Q = 0.1; % Covariance (Matrix)
+Q = 0.01; % Covariance (Matrix)
+
+% Sigma import: f(x) = p1*x + p2
+p1 = 0.0378;
+p2 = -0.0032;
+
 % Measurement Noise v_n
-R = 0.1; % Covariance (Matrix)
+R = 0.15; % Covariance (Matrix)
 
 % State Covariance (Matrix)
 P = B*Q*B';
@@ -117,6 +122,9 @@ for i = 2 : length(t)
 
     % Update Input: Simulated Acceleration
     u = zDotDotQTM(i);
+
+    % Update Measurement Noise
+    R = p1*y + p2;
     
     % Prediction
     x = A*x + B*u;
