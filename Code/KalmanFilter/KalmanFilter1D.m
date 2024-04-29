@@ -65,7 +65,10 @@ scale = ond*g/(10^6)/sqrt(Hz);
 % Zero Mean White Gaussian Noise
 Wn = wgn(length(zDotDotQTM),1,scale, 'linear');
 
+% Noisy IMU signal
 simIMU = zDotDotQTM + Wn;
+% Standard Deviation for Covariance (matrix) Q
+% stdDevIMU = std(Wn);
 
 %%%%%%%%%% Speed/Acceleration Setup %%%%%%%%%%
 
@@ -75,7 +78,6 @@ x = [ zQTM(1); zDotQTM(1)];  % Start [z, zDot]
 
 % Preallocate Space
 zKalman = zeros(length(t),1);
-% IMUsim  = zeros(length(t),1);
 zDotKalman = zeros(length(t),1);
 
 % State Transition Matrix
@@ -93,7 +95,8 @@ D = 0;
 I = eye(2);
 
 % Process Noise w_n
-Q = 0.01; % Covariance (Matrix)
+Q = cov(Wn); % Covariance (Matrix)
+% Q = stdDevIMU^2;
 
 % Sigma import: f(x) = p1*x + p2
 p1 = 0.0378;
@@ -121,7 +124,7 @@ for i = 2 : length(t)
     end
 
     % Update Input: Simulated Acceleration
-    u = zDotDotQTM(i);
+    u = simIMU(i);
 
     % Update Measurement Noise
     R = p1*y + p2;
