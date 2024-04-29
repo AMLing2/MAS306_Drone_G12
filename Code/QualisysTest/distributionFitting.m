@@ -32,7 +32,9 @@ trans = [0.190 0.143 1.564]; % Physically measured in m
 
 transDiffPlot = figure(Name='TransDiffPlot2');
 sgtitle('Difference between transVector[0] and QTM as function of QTM')
-dLims = 0.3;
+xLimsY = 0.15;
+yLimsY = 0.15;
+zLimsY = 0.3;
 
 % X plotting
 transIndicesX = (xQTM ~= trans(1));
@@ -42,7 +44,7 @@ plot(xQTM(transIndicesX),xDiff, '.r')
 ylabel('difference [m]')
 xlabel('x [m]')
 % xlim([startTime stopTime])
-ylim([-dLims dLims])
+ylim([-xLimsY xLimsY])
 
 % Y plotting - Remember to flip sign, only axis which is aligned
 transIndicesY = (yQTM ~= trans(2));
@@ -52,7 +54,7 @@ plot(yQTM(transIndicesY),yDiff, '.g')
 ylabel('difference [m]')
 xlabel('y [m]')
 % xlim([startTime stopTime])
-ylim([-dLims dLims])
+ylim([-yLimsY yLimsY])
 
 % Z plotting
 transIndicesZ = (zQTM ~= trans(3));
@@ -62,32 +64,29 @@ plot(zQTM(transIndicesZ),zDiff, '.', 'Color',[109/255, 209/255, 255/255])
 ylabel('difference [m]')
 xlabel('z [m]')
 % xlim([startTime stopTime])
-ylim([-dLims dLims])
+ylim([-zLimsY zLimsY])
 
-%% Extract Intervals
+%% Z Distributions
 
 zQTM = zQTM(transIndicesZ);
-
-% Split the data into evenly distributed intervals
-distNums = 9;
-intervals = linspace(0.10, 1.55, (distNums+1));
 
 % Sort the lists to ascending order
 [zQTMsorted, zQTMindices] = sort(zQTM);
 zDiffSorted = zDiff(zQTMindices);
 
+% Split the data into evenly distributed intervals
+distNums = 9;
+intervals = linspace(zQTMsorted(1), zQTMsorted(end), (distNums+1));
+
 % Find indices closest to bounds of intervals
 [~, closestIdx] = min( abs(zQTMsorted - intervals));
 
-% Make cell to export lists to
-intervalLists = cell(distNums,1,2);
-
 % Allocate space for distribution lists
-stdDev = zeros(distNums, 1);
-expVal = zeros(distNums, 1);
-intervalMid = zeros(distNums, 1);
+zStdDev = zeros(distNums, 1);
+zExpVal = zeros(distNums, 1);
+zIntervalMid = zeros(distNums, 1);
 
-intervalPlots = figure(Name="intervalPlots");
+zIntervalPlots = figure(Name="zIntervalPlots");
 sgtitle('Interval Plots of z-axis')
 
 for i = 1 : distNums
@@ -100,19 +99,19 @@ for i = 1 : distNums
     plot(curQTM, curDiff,'.', 'Color',[109/255, 209/255, 255/255])
     ylabel('difference [m]')
     xlabel('z [m]')
-    ylim([-dLims dLims])
+    ylim([-zLimsY zLimsY])
     midVal = mean(xlim);
-    intervalMid(i) = midVal;
+    zIntervalMid(i) = midVal;
 
     % Scale for distribution plotting
     xLims = xlim;
     distScale = ( xLims(2) - xLims(1) )/3;
 
     % Fit Normal Distribution
-    pd = fitdist(curDiff, 'normal');
-    y = midVal - normalize( pdf(pd, zDiff), 'range' ) * distScale;
-    stdDev(i) = pd.sigma;
-    expVal(i) = pd.mu;
+    zPD = fitdist(curDiff, 'normal');
+    y = midVal - normalize( pdf(zPD, zDiff), 'range' ) * distScale;
+    zStdDev(i) = zPD.sigma;
+    zExpVal(i) = zPD.mu;
     
     % Plot Distribution
     hold on 
@@ -123,11 +122,135 @@ end
 fig = gcf;
 fig.Position(3) = fig.Position(3) + 250;
 % Add common legend outside subplots
-[lgd, icons] = legend('zDiff', 'Distribution');
+[lgd, icons] = legend('zDiff', 'zDistribution');
 lgd.Position(1) = 0.0;
 lgd.Position(2) = 0.5;
 % Change size of legend icons
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
 
+%% X Distributions
 
+xQTM = xQTM(transIndicesX);
+
+% Sort the lists to ascending order
+[xQTMsorted, xQTMindices] = sort(xQTM);
+xDiffSorted = xDiff(xQTMindices);
+
+% Split the data into evenly distributed intervals
+distNums = 9;
+intervals = linspace(xQTMsorted(1), xQTMsorted(end), (distNums+1));
+
+% Find indices closest to bounds of intervals
+[~, closestIdx] = min( abs(xQTMsorted - intervals));
+
+% Allocate space for distribution lists
+xStdDev = zeros(distNums, 1);
+xExpVal = zeros(distNums, 1);
+xIntervalMid = zeros(distNums, 1);
+
+xIntervalPlots = figure(Name="xIntervalPlots");
+sgtitle('Interval Plots of x-axis')
+
+for i = 1 : distNums
+    % Save current interval values
+    curQTM = xQTMsorted( closestIdx(i):closestIdx(i+1) );
+    curDiff = xDiffSorted( closestIdx(i):closestIdx(i+1) );
+
+    % Plot intervals
+    subplot(3,3,i)
+    plot(curQTM, curDiff,'.r')
+    ylabel('difference [m]')
+    xlabel('x [m]')
+    ylim([-xLimsY xLimsY])
+    midVal = mean(xlim);
+    xIntervalMid(i) = midVal;
+
+    % Scale for distribution plotting
+    xLims = xlim;
+    distScale = ( xLims(2) - xLims(1) )/3;
+
+    % Fit Normal Distribution
+    xPD = fitdist(curDiff, 'normal');
+    y = midVal - normalize( pdf(xPD, xDiff), 'range' ) * distScale;
+    xStdDev(i) = xPD.sigma;
+    xExpVal(i) = xPD.mu;
+    
+    % Plot Distribution
+    hold on 
+    plot(y, xDiff, '.k', MarkerSize=1)
+end
+
+% Add a bit space to the figure
+fig = gcf;
+fig.Position(3) = fig.Position(3) + 250;
+% Add common legend outside subplots
+[lgd, icons] = legend('xDiff', 'xDistribution');
+lgd.Position(1) = 0.0;
+lgd.Position(2) = 0.5;
+% Change size of legend icons
+icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
+set(icons, 'MarkerSize', 20)
+
+%% Y Distributions
+
+yQTM = yQTM(transIndicesX);
+
+% Sort the lists to ascending order
+[yQTMsorted, yQTMindices] = sort(yQTM);
+yDiffSorted = yDiff(yQTMindices);
+
+% Split the data into evenly distributed intervals
+distNums = 16;
+intervals = linspace(yQTMsorted(1), yQTMsorted(end), (distNums+1));
+
+% Find indices closest to bounds of intervals
+[~, closestIdx] = min( abs(yQTMsorted - intervals));
+
+% Allocate space for distribution lists
+yStdDev = zeros(distNums, 1);
+yExpVal = zeros(distNums, 1);
+yIntervalMid = zeros(distNums, 1);
+
+yIntervalPlots = figure(Name="yIntervalPlots");
+sgtitle('Interval Plots of y-axis')
+
+for i = 1 : distNums
+    % Save current interval values
+    curQTM = yQTMsorted( closestIdx(i):closestIdx(i+1) );
+    curDiff = yDiffSorted( closestIdx(i):closestIdx(i+1) );
+
+    % Plot intervals
+    subplot(4,4,i)
+    plot(curQTM, curDiff,'.g')
+    ylabel('difference [m]')
+    xlabel('y [m]')
+    ylim([-yLimsY yLimsY])
+    midVal = mean(xlim);
+    yIntervalMid(i) = midVal;
+
+    % Scale for distribution plotting
+    xLims = xlim;
+    distScale = ( xLims(2) - xLims(1) )/3;
+
+    % Fit Normal Distribution
+    yPD = fitdist(curDiff, 'normal');
+    y = midVal - normalize( pdf(yPD, yDiff), 'range' ) * distScale;
+    yStdDev(i) = yPD.sigma;
+    yExpVal(i) = yPD.mu;
+    
+    % Plot Distribution
+    hold on 
+    plot(y, yDiff, '.k', MarkerSize=1)
+end
+
+% Add a bit space to the figure
+fig = gcf;
+fig.Position(3) = fig.Position(3) + 250;
+% Add common legend outside subplots
+[lgd, icons] = legend('yDiff', 'yDistribution');
+lgd.Position(1) = 0.0;
+lgd.Position(2) = 0.5;
+% Change size of legend icons
+icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
+set(icons, 'MarkerSize', 20)
