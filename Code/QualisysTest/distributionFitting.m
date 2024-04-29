@@ -3,7 +3,7 @@ clc; clear; close all;
 %%%%%%%%%%%%%%% Translation Diff Plotting - Pos %%%%%%%%%%%%%%
 
 for testNr = 0 : 4
-    if testNr ~= 3
+    if (testNr ~= 3)
         fileName = ['ExportedResults_', num2str(testNr), '.csv'];
         data = csvread(fileName, 1,0);
         if testNr == 0
@@ -30,6 +30,9 @@ for testNr = 0 : 4
 end
 trans = [0.190 0.143 1.564]; % Physically measured in m
 
+% Size of dots in transPlot
+tSize = 1;
+
 transDiffPlot = figure(Name='TransDiffPlot2');
 sgtitle('Difference between transVector[0] and QTM as function of QTM')
 xLimY1 = -0.07;
@@ -43,7 +46,7 @@ zLimY2 =  0.28;
 transIndicesX = (xQTM ~= trans(1));
 subplot(3,1,1)
 xDiff = xQTM(transIndicesX) - xCV0(transIndicesX);
-plot(xQTM(transIndicesX),xDiff, '.r')
+plot(xQTM(transIndicesX),xDiff, '.r', MarkerSize=tSize)
 ylabel('difference [m]')
 xlabel('x [m]')
 xlim([-0.5 0.6])
@@ -53,7 +56,7 @@ ylim([xLimY1 xLimY2])
 transIndicesY = (yQTM ~= trans(2));
 subplot(3,1,2)
 yDiff = yQTM(transIndicesY) - yCV0(transIndicesY);
-plot(yQTM(transIndicesY),yDiff, '.g')
+plot(yQTM(transIndicesY),yDiff, '.g', MarkerSize=tSize)
 ylabel('difference [m]')
 xlabel('y [m]')
 ylim([yLimY1 yLimY2])
@@ -62,7 +65,8 @@ ylim([yLimY1 yLimY2])
 transIndicesZ = (zQTM ~= trans(3));
 subplot(3,1,3)
 zDiff = zQTM(transIndicesZ) - zCV0(transIndicesZ);
-plot(zQTM(transIndicesZ),zDiff, '.', 'Color',[109/255, 209/255, 255/255])
+plot(zQTM(transIndicesZ),zDiff, '.', 'Color', ...
+    [109/255, 209/255, 255/255], MarkerSize=tSize)
 ylabel('difference [m]')
 xlabel('z [m]')
 xlim([0.1 1.6])
