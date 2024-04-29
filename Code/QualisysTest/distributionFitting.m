@@ -32,9 +32,12 @@ trans = [0.190 0.143 1.564]; % Physically measured in m
 
 transDiffPlot = figure(Name='TransDiffPlot2');
 sgtitle('Difference between transVector[0] and QTM as function of QTM')
-xLimsY = 0.15;
-yLimsY = 0.15;
-zLimsY = 0.3;
+xLimY1 = -0.07;
+xLimY2 =  0.12;
+yLimY1 = -0.06;
+yLimY2 =  0.11;
+zLimY1 = -0.25;
+zLimY2 =  0.28;
 
 % X plotting
 transIndicesX = (xQTM ~= trans(1));
@@ -43,8 +46,8 @@ xDiff = xQTM(transIndicesX) - xCV0(transIndicesX);
 plot(xQTM(transIndicesX),xDiff, '.r')
 ylabel('difference [m]')
 xlabel('x [m]')
-% xlim([startTime stopTime])
-ylim([-xLimsY xLimsY])
+xlim([-0.5 0.6])
+ylim([xLimY1 xLimY2])
 
 % Y plotting - Remember to flip sign, only axis which is aligned
 transIndicesY = (yQTM ~= trans(2));
@@ -53,8 +56,7 @@ yDiff = yQTM(transIndicesY) - yCV0(transIndicesY);
 plot(yQTM(transIndicesY),yDiff, '.g')
 ylabel('difference [m]')
 xlabel('y [m]')
-% xlim([startTime stopTime])
-ylim([-yLimsY yLimsY])
+ylim([yLimY1 yLimY2])
 
 % Z plotting
 transIndicesZ = (zQTM ~= trans(3));
@@ -63,8 +65,12 @@ zDiff = zQTM(transIndicesZ) - zCV0(transIndicesZ);
 plot(zQTM(transIndicesZ),zDiff, '.', 'Color',[109/255, 209/255, 255/255])
 ylabel('difference [m]')
 xlabel('z [m]')
-% xlim([startTime stopTime])
-ylim([-zLimsY zLimsY])
+xlim([0.1 1.6])
+ylim([zLimY1 zLimY2])
+
+% Variables for distributions
+distDotSize = 1; % Size of plotted points
+boxTrans = 0.07; % Color of boxes outside \pm 1*sigma
 
 %% Z Distributions
 
@@ -94,12 +100,18 @@ for i = 1 : distNums
     curQTM = zQTMsorted( closestIdx(i):closestIdx(i+1) );
     curDiff = zDiffSorted( closestIdx(i):closestIdx(i+1) );
 
+    % Find horizontal bounds
+    left  = min(curQTM);
+    right = max(curQTM);
+
     % Plot intervals
     subplot(3,3,i)
-    plot(curQTM, curDiff,'.', 'Color',[109/255, 209/255, 255/255])
+    plot(curQTM, curDiff,'.', 'Color',[109/255, 209/255, 255/255], ...
+        MarkerSize=distDotSize)
     ylabel('difference [m]')
     xlabel('z [m]')
-    ylim([-zLimsY zLimsY])
+    xlim([left right])
+    ylim([zLimY1 zLimY2])
     midVal = mean(xlim);
     zIntervalMid(i) = midVal;
 
@@ -115,7 +127,17 @@ for i = 1 : distNums
     
     % Plot Distribution
     hold on 
-    plot(y, zDiff, '.k', MarkerSize=1)
+    % plot(y, zDiff, '.k', MarkerSize=1)
+    yline(zExpVal(i)+zStdDev(i), 'k')%, LineWidth=1)
+    yline(zPD.mu-zPD.sigma, 'k')%, LineWidth=1)
+    % Grey area below
+    patch([left, right, right, left], ...
+          [zLimY1,       zLimY1,    zPD.mu-zPD.sigma, zPD.mu-zPD.sigma], ...
+          'k', 'FaceAlpha', boxTrans, 'EdgeColor', 'none')
+    % Grey area above
+    patch([left, right, right, left], ...
+          [zPD.mu+zPD.sigma, zPD.mu+zPD.sigma, zLimY2, zLimY2], ...
+          'k', 'FaceAlpha', boxTrans, 'EdgeColor', 'none')
 end
 
 % Add a bit space to the figure
@@ -157,12 +179,17 @@ for i = 1 : distNums
     curQTM = xQTMsorted( closestIdx(i):closestIdx(i+1) );
     curDiff = xDiffSorted( closestIdx(i):closestIdx(i+1) );
 
+    % Find horizontal bounds
+    left  = min(curQTM);
+    right = max(curQTM);
+
     % Plot intervals
     subplot(3,3,i)
-    plot(curQTM, curDiff,'.r')
+    plot(curQTM, curDiff,'.r', MarkerSize=distDotSize)
     ylabel('difference [m]')
     xlabel('x [m]')
-    ylim([-xLimsY xLimsY])
+    xlim([left right])
+    ylim([xLimY1 xLimY2])
     midVal = mean(xlim);
     xIntervalMid(i) = midVal;
 
@@ -178,7 +205,17 @@ for i = 1 : distNums
     
     % Plot Distribution
     hold on 
-    plot(y, xDiff, '.k', MarkerSize=1)
+    % plot(y, xDiff, '.k', MarkerSize=1)
+    yline(xExpVal(i)+xStdDev(i), 'k')%, LineWidth=1)
+    yline(xPD.mu-xPD.sigma, 'k')%, LineWidth=1)
+    % Grey area below
+    patch([left, right, right, left], ...
+          [xLimY1,       xLimY1,    xPD.mu-xPD.sigma, xPD.mu-xPD.sigma], ...
+          'k', 'FaceAlpha', boxTrans, 'EdgeColor', 'none')
+    % Grey area above
+    patch([left, right, right, left], ...
+          [xPD.mu+xPD.sigma, xPD.mu+xPD.sigma, xLimY2, xLimY2], ...
+          'k', 'FaceAlpha', boxTrans, 'EdgeColor', 'none')
 end
 
 % Add a bit space to the figure
@@ -201,7 +238,7 @@ yQTM = yQTM(transIndicesX);
 yDiffSorted = yDiff(yQTMindices);
 
 % Split the data into evenly distributed intervals
-distNums = 16;
+distNums = 9;
 intervals = linspace(yQTMsorted(1), yQTMsorted(end), (distNums+1));
 
 % Find indices closest to bounds of intervals
@@ -219,13 +256,18 @@ for i = 1 : distNums
     % Save current interval values
     curQTM = yQTMsorted( closestIdx(i):closestIdx(i+1) );
     curDiff = yDiffSorted( closestIdx(i):closestIdx(i+1) );
+    
+    % Find horizontal bounds
+    left  = min(curQTM);
+    right = max(curQTM);
 
     % Plot intervals
-    subplot(4,4,i)
-    plot(curQTM, curDiff,'.g')
+    subplot(3,3,i)
+    plot(curQTM, curDiff,'.g', MarkerSize=distDotSize)
     ylabel('difference [m]')
     xlabel('y [m]')
-    ylim([-yLimsY yLimsY])
+    xlim([left, right])
+    ylim([yLimY1 yLimY2])
     midVal = mean(xlim);
     yIntervalMid(i) = midVal;
 
@@ -241,7 +283,17 @@ for i = 1 : distNums
     
     % Plot Distribution
     hold on 
-    plot(y, yDiff, '.k', MarkerSize=1)
+    % plot(y, yDiff, '.k', MarkerSize=1)
+    yline(yExpVal(i)+yStdDev(i), 'k')%, LineWidth=0.8)
+    yline(yPD.mu-yPD.sigma, 'k')%, LineWidth=0.8)
+    % Grey area below
+    patch([left, right, right, left], ...
+          [yLimY1,       yLimY1,    yPD.mu-yPD.sigma, yPD.mu-yPD.sigma], ...
+          'k', 'FaceAlpha', boxTrans, 'EdgeColor', 'none')
+    % Grey area above
+    patch([left, right, right, left], ...
+          [yPD.mu+yPD.sigma, yPD.mu+yPD.sigma, yLimY2, yLimY2], ...
+          'k', 'FaceAlpha', boxTrans, 'EdgeColor', 'none')
 end
 
 % Add a bit space to the figure
