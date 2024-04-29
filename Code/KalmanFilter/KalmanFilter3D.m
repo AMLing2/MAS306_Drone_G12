@@ -39,32 +39,32 @@ yQTMi = interp1(time(~isnan(yQTMi)), yQTMi(~isnan(yQTMi)), t);
 zQTMi = interp1(time(~isnan(zQTMi)), zQTMi(~isnan(zQTMi)), t);
 
 %%%%% Interpolation Plotting %%%%%
-    % X
-figure(Name="xQTMinterpolation");
-plot(t, xQTMi,'.y')
-hold on
-% plot(t, zQTMiSpline,'.g', MarkerSize=2)
-plot(time,xQTM, '.k', MarkerSize=1)
-title('Interpolation of QTM data: x')
-legend('xInterpolatedQTM', 'xQTM', 'Location', 'best')
-
-    % Y
-figure(Name="yQTMinterpolation");
-plot(t, yQTMi,'.y')
-hold on
-% plot(t, zQTMiSpline,'.g', MarkerSize=2)
-plot(time,yQTM, '.k', MarkerSize=1)
-title('Interpolation of QTM data: y')
-legend('yInterpolatedQTM', 'yQTM', 'Location', 'best')
-
-    % Z
-figure(Name="zQTMinterpolation");
-plot(t, zQTMi,'.y')
-hold on
-% plot(t, zQTMiSpline,'.g', MarkerSize=2)
-plot(time,zQTM, '.k', MarkerSize=1)
-title('Interpolation of QTM data: z')
-legend('zInterpolatedQTM', 'zQTM', 'Location', 'best')
+%     % X
+% figure(Name="xQTMinterpolation");
+% plot(t, xQTMi,'.y')
+% hold on
+% % plot(t, zQTMiSpline,'.g', MarkerSize=2)
+% plot(time,xQTM, '.k', MarkerSize=1)
+% title('Interpolation of QTM data: x')
+% legend('xInterpolatedQTM', 'xQTM', 'Location', 'best')
+% 
+%     % Y
+% figure(Name="yQTMinterpolation");
+% plot(t, yQTMi,'.y')
+% hold on
+% % plot(t, zQTMiSpline,'.g', MarkerSize=2)
+% plot(time,yQTM, '.k', MarkerSize=1)
+% title('Interpolation of QTM data: y')
+% legend('yInterpolatedQTM', 'yQTM', 'Location', 'best')
+% 
+%     % Z
+% figure(Name="zQTMinterpolation");
+% plot(t, zQTMi,'.y')
+% hold on
+% % plot(t, zQTMiSpline,'.g', MarkerSize=2)
+% plot(time,zQTM, '.k', MarkerSize=1)
+% title('Interpolation of QTM data: z')
+% legend('zInterpolatedQTM', 'zQTM', 'Location', 'best')
 
 %%%%%%%%%%%%%%%% Interpolation Setup %%%%%%%%%%%%%%%%
 
@@ -179,7 +179,7 @@ for i = 2 : length(t)
     % Find closest value
     for CViter = 1 : length(time)
         if (abs(time(CViter) - t(i)) < timeTol)
-            y = [xCV0(CViter) yCV0(CViter) zCV0(CViter)];
+            y = [xCV0(CViter); 0; yCV0(CViter); 0; zCV0(CViter); 0];
             % detected = true;
             break
         else
@@ -284,41 +284,3 @@ ylabel('z [m]')
 xlabel('Time [seconds]')
 xlim([startTime stopTime])
 %%%%%%%%%%%%%%%%% Translation Plotting %%%%%%%%%%%%%%%%%
-
-%%%%%%%%%%%%%%%%%% Plot Speeds %%%%%%%%%%%%%%%%%%
-% speedPlot = figure(Name="SpeedPlot");
-% 
-% % Plot Reference Speed
-% plot(t,zDotQTM, '.k')
-% hold on
-% 
-% % Plot Estimated Speed
-% plot(t,zDotKalman, '.r', MarkerSize=1)
-% 
-% [a, icons] = legend('zDotQTM', 'zDotKalman', 'Location','eastoutside');
-% % Change size of legend icons
-% icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
-% set(icons, 'MarkerSize', 20)
-% 
-% ylabel('zDot [m/s]')
-% xlabel('Time [seconds]')
-% xlim([startTime stopTime])
-% 
-% %%%%%%%%%%%%%%%%%% Plot Accelerations %%%%%%%%%%%%%%%%%%
-% accPlot = figure(Name="AccPlot");
-% 
-% % Plot Simulation with Noise
-% plot(t,zSimIMU, 'og')
-% hold on
-% 
-% % Plot QTM Acceleration
-% plot(t,zDotDotQTM, '.k')
-% 
-% [a, icons] = legend('IMUsim', 'zDotDotQTM', 'Location','eastoutside');
-% % Change size of legend icons
-% icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
-% set(icons, 'MarkerSize', 20)
-% 
-% ylabel('zDotDot [m/s^2]')
-% xlabel('Time [seconds]')
-% xlim([startTime stopTime])
