@@ -242,7 +242,7 @@ yQTM = yQTM(transIndicesX);
 yDiffSorted = yDiff(yQTMindices);
 
 % Split the data into evenly distributed intervals
-distNums = 9;
+distNums = 16;
 intervals = linspace(yQTMsorted(1), yQTMsorted(end), (distNums+1));
 
 % Find indices closest to bounds of intervals
@@ -266,7 +266,7 @@ for i = 1 : distNums
     right = max(curQTM);
 
     % Plot intervals
-    subplot(3,3,i)
+    subplot(4,4,i)
     plot(curQTM, curDiff,'.g', MarkerSize=distDotSize)
     ylabel('difference [m]')
     xlabel('y [m]')

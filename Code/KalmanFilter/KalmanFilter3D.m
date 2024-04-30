@@ -117,6 +117,7 @@ zSimIMU = zDotDotQTM + zWn;
 timeTol = 0.01;     % Sync low sps to high sps
 % x = [   zQTM(1); 
 %         zDotQTM(1)  ];  % Start [z, zDot]
+% State Vector 6x1
 x = [   xQTM(1);
         xDotQTM(1);
         yQTM(1); 
@@ -132,7 +133,7 @@ yDotKalman = zeros(length(t),1);
 zKalman =    zeros(length(t),1);
 zDotKalman = zeros(length(t),1);
 
-% State Transition Matrix
+% State Transition Matrix 6x6
 A = [ 1   dt    0   0   0   0  ;
       0   1     0   0   0   0  ;
       0   0     1   dt  0   0  ;
@@ -146,37 +147,55 @@ B = [ dt^2/2    0     0   ;   % x''
         0      dt     0   ;   % y'
         0       0  dt^2/2 ;   % z''
         0       0    dt   ];  % z'
-% Measurement Matrix
+% Measurement Matrix 3x6
 C = [ 1 0 0 0 0 0 ; % x
-      0 0 0 0 0 0 ;
       0 0 1 0 0 0 ; % y
-      0 0 0 0 0 0 ;
-      0 0 0 0 1 0 ; % z
-      0 0 0 0 0 0 ];
+      0 0 0 0 1 0]; % z
 % Feedthrough Matrix
 D = 0;
 
 % Identity Matrix
 I = eye(6);
 
-% Process Noise w_n
+% Process Noise w_n 3x3
 % Q = cov(zWn); % Covariance (Matrix)
-Q = 0.001*eye(3);
+% Q = 0.001*eye(3);
+Q = [ std(xWn)^2        0         0      ;
+        0          std(yWn)^2     0      ;
+        0               0    std(zWn)^2 ];
 
 % xSigma import: f(x) = p1*x^2 + p2*x + p3
 p1x =  0.0330;
 p2x = -0.0039;
 p3x =  0.0098;
-% xSigma import: f(y) = p1*y^2 + p2*y + p3
+% ySigma import: f(y) = p1*y^2 + p2*y + p3 - 9 intervals
 p1y =  0.0419;
 p2y = -0.0014;
 p3y =  0.0110;
+% ySigma import: f(y) = p1*y^2 + p2*y + p3 - 16 intervals
+% p1y =  0.0363;
+% p2y = -0.0026;
+% p3y =  0.0112;
 % zSigma import: f(z) = p1*z + p2
 p1z =  0.0380;
 p2z = -0.0029;
 
+% Start Measurement Noise
+v = [ (p1x*xCV0(1)^2 + p2x*xCV0(1) + p3x)^2  ;
+      (p1y*yCV0(1)^2 + p2y*yCV0(1) + p3y)^2  ;
+                      (p1z*zCV0(1) + p2z)^2 ];
+% R = diag(v) + 1e-6*I;
+
 % Measurement Noise v_n
-R = 0.1; % Covariance (Matrix)
+% R = 0.1*I; % Covariance (Matrix)
+% xyVar = 0.013^2;
+% v = [xyVar;
+%     0;
+%     xyVar;
+%     0;
+%     (p1z*zCV0(1) + p2z)^2;
+%     0];
+% R = diag(v) + 1e-6*I;
 
 % State Covariance (Matrix)
 P = B*Q*B';
@@ -187,7 +206,7 @@ for i = 2 : length(t)
     % Find closest value
     for CViter = 1 : length(time)
         if (abs(time(CViter) - t(i)) < timeTol)
-            y = [xCV0(CViter); 0; yCV0(CViter); 0; zCV0(CViter); 0];
+            y = [xCV0(CViter); yCV0(CViter); zCV0(CViter)];
             % detected = true;
             break
         else
@@ -197,18 +216,27 @@ for i = 2 : length(t)
     end
 
     % Update Input: Simulated Acceleration
-    u = [xDotDotQTM(i); yDotDotQTM(i); zDotDotQTM(i)];
+    % u = [xDotDotQTM(i); yDotDotQTM(i); zDotDotQTM(i)];
+    u = [xSimIMU(i); ySimIMU(i); zSimIMU(i)];
 
     % Update Measurement Noise
-    % R = p1*y + p2;
-    
+    v = [ (p1x*x(1)^2 + p2x*x(1) + p3x)^2          ; % x
+          (p1y*x(3)^2 + p2y*x(3) + p3y)^2          ; % y
+                               (p1z*x(5) + p2z)^2 ]; % z
+    R = diag(v); % + 1e-6*I;
+
     % Prediction
     x = A*x + B*u;
     P = A*P*A' + B*Q*B';
+    if isnan(x)
+        disp(t(i))
+        break
+    end
 
-    % Measurement Update
     if ~isnan(y) % if detected
-        Kk = (P*C')/(C*P*C' + R*I);
+
+        % Measurement Update
+        Kk = (P*C')/(C*P*C' + R);
         x = x + Kk*(y - C*x);
         P = (I - Kk*C)*P;
     end
@@ -239,7 +267,7 @@ plot(t,xQTMi, '.k', MarkerSize=1)
 % Plot Kalman Filter Estimate Position
 plot(t, xKalman, '.r', MarkerSize=1)
 
-[a, icons] = legend('xCV0', 'xQTMinterp', 'xKalman', 'Location','eastoutside');
+[~, icons] = legend('xCV0', 'xQTMinterp', 'xKalman', 'Location','eastoutside');
 % Change size of legend icons
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
@@ -261,7 +289,7 @@ plot(t,yQTMi, '.k', MarkerSize=1)
 % Plot Kalman Filter Estimate Position
 plot(t, yKalman, '.r', MarkerSize=1)
 
-[a, icons] = legend('yCV0', 'yQTMinterp', 'yKalman', 'Location','eastoutside');
+[~, icons] = legend('yCV0', 'yQTMinterp', 'yKalman', 'Location','eastoutside');
 % Change size of legend icons
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)

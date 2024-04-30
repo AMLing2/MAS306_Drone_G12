@@ -2,7 +2,7 @@ clc; clear; close all;
 
 % Plotting results Qualisys Test 
 
-testNr = 2;
+testNr = 0;
 fileName = ['ExportedResults_', num2str(testNr), '.csv'];
 data = csvread(fileName, 1,0);
 
@@ -67,10 +67,10 @@ avgDiffMeters = table(avgDiffxVecs, avgDiffyVecs, avgDiffzVecs, ...
 
 % Plotting
 
-startTime = 140;
-stopTime = 186;
-% startTime = 0;
-% stopTime = time(end);
+% startTime = 140;
+% stopTime = 186;
+startTime = 0;
+stopTime = time(end);
 
 %%%%%%%%%%%%%%%%%%%% Translation Plotting %%%%%%%%%%%%%%%%%%%%
 transPlot = figure(Name="Plot of Translation comparison");
