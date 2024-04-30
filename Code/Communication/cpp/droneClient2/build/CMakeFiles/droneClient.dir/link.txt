@@ -1,1 +1,0 @@
-/usr/bin/c++ -g -g CMakeFiles/droneClient.dir/src/droneMain.cpp.o CMakeFiles/droneClient.dir/src/clientImplementation.cpp.o CMakeFiles/droneClient.dir/src/threadFuncs.cpp.o CMakeFiles/droneClient.dir/src/dronePosVec.pb.cc.o -o droneClient  /usr/lib/x86_64-linux-gnu/libprotobuf.so /usr/lib/x86_64-linux-gnu/libprotobuf-lite.so 
