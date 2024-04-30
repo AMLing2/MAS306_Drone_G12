@@ -164,8 +164,13 @@ I = eye(6);
 Q = 0.001*eye(3);
 
 % Sigma import: f(x) = p1*x + p2
-p1 = 0.0378;
-p2 = -0.0032;
+p1x = 0.0330;
+p2x = -0.0039;
+p3x = 0.0098
+p1y = 0.0380;
+p2y = -0.0029;
+p1z = 0.0380;
+p2z = -0.0029;
 
 % Measurement Noise v_n
 R = 0.1; % Covariance (Matrix)
@@ -179,7 +184,7 @@ for i = 2 : length(t)
     % Find closest value
     for CViter = 1 : length(time)
         if (abs(time(CViter) - t(i)) < timeTol)
-            y = [xCV0(CViter) 0 yCV0(CViter) zCV0(CViter)];
+            y = [xCV0(CViter); 0; yCV0(CViter); 0; zCV0(CViter); 0];
             % detected = true;
             break
         else
@@ -284,41 +289,3 @@ ylabel('z [m]')
 xlabel('Time [seconds]')
 xlim([startTime stopTime])
 %%%%%%%%%%%%%%%%% Translation Plotting %%%%%%%%%%%%%%%%%
-
-%%%%%%%%%%%%%%%%%% Plot Speeds %%%%%%%%%%%%%%%%%%
-% speedPlot = figure(Name="SpeedPlot");
-% 
-% % Plot Reference Speed
-% plot(t,zDotQTM, '.k')
-% hold on
-% 
-% % Plot Estimated Speed
-% plot(t,zDotKalman, '.r', MarkerSize=1)
-% 
-% [a, icons] = legend('zDotQTM', 'zDotKalman', 'Location','eastoutside');
-% % Change size of legend icons
-% icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
-% set(icons, 'MarkerSize', 20)
-% 
-% ylabel('zDot [m/s]')
-% xlabel('Time [seconds]')
-% xlim([startTime stopTime])
-% 
-% %%%%%%%%%%%%%%%%%% Plot Accelerations %%%%%%%%%%%%%%%%%%
-% accPlot = figure(Name="AccPlot");
-% 
-% % Plot Simulation with Noise
-% plot(t,zSimIMU, 'og')
-% hold on
-% 
-% % Plot QTM Acceleration
-% plot(t,zDotDotQTM, '.k')
-% 
-% [a, icons] = legend('IMUsim', 'zDotDotQTM', 'Location','eastoutside');
-% % Change size of legend icons
-% icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
-% set(icons, 'MarkerSize', 20)
-% 
-% ylabel('zDotDot [m/s^2]')
-% xlabel('Time [seconds]')
-% xlim([startTime stopTime])

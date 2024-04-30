@@ -163,9 +163,17 @@ I = eye(6);
 % Q = cov(zWn); % Covariance (Matrix)
 Q = 0.001*eye(3);
 
-% Sigma import: f(x) = p1*x + p2
-p1 = 0.0378;
-p2 = -0.0032;
+% xSigma import: f(x) = p1*x^2 + p2*x + p3
+p1x =  0.0330;
+p2x = -0.0039;
+p3x =  0.0098;
+% xSigma import: f(y) = p1*y^2 + p2*y + p3
+p1y =  0.0419;
+p2y = -0.0014;
+p3y =  0.0110;
+% zSigma import: f(z) = p1*z + p2
+p1z =  0.0380;
+p2z = -0.0029;
 
 % Measurement Noise v_n
 R = 0.1; % Covariance (Matrix)
