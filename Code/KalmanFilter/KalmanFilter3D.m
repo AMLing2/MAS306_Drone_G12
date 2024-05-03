@@ -158,8 +158,6 @@ D = 0;
 I = eye(6);
 
 % Process Noise w_n 3x3
-% Q = cov(zWn); % Covariance (Matrix)
-% Q = 0.001*eye(3);
 Q = [ std(xWn)^2        0         0      ;
         0          std(yWn)^2     0      ;
         0               0    std(zWn)^2 ];
@@ -184,18 +182,6 @@ p2z = -0.0029;
 v = [ (p1x*xCV0(1)^2 + p2x*xCV0(1) + p3x)^2  ;
       (p1y*yCV0(1)^2 + p2y*yCV0(1) + p3y)^2  ;
                       (p1z*zCV0(1) + p2z)^2 ];
-% R = diag(v) + 1e-6*I;
-
-% Measurement Noise v_n
-% R = 0.1*I; % Covariance (Matrix)
-% xyVar = 0.013^2;
-% v = [xyVar;
-%     0;
-%     xyVar;
-%     0;
-%     (p1z*zCV0(1) + p2z)^2;
-%     0];
-% R = diag(v) + 1e-6*I;
 
 % State Covariance (Matrix)
 P = B*Q*B';
@@ -207,6 +193,12 @@ for i = 2 : length(t)
     for CViter = 1 : length(time)
         if (abs(time(CViter) - t(i)) < timeTol)
             y = [xCV0(CViter); yCV0(CViter); zCV0(CViter)];
+            
+            % Update Measurement Noise
+            v = [ (p1x*x(1)^2 + p2x*x(1) + p3x)^2  ; % x
+                  (p1y*x(3)^2 + p2y*x(3) + p3y)^2  ; % y
+                               (p1z*x(5) + p2z)^2 ]; % z
+            R = diag(v); % + 1e-6*I;
             % detected = true;
             break
         else
@@ -219,25 +211,15 @@ for i = 2 : length(t)
     % u = [xDotDotQTM(i); yDotDotQTM(i); zDotDotQTM(i)];
     u = [xSimIMU(i); ySimIMU(i); zSimIMU(i)];
 
-    % Update Measurement Noise
-    v = [ (p1x*x(1)^2 + p2x*x(1) + p3x)^2          ; % x
-          (p1y*x(3)^2 + p2y*x(3) + p3y)^2          ; % y
-                               (p1z*x(5) + p2z)^2 ]; % z
-    R = diag(v); % + 1e-6*I;
-
     % Prediction
-    x = A*x + B*u;
+    x = A*x + B*u;  % A priori - \hat{x_k}^-
     P = A*P*A' + B*Q*B';
-    if isnan(x)
-        disp(t(i))
-        break
-    end
 
     if ~isnan(y) % if detected
 
         % Measurement Update
         Kk = (P*C')/(C*P*C' + R);
-        x = x + Kk*(y - C*x);
+        x = x + Kk*(y - C*x); % A posterior - \hat{x_k}
         P = (I - Kk*C)*P;
     end
 
