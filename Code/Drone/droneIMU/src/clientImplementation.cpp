@@ -322,3 +322,25 @@ int ClientClass::startThread(threadStartType startType)
     }
     return 0;
 }
+
+int ClientClass::joinThread()
+{
+    std::atomic_bool threadloop_ = false;
+    bool waiting = true;
+    while(waiting)
+    {
+        if (tRecv_.joinable())
+        {
+            tRecv_.join();
+        }
+        else if (tRecv_.joinable())
+        {
+            tRecv_.join();
+        }
+        else
+        {
+            waiting = false;
+            return 0;
+        }
+    }
+}

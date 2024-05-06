@@ -8,6 +8,7 @@
 #include <netdb.h>
 #include <thread>
 #include <atomic>
+#include <queue>
 
 using ns_t = std::chrono::nanoseconds;
 
@@ -59,9 +60,9 @@ class ClientClass : protected SocketMethods
 public:
     ClientClass(std::string addr,dronePosVec::progName clientName,std::string serverAddr,int serverPort,threadStartType threadFuncs)
     :SocketMethods(addr, clientName)
+	,threadFuncs(threadFuncs)
     ,serverAddr_(serverAddr)
     ,serverPort_(serverPort)
-	,threadFuncs_(threadFuncs)
     {
         socketSetup_(0);
     }
@@ -70,8 +71,13 @@ public:
 
 	void recvThread();
 	void sendThread();
+	int startThread(threadStartType startType);
+	int joinThread();
 
-	threadStartType getThreadStart();
+	threadStartType getThreadStart(); //TODO: make?
+	const threadStartType threadFuncs;
+	std::queue<std::string> sendQueue;
+	std::atomic_bool readingQueue = false;
 
 private:
     //int connectNewServer_();
@@ -84,15 +90,12 @@ private:
     socklen_t nextAddrLen_ = 0;
     const int serverPort_;
 
-	const threadStartType threadFuncs_;
-	int startThread(threadStartType startType);
-	int joinThread(); //TODO: make
-
     ssize_t initSend(char* msg, size_t msgLen);
     const size_t bufferSize_ = 1024;
     char recvMsg_[1024]; //fix to bufferSize_
 	char sendMsg_[1024]; // do these really need to be that big?
 
+	ns_t sendInterval_ = ns_t(100000000);//TODO: temp
     std::thread tRecv_;
 	std::thread tSend_;
 	std::atomic_bool threadloop_ = true;//this needs to be atomic as it may be chagned and read at the same time at program end

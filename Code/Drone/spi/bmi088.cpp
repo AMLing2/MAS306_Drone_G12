@@ -46,6 +46,8 @@ int main()
 	int a = 0;
 
 	gpioSetMode(LED, PI_OUTPUT);
+	gpioSetMode(CS_ACCEL, PI_OUTPUT);
+	gpioSetMode(CS_GYRO, PI_OUTPUT);
 	//gpioSetMode(CS_PIN, PI_OUTPUT);
 	//------------MAIN----------
 	std::this_thread::sleep_for(std::chrono::milliseconds(1));//wait 1ms after startup
