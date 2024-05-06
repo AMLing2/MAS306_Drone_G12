@@ -67,6 +67,7 @@ int main()
     int a;
     std::cin>>a;
 
+    std::cout<<"ending threads"<<std::endl;
     for(const std::unique_ptr<AbMessenger>& i: vpMessengers) //end all threads (kind of slow because it does it one by one... might take 1000ms)
     {
         i->joinThread();

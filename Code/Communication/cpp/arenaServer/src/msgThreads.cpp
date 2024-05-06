@@ -66,7 +66,32 @@ void EstimatorMessenger::sendThread()
 void DroneMessenger::recvThread()
 {
     std::cout<<"drone recvThread up"<<std::endl;
-
+    dronePosVec::dronePosition data; 
+    setTimeout(5,0);//too high for 100ms interval
+    ssize_t msgsize = 0;
+    while(threadloop_)
+    {
+        data.Clear();
+        msgsize = clientRecv(recvMsg_,bufferSize_);
+        if (msgsize > 0)
+        {
+            data.ParseFromArray(recvMsg_,msgsize);
+            std::cout<<data.rotmatrix().size()<<std::endl; //TODO: test, remove
+            if (data.rotmatrix().size() > 0)
+            {
+                std::cout<<data.rotmatrix().Get(0)<<std::endl; //TODO: test, remove
+            }
+            
+            //q.push(data.SerializeAsString()); //uncomment
+        }
+        else
+        {
+            std::cout<<"errno:"<<strerror(errno)<<": "<<errno<<std::endl;
+            threadloop_ = false;
+            break;
+        }
+        sleeptoInterval_(recvInterval_);
+    }
     std::cout<<"drone recvThread ready to join"<<std::endl;
 }
 
