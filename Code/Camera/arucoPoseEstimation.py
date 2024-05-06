@@ -91,8 +91,6 @@ while(True):
 
 
     # --------------------- v Display ID of marker, by pyImageSearch v ---------------------
-    if len(corners) > 0:    # So iteration makes sense
-        
         ids = ids.flatten() # Remove square brackets for text
         
         for (markerCorner, markerID) in zip(corners, ids): # alias on left, so can iterate in parallel
