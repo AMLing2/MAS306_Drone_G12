@@ -4,10 +4,6 @@ import os                   # Check file-extension
 import numpy                # Python Math
 import time                 # Computation Timer
 
-font = cv2.FONT_HERSHEY_SIMPLEX
-fontColor = (200, 20, 200)
-fontScale = 0.5
-fontThickness = 1
 axesLength = 0.01
 
 # Length of ArUco marker sides
