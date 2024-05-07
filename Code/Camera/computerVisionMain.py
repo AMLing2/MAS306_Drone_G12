@@ -1,12 +1,12 @@
 # --------------------------------------- Libraries ---------------------------------------
-import cv2
-import cv2.aruco as aruco # For simplification
-import pyrealsense2 as rs
-import numpy
+import cv2                      # OpenCV
+import cv2.aruco as aruco       # For simplification
+import pyrealsense2 as rs       # RealSense Wrapper
+import numpy                    #
 import time
-import multiprocessing as mp
+import multiprocessing as mp    # 
 import socket
-import dronePosVec_pb2 #should be protobuf.dronePosVec_pb2 but wont work for some reason
+import dronePosVec_pb2          #should be protobuf.dronePosVec_pb2 but wont work for some reason
 
 # --------------------------------------- Libraries ---------------------------------------
 # --------------------------------------- Socket Class -----------------------------------
@@ -180,8 +180,8 @@ if True: #UNINDEX LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     screenHeight = 480   # pixels
     screenWidth = 848    # pixels
     fps = 60             # pixels
-    cColor = (0, 0, 120) # bgr
-    cThick = 1           # pixels
+    #cColor = (0, 0, 120) # bgr
+    #cThick = 1           # pixels
 
     # Physical marker sizes
     markerSize = 0.05 # Marker sides [m]
@@ -190,8 +190,8 @@ if True: #UNINDEX LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                                 [markerSize / 2, -markerSize / 2, 0],
                                 [-markerSize / 2, -markerSize / 2, 0]], dtype=numpy.float32)
 
-    defaultRightCorner = numpy.array([((markerSize/2)*(1+1-1)/3)*1000, 
-                                    ((markerSize/2)*(1+1-1)/3)*1000, 0.0])
+    #defaultRightCorner = numpy.array([((markerSize/2)*(1+1-1)/3)*1000, 
+    #                                ((markerSize/2)*(1+1-1)/3)*1000, 0.0])
 
     # vvv INTRINSICS ARE FOR 848x480 vvv
         # Distortion Coefficients
@@ -231,7 +231,7 @@ if True: #UNINDEX LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     rotVectors = []
     transVectors = []
     reprojError = 0
-    m  = 0
+    m  = 0      # iterator
     rotVectorsExp = numpy.empty(matrixSize[0] * matrixSize[1],dtype=float)
     transVectorsExp = numpy.empty(matrixSize[0] * matrixSize[1],dtype=float)
 
@@ -254,6 +254,9 @@ if True: #UNINDEX LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         gray = cv2.cvtColor(color_image, cv2.COLOR_BGR2GRAY)   # Grayscale image
         corners, ids, rejectedImagePoints = aruco.detectMarkers(gray, arucoDictionary, parameters=arucoParams)
 
+        ############ Export Depth and Color frames here ############
+        print("\nDepth Image: ", depth_image)
+
         # Is marker detected?
         if len(corners) > 0:
             
@@ -269,8 +272,13 @@ if True: #UNINDEX LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 print("\nRotation Vectors: ", rotVectors)
                 print("\nTranslation Vectors: ", transVectors)
 
+                # Extract Rotation Matrices
+                rMat1, _ = cv2.Rodrigues(rotVectors[0])
+                rMat2, _ = cv2.Rodrigues(rotVectors[1])
+                #print("Rotation Matrix: ", rMat)
+
                 # Reprojection Error Logging
-                print("\nReprojection Error: ", reprojError)
+                #print("\nReprojection Error: ", reprojError)
                 #write.writerow(reprojError)
 
                 # Draw marker axes
@@ -278,25 +286,27 @@ if True: #UNINDEX LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                                 distCoeffs=distortionCoefficients, rvec=rotVectors[0], tvec=transVectors[0], length=axesLength)
 
                 # Draw marker axes
-                cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
-                                distCoeffs=distortionCoefficients, rvec=rotVectors[0], tvec=transVectors[0], length=axesLength)
+                #cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
+                #                distCoeffs=distortionCoefficients, rvec=rotVectors[0], tvec=transVectors[0], length=axesLength)
                 
                 # Print Current marker ID
-                print("\nCurrent ID: ", markerID)
+                #print("\nCurrent ID: ", markerID)
 
                 # Extract corners
-                corners = markerCorner.reshape(4,2)
-                (topLeft, topRight, bottomRight, bottomLeft) = corners
+                #corners = markerCorner.reshape(4,2)
+                #(topLeft, topRight, bottomRight, bottomLeft) = corners
 
                 # Extract middle of marker
-                avgCorner_x = int((topLeft[0] + topRight[0] + bottomLeft[0] + bottomRight[0])/4)
-                avgCorner_y = int((topLeft[1] + topRight[1] + bottomLeft[1] + bottomRight[1])/4)
+                #avgCorner_x = int((topLeft[0] + topRight[0] + bottomLeft[0] + bottomRight[0])/4)
+                #avgCorner_y = int((topLeft[1] + topRight[1] + bottomLeft[1] + bottomRight[1])/4)
 
                 # Extract depth distance at middle of marker
-                depthDist = depth_image.item(avgCorner_y, avgCorner_x)
+                #depthDist = depth_image.item(avgCorner_y, avgCorner_x)
 
                 # Print Depth
-                print("Depth Distance: ", depthDist)
+                #print("Depth Distance: ", depthDist)
+
+                # Extract Rotation Matrices
                 m  = 0
                 for i in range(matrixSize[0]-1):
                     for n in range(matrixSize[1]-1):
