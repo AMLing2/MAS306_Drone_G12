@@ -80,7 +80,6 @@ for i, row in enumerate(transQTM):
     if (not detectedStartQTM) and (len(last10magQTM) == 10) and (abs(curTransMagQTM - last10magQTM[0]) > tolerance):
         #print("i from loop: ", i)
         startTimeQTM = timeQTM[i]
-        startIterQTM = iterQTM[i] # used?
         detectedStartQTM = True
 
 # Start value to be changed
