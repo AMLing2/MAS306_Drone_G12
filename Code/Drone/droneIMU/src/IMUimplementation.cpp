@@ -113,10 +113,11 @@ int GyroIMU::writeSingleReg()
 
 void GyroIMU::populateProtobuf(dronePosVec::dronePosition& dp)
 {
-    dp.clear_rotmatrixdot();
-    dp.add_rotmatrixdot(sensorVals_.xf);
-    dp.add_rotmatrixdot(sensorVals_.yf);
-    dp.add_rotmatrixdot(sensorVals_.zf);
+    dp.clear_rotation();
+    dp.add_rotation(sensorVals_.xf);
+    dp.add_rotation(sensorVals_.yf);
+    dp.add_rotation(sensorVals_.zf);
+    dp.set_timestamp_ns(sensorVals_.t.count());
 }
 
 //ACCEL---------------------------------------------------------------------------------------------------------------
@@ -204,9 +205,9 @@ int AccelIMU::writeSingleReg()
 
 void AccelIMU::populateProtobuf(dronePosVec::dronePosition& dp)
 {
-    dp.clear_positiondot();
+    dp.clear_position();
     //dp.mutable_positiondot()->Add(sensorVals_.xf); //alt method if needed, add_xxx should work fine however
-    dp.add_positiondot(sensorVals_.xf);
-    dp.add_positiondot(sensorVals_.yf);
-    dp.add_positiondot(sensorVals_.zf);
+    dp.add_position(sensorVals_.xf);
+    dp.add_position(sensorVals_.yf);
+    dp.add_position(sensorVals_.zf);
 }

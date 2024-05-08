@@ -415,7 +415,7 @@ int ClientClass::joinThread()
     return 0;
 }
 //--------------------------------------QUEUE METHODS NAMESPACE FUNCTIONS-------------------------------------
-
+/*
 bool qMethods::blockingFront(std::string& value, std::queue<std::string>& q,int timeout_ms)
 {
     std::unique_lock<std::mutex> lock(qMethods::guard);
@@ -427,3 +427,4 @@ bool qMethods::blockingFront(std::string& value, std::queue<std::string>& q,int 
     value = q.front();
     return true;
 }
+*/

@@ -21,13 +21,15 @@ enum threadStartType
 };
 
 //template<typename T>
+/*
 namespace qMethods
 {
-	bool blockingFront(std::string& value, std::queue<std::string>& q,int timeout_ms);
+	bool blockingFront(std::string& value, std::queue<std::string>& q,int timeout_ms); //TODO:fix
 	std::mutex guard;
 	std::condition_variable signal;
 }
 
+*/
 class SocketMethods{
 public:
 	SocketMethods(std::string addr,dronePosVec::progName clientName)

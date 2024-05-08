@@ -18,8 +18,10 @@ int main()
 
     //initialize dp
     dp.set_devicetype(dronePosVec::dataDevices::IMUonly);
-    dp.add_matrixsize(1); //1x3 vector
-    dp.add_matrixsize(3);
+    dp.add_rotshape(1); //1x3 vector
+    dp.add_rotshape(3);
+    dp.add_posshape(1); //1x3 vector
+    dp.add_posshape(3);
 
     //ClientClass droneClass("127.0.0.1",dronePosVec::drone,"128.39.200.239",20002,threadStartType::sendOnly);
     ClientClass droneClass("dronearena.uia.no",dronePosVec::drone,"b12.uia.no",20002,threadStartType::sendOnly);
@@ -43,7 +45,7 @@ int main()
         accel.readData();
         gyro.readData();
         accel.populateProtobuf(dp);
-        gyro.populateProtobuf(dp);
+        gyro.populateProtobuf(dp); //timestamp is only set here
         if ((droneClass.sendQueue.size() > 0) & (droneClass.readingQueue == false))
         {
             try
