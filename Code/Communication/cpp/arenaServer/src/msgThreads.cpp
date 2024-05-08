@@ -29,7 +29,7 @@ void CameraMessenger::recvThread()
         else
         {
             std::cout<<"errno:"<<strerror(errno)<<": "<<errno<<std::endl;
-            threadloop_ = false;
+            threadloop_ = false; //this will end the sending thread too
             break;
         }
         sleeptoInterval_(recvInterval_);
@@ -76,10 +76,11 @@ void DroneMessenger::recvThread()
         if (msgsize > 0)
         {
             data.ParseFromArray(recvMsg_,msgsize);
-            std::cout<<data.rotmatrix().size()<<std::endl; //TODO: test, remove
-            if (data.rotmatrix().size() > 0)
+            //std::cout<<"rotmatrix[1]: "<<data.rotmatrix()<<std::endl;
+            std::cout<<data.rotmatrixdot().size()<<std::endl; //TODO: test, remove
+            if (data.rotmatrixdot().size() > 0)
             {
-                std::cout<<data.rotmatrix().Get(0)<<std::endl; //TODO: test, remove
+                std::cout<<data.rotmatrixdot().Get(0)<<std::endl; //TODO: test, remove
             }
             
             //q.push(data.SerializeAsString()); //uncomment

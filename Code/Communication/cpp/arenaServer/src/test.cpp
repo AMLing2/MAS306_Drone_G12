@@ -11,6 +11,7 @@ int main()
 	dronePos.set_devicetype(dronePosVec::IMUonly);
 	float values[4] = {1.1,1.2,1.3,1.4};
 	dronePos.mutable_position()->Add(values[0]);
+	dronePos.mutable_position()->Add(values[1]);
 
 	size_t msgSize = dronePos.ByteSizeLong();
 	dronePos.SerializeToArray(buffer,bufferSize);

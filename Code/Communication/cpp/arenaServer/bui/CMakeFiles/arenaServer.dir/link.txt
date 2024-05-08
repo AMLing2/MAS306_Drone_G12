@@ -1,0 +1,1 @@
+/usr/bin/c++ -g -g CMakeFiles/arenaServer.dir/src/messengerClass.cpp.o CMakeFiles/arenaServer.dir/src/msgThreads.cpp.o CMakeFiles/arenaServer.dir/src/serverMain.cpp.o CMakeFiles/arenaServer.dir/src/dronePosVec.pb.cc.o -o arenaServer  /usr/lib/x86_64-linux-gnu/libprotobuf.so /usr/lib/x86_64-linux-gnu/libprotobuf-lite.so 
