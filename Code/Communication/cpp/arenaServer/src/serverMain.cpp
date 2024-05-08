@@ -9,6 +9,7 @@
 #include <thread>
 #include <queue>
 #include <vector> //only used for fancily displaying unconnected clients
+#include <arpa/inet.h> //for inet_ntop
 
 int main()
 {
@@ -16,8 +17,8 @@ int main()
     std::queue<std::string> queues[queueCount]; //would prefer to have char* queue type but cant pass length that way :/
 
     int unconnected;
-    std::string localAddr = "128.39.200.239"; //127.0.0.1
-    ns_t timenow = std::chrono::duration_cast<ns_t>(std::chrono::steady_clock::now().time_since_epoch());
+    const std::string localAddr = getSelfIP(".uia.no");//"128.39.200.239"; //127.0.0.1 //change to resolve selfhost
+    ns_t timenow = std::chrono::duration_cast<ns_t>(std::chrono::steady_clock::now().time_since_epoch()); //get start of global server timer
     ServerMain serverMain(timenow,localAddr,20002);
 
     std::vector<std::unique_ptr<AbMessenger>> vpMessengers;
@@ -41,7 +42,12 @@ int main()
         }
         std::cout<<std::endl;
 
-        dronePosVec::progName connectedID = serverMain.mainRecvloop(); 
+        dronePosVec::progName connectedID = serverMain.mainRecvloop(); //----------------------main socket connection------------
+        if (connectedID == dronePosVec::server)
+        {
+            connectloop = false;
+            break;
+        }
         std::cout<<"connected ID: " <<connectedID<<std::endl;
 
         for(const std::unique_ptr<AbMessenger>& i: vpMessengers) //range based for loop
@@ -49,7 +55,7 @@ int main()
             if (i->getName() == connectedID)
             {
                 //std::cout<<i->strName<<std::endl;
-                if(i->initRecv() >= 0)
+                if(i->initRecv() >= 0) //specific client connection
                 {
                     i->setConnection(true);
                     i->startThread(i->getThreadStart());
@@ -63,7 +69,7 @@ int main()
         }
     }
 
-    std::cout<<"press enter to exit"<<std::endl;
+    std::cout<<"press enter to end program"<<std::endl;
     int a;
     std::cin>>a;
 
@@ -75,10 +81,3 @@ int main()
 
     return 0;
 }
-
-/*
-void connectThreads(int ID)
-{
-    
-}
-*/

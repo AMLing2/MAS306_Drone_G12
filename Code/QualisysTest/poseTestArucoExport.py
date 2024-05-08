@@ -19,9 +19,6 @@ markerPoints = numpy.array([[-markerSize / 2, markerSize / 2, 0],
                               [markerSize / 2, -markerSize / 2, 0],
                               [-markerSize / 2, -markerSize / 2, 0]], dtype=numpy.float32)
 
-defaultRightCorner = numpy.array([((markerSize/2)*(1+1-1)/3)*1000, 
-                                  ((markerSize/2)*(1+1-1)/3)*1000, 0.0])
-
 # vvv INTRINSICS ARE FOR 848x480 vvv
     # Distortion Coefficients
 distortionCoefficients = numpy.array(
@@ -36,9 +33,6 @@ cameraMatrix = numpy.array([
 [ fx,   0.0, cx ],
 [ 0.0,  fy,  cy ],
 [ 0.0,  0.0, 1.0]])
-
-print("\nCamera Matrix\n", cameraMatrix)
-print("\nDistortion Coefficients\n", distortionCoefficients)
 
 # ------------------- Constant variables for simple changes -------------------
 
@@ -137,24 +131,12 @@ with open(filename,'a') as csvfile:
                 cv2.drawFrameAxes(frame, cameraMatrix=cameraMatrix,
                                 distCoeffs=distortionCoefficients, rvec=rotVectors[0], tvec=transVectors[0], length=axesLength)
                 
-                # Print Current marker ID
-    #            print("\nCurrent ID: ", markerID)
                 # Export results csv
                 csvwriter.writerow([loopRound, timestampOpenCV[loopRound],
                                     transVectors[0][0][0], transVectors[0][1][0], transVectors[0][2][0], 
                                     transVectors[1][0][0], transVectors[1][1][0], transVectors[1][2][0], 
                                     rotVectors[0][0][0], rotVectors[0][1][0], rotVectors[0][2][0],
                                     rotVectors[1][0][0], rotVectors[1][1][0], rotVectors[1][2][0], reprojError[0][0], reprojError[1][0]])
-        
-        # Print current vectors
-        #print("\nRotation Vectors: ", rotVectors)
-        #print("\nTranslation Vectors: ", transVectors)
-        #print("\nTransVec0Eleent: ", transVectors[1][2][0])
-        #print("\nRotVector: ", rotVectors[1])
-        #print("\nRotVectorElement: ", rotVectors[1][1][0])
-
-        print("\nreprojError: ", reprojError)
-        #print("\nreprojErrorElement: ", reprojError[1][0])
 
         # Display the current frame
         cv2.imshow('Playback', frame)  # Display the current frame

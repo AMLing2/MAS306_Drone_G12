@@ -3,6 +3,12 @@
 #include <iostream>
 #include <cmath>
 
+void gpioEnd(int spiHandle)
+{
+    spiClose(spiHandle);
+	gpioTerminate(); // call when done with library
+}
+
 int spiInit()
 {
     if(gpioInitialise()<0) // must be initialized first
@@ -199,6 +205,7 @@ int AccelIMU::writeSingleReg()
 void AccelIMU::populateProtobuf(dronePosVec::dronePosition& dp)
 {
     dp.clear_positiondot();
+    //dp.mutable_positiondot()->Add(sensorVals_.xf); //alt method if needed, add_xxx should work fine however
     dp.add_positiondot(sensorVals_.xf);
     dp.add_positiondot(sensorVals_.yf);
     dp.add_positiondot(sensorVals_.zf);

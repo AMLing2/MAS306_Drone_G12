@@ -14,6 +14,7 @@
 using ns_t = std::chrono::nanoseconds;
 
 //forward declarations
+std::string getSelfIP(const char nameserver[]);
 class EstimatorMessenger;
 class CameraMessenger;
 class DroneMessenger;
@@ -47,6 +48,7 @@ public:
 	{
 		clientAddrLen_ = sizeof(clientAddr_);
 	}
+	int getIPfromName(std::string hostname,int port);
 	virtual ssize_t initRecv() = 0;
 	void genAddrProtoc(dronePosVec::dataTransfers &data);
 	int clientConnect(struct sockaddr* clientAddr,socklen_t addrLen);
@@ -61,7 +63,7 @@ protected:
 	ns_t monoTimeNow_();
 
 	dronePosVec::dataTransfers data_; 
-	const std::string addr_; //likely 127.0.0.1 for all implementations
+	std::string addr_; //likely 127.0.0.1 for all implementations
 	int socketSetup_(int port); //creates and binds socket, returns 0 if successful, must be called in constructor
 	int f_socket_;
 	struct addrinfo* plocalAddr_ ; //this is needed because getaddrinfo() wants an addrinfo** type

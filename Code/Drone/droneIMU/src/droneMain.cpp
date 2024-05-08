@@ -21,7 +21,8 @@ int main()
     dp.add_matrixsize(1); //1x3 vector
     dp.add_matrixsize(3);
 
-    ClientClass droneClass("127.0.0.1",dronePosVec::drone,"128.39.200.239",20002,threadStartType::sendOnly);
+    //ClientClass droneClass("127.0.0.1",dronePosVec::drone,"128.39.200.239",20002,threadStartType::sendOnly);
+    ClientClass droneClass("dronearena.uia.no",dronePosVec::drone,"b12.uia.no",20002,threadStartType::sendOnly);
     if (droneClass.connectServer() == 0)
     {
         if (droneClass.checkList() < 0)
@@ -37,11 +38,12 @@ int main()
     }
     droneClass.startThread(droneClass.threadFuncs);
 
-    bool running = true; //make exitable somehow, maybe using same atomic bool?
-    while(running)
+    while(droneClass.threadloop) //TODO: make some way of exiting safely
     {
         accel.readData();
         gyro.readData();
+        accel.populateProtobuf(dp);
+        gyro.populateProtobuf(dp);
         if ((droneClass.sendQueue.size() > 0) & (droneClass.readingQueue == false))
         {
             try
@@ -54,23 +56,11 @@ int main()
             }
         }
         droneClass.sendQueue.push(dp.SerializeAsString());
-        
 
         //std::this_thread::sleep_for(std::chrono::microseconds(50));
-        /*
-        if (i > 50000)
-        {
-            std::cout<<std::endl;
-            i = 0;
-            std::cin>>a;
-            if (a == 0)
-            {
-                running = false;
-            }
-        }
-        */
     }
-
+    droneClass.joinThread();
+    gpioEnd(spiHandle); //needs to be called before end of program
     std::cout<<"press enter to exit"<<std::endl;
     int a;
     std::cin>>a;

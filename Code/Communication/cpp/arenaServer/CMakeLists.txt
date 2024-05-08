@@ -27,4 +27,5 @@ target_link_libraries(arenaServer protobuf::libprotobuf protobuf::libprotobuf-li
 
 install(TARGETS
 		arenaServer
+		test
 		DESTINATION lib/${PROJECT_NAME})

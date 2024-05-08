@@ -10,6 +10,54 @@
 
 //std::cout<<"errno:"<<strerror(errno)<<", "<<errno<<std::endl;
 
+std::string getSelfIP(const char nameserver[])
+{
+    struct addrinfo hints;
+    struct addrinfo* ret;
+    memset(&hints,0,sizeof(hints));
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_DGRAM;
+    hints.ai_protocol = IPPROTO_UDP;
+    hints.ai_protocol = IPPROTO_UDP;
+    hints.ai_flags = AI_CANONNAME;
+    //const char uiasearch[] = ".uia.no";
+    const size_t hostnamesize = 64;
+    char hostName[hostnamesize];
+    gethostname(hostName,hostnamesize);
+    for (size_t i = 0; i< hostnamesize;i++) //append ".uia.no"
+    {
+        if (hostName[i] == '\0')
+        {
+            if ((hostnamesize - i) < sizeof(&nameserver))
+            {
+                std::cout<<"hostname too long"<<std::endl;
+                exit(-1);
+            }
+            else
+            {
+                memcpy(&hostName[i],nameserver,sizeof(&nameserver));
+                break;
+            }
+            
+        }
+    }
+    int r = getaddrinfo(hostName, NULL, &hints,&ret);
+    if (r < 0)
+    {
+        std::cout<<"error when getting hostname or ip, check internet connection"<<std::endl;
+        std::cout<<"errno:"<<strerror(errno)<<", "<<errno<<std::endl;
+        exit(r);
+    }
+    //convert to human readable IP
+    char strIP[INET_ADDRSTRLEN];
+
+    inet_ntop(AF_INET,&(((struct sockaddr_in*)ret->ai_addr)->sin_addr),&strIP[0],INET_ADDRSTRLEN);
+    std::cout<<"hostname: "<<std::string(ret->ai_canonname)<<", ip: "<<std::string(strIP)<<std::endl;
+    freeaddrinfo(&hints);
+    freeaddrinfo(ret);
+    return std::string(strIP);
+}
+
 /* Generic socket methods*/
 int SocketMethods::socketSetup_(int port)
 {
@@ -49,6 +97,33 @@ int SocketMethods::socketSetup_(int port)
         std::cout<<"failed to bind socket"<<std::endl;
     }
     localAddrLen_ = sizeof(plocalAddr_);
+    return r;
+}
+
+int SocketMethods::getIPfromName(std::string hostname,int port) //alternative method for future connectsocket for the future when not using static ip
+{
+    std::cout<<"getting ip of: "<<hostname<<std::endl;
+    struct addrinfo hints;
+    memset(&hints,0,sizeof(hints));
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_DGRAM;
+    hints.ai_protocol = IPPROTO_UDP;
+    char decimal_port[16];
+    snprintf(decimal_port, 16, "%d", port);
+    decimal_port[15] = '\0';
+    int r = getaddrinfo(hostname.c_str(), decimal_port, &hints, &plocalAddr_);
+    if(r != 0 || plocalAddr_ == NULL)
+    {
+        std::cout<<"invalid address or port"<<std::endl;
+        return -1;
+    }
+    //convert to human readable IP
+    char strIP[INET_ADDRSTRLEN];
+
+    inet_ntop(AF_INET,&(((struct sockaddr_in*)plocalAddr_->ai_addr)->sin_addr),&strIP[0],INET_ADDRSTRLEN);
+    uint32_t port2 = ntohs(((struct sockaddr_in*)plocalAddr_->ai_addr)->sin_port);
+    std::cout<<"ip address server: " <<strIP<<":"<<port2<<std::endl;
+    addr_ = strIP;
     return r;
 }
 
@@ -150,11 +225,17 @@ ssize_t AbMessenger::getThreadList(std::thread* tbuffer[], size_t tbufferlen)
 }
 */
 /* Server functions */
-ssize_t ServerSocket::initRecv()
+ssize_t ServerSocket::initRecv()//TODO: fix
 {
-    setTimeout();
+    setTimeout(60,0);
     ssize_t msgSize;
     msgSize = serverRecvfrom(&buffer_[0],bufferSize_);
+    if (msgSize < 0)
+    {
+        std::cout<<"timeout"<<std::endl;
+        return -1;
+    }
+    std::cout<<"msg recv"<<std::endl; //somewhat temp
     try
     {
         data_.ParseFromArray(buffer_,msgSize);
@@ -164,14 +245,14 @@ ssize_t ServerSocket::initRecv()
         if (clientProgram_ == dronePosVec::server)
         {
             std::cout<<"ERROR: ID not specified in message"<<std::endl;
-            return -1;
+            return -2;
         }
     }
     catch(const std::exception& e)
     {
         std::cerr << e.what() << '\n';
         std::cout<<"invalid message"<<std::endl;
-        return -1;
+        return -3;
     }
     return msgSize;
 }
@@ -193,28 +274,41 @@ ns_t ServerSocket::calcSleepTime(ns_t interval)
     return (interval -((monoTimeNow_() - serverTimer_) % interval.count()));
 }
 
-dronePosVec::progName ServerMain::mainRecvloop()
+dronePosVec::progName ServerMain::mainRecvloop() 
 {
     clientProgram_ = dronePosVec::server; //default;
     char tempmsg[6] = {'h','e','l','l','o','\0'}; //TODO: make not temporary >:(
-    if (initRecv() > 0) //wait for first recvTo
+    bool recvLooping = true;
+    int r = 0;
+    while(recvLooping) //restart recv in case of an invalid message such as from port scanning, but end if timeout
     {
-        memcpy(buffer_,&tempmsg,6); //temporary
-        if ((clientConnect(&clientAddr_,clientAddrLen_)) >= 0)
+        r = initRecv();//wait for first recvTo
+        if (r > 0)
         {
-            clientSend(tempmsg,6);//temporary msg
+            memcpy(buffer_,&tempmsg,6); //temporary
+            if ((clientConnect(&clientAddr_,clientAddrLen_)) >= 0)
+            {
+                clientSend(tempmsg,6);//temporary msg
 
-            checklistLoop(); //checklist 
-            std::cout<<"checklist done"<<std::endl;
-            //restart mainloop
-            socketShutdown();
-            socketSetup_(port_);
-            return clientProgram_;
+                checklistLoop(); //checklist 
+                std::cout<<"checklist done"<<std::endl;
+                //restart mainloop
+                socketShutdown();
+                socketSetup_(port_);
+                recvLooping = false;
+                return clientProgram_;
+            }
+            else
+            {
+                std::cout<<"failed to connect"<<std::endl;
+            }
         }
-        else
+        else if (r == -1)
         {
-            std::cout<<"failed to connect"<<std::endl;
+            recvLooping = false;
+            break;
         }
+        
     }
     return dronePosVec::server; //default
 }
@@ -385,9 +479,16 @@ bool AbMessenger::getConnection()
 
 int AbMessenger::joinThread()
 {
+    std::cout<<"joining thrread of: "<<strName<<std::endl;
     threadloop_ = false;
-    tRecv_.join();
-    tSend_.join();
+    if(tRecv_.joinable())
+    {
+        tRecv_.join();
+    }
+    if(tSend_.joinable())
+    {
+        tSend_.join();
+    }
     return 0;
 }
 
