@@ -4,17 +4,21 @@ package dronePosVec;
 
 message dronePosition{
 	dataDevices deviceType = 1;
-	repeated float position = 2     [packed=true];
-	repeated float positionDot = 3  [packed=true];
-	repeated uint32 matrixSize = 4  [packed=true];
-	repeated float rotMatrix = 5    [packed=true];
-	repeated float rotMatrixDot = 6 [packed=true];
+	repeated uint32 posShape = 2		[packed=true];
+	repeated float position = 3     [packed=true];
+	repeated uint32 rotShape = 4  	[packed=true];
+	repeated float rotation = 5    	[packed=true]; //rotation matrix from camera, vector from IMU
+	uint64 timestamp_ns = 6; //likely mono, so two timestamps needed to be useful
+	uint32 camIteration = 7; //where in array to append cameraRaw to cameraIMG
+	repeated uint32 cameraRaw = 8 	[packed=true];
 }
 
 enum dataDevices {
 	IMUonly = 0;
-	CameraOnly = 1;
+	CameraPos = 1;
 	KalmanFilter = 2;
+	CameraImgRGB = 3; //likely unused as other sending method will be used instead
+	CameraImgDepth = 4;
 }
 
 message droneControl{ //this goes from -1 to 1
@@ -22,21 +26,34 @@ message droneControl{ //this goes from -1 to 1
 	float motorFR = 2;
 	float motorBL = 3;
 	float motorBR = 4;
+	bool killswitch = 5;
 }
 
 message dataTransfers{
-	int32 ID = 1; //useless?
-	transferType type = 3;
-	string msg = 4;
-	int64 timeSync_ns = 5;
-	string IP = 6;
-	uint32 port = 7;
+	progName ID = 1;
+	transferType type = 2;
+	string msg = 3;
+	int64 timeSync_ns = 4;
+	string IP = 5; //for python and matlab
+	uint32 port = 6;
+	bytes sockaddr = 7; //for c++
+	uint32 sockaddrlen = 8;
+	uint32 sa_family = 9;
 }
 
 enum transferType {
 	timeSync = 0;
 	socketInfo = 1;
 	stateChange = 2;
+}
+
+enum progName{
+	server = 0;
+	drone = 1;
+	estimator = 2;
+	arena = 3;
+	camera = 4;
+	rl = 5;
 }
 
 /*
