@@ -9,6 +9,7 @@
 #include <thread>
 #include <atomic>
 #include <queue>
+#include <condition_variable>
 
 using ns_t = std::chrono::nanoseconds;
 
@@ -18,6 +19,14 @@ enum threadStartType
 	sendOnly,
 	sendRecv
 };
+
+//template<typename T>
+namespace qMethods
+{
+	bool blockingFront(std::string& value, std::queue<std::string>& q,int timeout_ms);
+	std::mutex guard;
+	std::condition_variable signal;
+}
 
 class SocketMethods{
 public:
@@ -42,12 +51,15 @@ protected:
     ns_t timerOffset_;
 	void sleeptoInterval_(ns_t interval); //might be separated into two functions with get nanoseconds to interval, its nice to have sometimes
 	ns_t monoTimeNow_();
+	std::string serverAddr_;
 
 	dronePosVec::dataTransfers data_; 
-	const std::string addr_; //likely 127.0.0.1 for all implementations
+	void getIPfromName(std::string hostname,int port);
+	std::string addr_; //likely 127.0.0.1 for all implementations
 	int socketSetup_(int port); //creates and binds socket, returns 0 if successful, must be called in constructor
 	int f_socket_;
 	struct addrinfo* plocalAddr_ ; //this is needed because getaddrinfo() wants an addrinfo** type
+	struct addrinfo* pServerAddr_ ;
 	//struct addrinfo localAddr_; //breaks everything dont use
 	socklen_t localAddrLen_;
 	struct sockaddr clientAddr_;
@@ -61,9 +73,9 @@ public:
     ClientClass(std::string addr,dronePosVec::progName clientName,std::string serverAddr,int serverPort,threadStartType threadFuncs)
     :SocketMethods(addr, clientName)
 	,threadFuncs(threadFuncs)
-    ,serverAddr_(serverAddr)
     ,serverPort_(serverPort)
     {
+		getIPfromName(serverAddr,serverPort_);
         socketSetup_(0);
     }
     int connectServer();
@@ -78,12 +90,12 @@ public:
 	const threadStartType threadFuncs;
 	std::queue<std::string> sendQueue;
 	std::atomic_bool readingQueue = false;
+	std::atomic_bool threadloop = true;//this needs to be atomic as it may be chagned and read at the same time at program end
 
 private:
     //int connectNewServer_();
 	void getNextAddr_();
     int cSyncTime_();
-    const std::string serverAddr_;
 
     int statechange_();
     struct sockaddr nextAddress_;
@@ -98,7 +110,6 @@ private:
 	ns_t sendInterval_ = ns_t(100000000);//TODO: temp
     std::thread tRecv_;
 	std::thread tSend_;
-	std::atomic_bool threadloop_ = true;//this needs to be atomic as it may be chagned and read at the same time at program end
 
 }; //ClientClass
 
