@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x11\x64ronePosVec.proto\x12\x0b\x64ronePosVec\"\xb5\x01\n\rdronePosition\x12,\n\ndeviceType\x18\x01 \x01(\x0e\x32\x18.dronePosVec.dataDevices\x12\x14\n\x08position\x18\x02 \x03(\x02\x42\x02\x10\x01\x12\x17\n\x0bpositionDot\x18\x03 \x03(\x02\x42\x02\x10\x01\x12\x16\n\nmatrixSize\x18\x04 \x03(\rB\x02\x10\x01\x12\x15\n\trotMatrix\x18\x05 \x03(\x02\x42\x02\x10\x01\x12\x18\n\x0crotMatrixDot\x18\x06 \x03(\x02\x42\x02\x10\x01\"R\n\x0c\x64roneControl\x12\x0f\n\x07motorFL\x18\x01 \x01(\x02\x12\x0f\n\x07motorFR\x18\x02 \x01(\x02\x12\x0f\n\x07motorBL\x18\x03 \x01(\x02\x12\x0f\n\x07motorBR\x18\x04 \x01(\x02\"\xd1\x01\n\rdataTransfers\x12!\n\x02ID\x18\x01 \x01(\x0e\x32\x15.dronePosVec.progName\x12\'\n\x04type\x18\x02 \x01(\x0e\x32\x19.dronePosVec.transferType\x12\x0b\n\x03msg\x18\x03 \x01(\t\x12\x13\n\x0btimeSync_ns\x18\x04 \x01(\x03\x12\n\n\x02IP\x18\x05 \x01(\t\x12\x0c\n\x04port\x18\x06 \x01(\r\x12\x10\n\x08sockaddr\x18\x07 \x01(\x0c\x12\x13\n\x0bsockaddrlen\x18\x08 \x01(\r\x12\x11\n\tsa_family\x18\t \x01(\r*<\n\x0b\x64\x61taDevices\x12\x0b\n\x07IMUonly\x10\x00\x12\x0e\n\nCameraOnly\x10\x01\x12\x10\n\x0cKalmanFilter\x10\x02*=\n\x0ctransferType\x12\x0c\n\x08timeSync\x10\x00\x12\x0e\n\nsocketInfo\x10\x01\x12\x0f\n\x0bstateChange\x10\x02*O\n\x08progName\x12\n\n\x06server\x10\x00\x12\t\n\x05\x64rone\x10\x01\x12\r\n\testimator\x10\x02\x12\t\n\x05\x61rena\x10\x03\x12\n\n\x06\x63\x61mera\x10\x04\x12\x06\n\x02rl\x10\x05\x62\x06proto3'
+  serialized_pb=b'\n\x11\x64ronePosVec.proto\x12\x0b\x64ronePosVec\"\xd8\x01\n\rdronePosition\x12,\n\ndeviceType\x18\x01 \x01(\x0e\x32\x18.dronePosVec.dataDevices\x12\x14\n\x08posShape\x18\x02 \x03(\rB\x02\x10\x01\x12\x14\n\x08position\x18\x03 \x03(\x02\x42\x02\x10\x01\x12\x14\n\x08rotShape\x18\x04 \x03(\rB\x02\x10\x01\x12\x14\n\x08rotation\x18\x05 \x03(\x02\x42\x02\x10\x01\x12\x14\n\x0ctimestamp_ns\x18\x06 \x01(\x04\x12\x14\n\x0c\x63\x61mIteration\x18\x07 \x01(\r\x12\x15\n\tcameraRaw\x18\x08 \x03(\rB\x02\x10\x01\"f\n\x0c\x64roneControl\x12\x0f\n\x07motorFL\x18\x01 \x01(\x02\x12\x0f\n\x07motorFR\x18\x02 \x01(\x02\x12\x0f\n\x07motorBL\x18\x03 \x01(\x02\x12\x0f\n\x07motorBR\x18\x04 \x01(\x02\x12\x12\n\nkillswitch\x18\x05 \x01(\x08\"\xd1\x01\n\rdataTransfers\x12!\n\x02ID\x18\x01 \x01(\x0e\x32\x15.dronePosVec.progName\x12\'\n\x04type\x18\x02 \x01(\x0e\x32\x19.dronePosVec.transferType\x12\x0b\n\x03msg\x18\x03 \x01(\t\x12\x13\n\x0btimeSync_ns\x18\x04 \x01(\x03\x12\n\n\x02IP\x18\x05 \x01(\t\x12\x0c\n\x04port\x18\x06 \x01(\r\x12\x10\n\x08sockaddr\x18\x07 \x01(\x0c\x12\x13\n\x0bsockaddrlen\x18\x08 \x01(\r\x12\x11\n\tsa_family\x18\t \x01(\r*a\n\x0b\x64\x61taDevices\x12\x0b\n\x07IMUonly\x10\x00\x12\r\n\tCameraPos\x10\x01\x12\x10\n\x0cKalmanFilter\x10\x02\x12\x10\n\x0c\x43\x61meraImgRGB\x10\x03\x12\x12\n\x0e\x43\x61meraImgDepth\x10\x04*=\n\x0ctransferType\x12\x0c\n\x08timeSync\x10\x00\x12\x0e\n\nsocketInfo\x10\x01\x12\x0f\n\x0bstateChange\x10\x02*O\n\x08progName\x12\n\n\x06server\x10\x00\x12\t\n\x05\x64rone\x10\x01\x12\r\n\testimator\x10\x02\x12\t\n\x05\x61rena\x10\x03\x12\n\n\x06\x63\x61mera\x10\x04\x12\x06\n\x02rl\x10\x05\x62\x06proto3'
 )
 
 _DATADEVICES = _descriptor.EnumDescriptor(
@@ -36,7 +36,7 @@ _DATADEVICES = _descriptor.EnumDescriptor(
       type=None,
       create_key=_descriptor._internal_create_key),
     _descriptor.EnumValueDescriptor(
-      name='CameraOnly', index=1, number=1,
+      name='CameraPos', index=1, number=1,
       serialized_options=None,
       type=None,
       create_key=_descriptor._internal_create_key),
@@ -45,11 +45,21 @@ _DATADEVICES = _descriptor.EnumDescriptor(
       serialized_options=None,
       type=None,
       create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='CameraImgRGB', index=3, number=3,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='CameraImgDepth', index=4, number=4,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=514,
-  serialized_end=574,
+  serialized_start=569,
+  serialized_end=666,
 )
 _sym_db.RegisterEnumDescriptor(_DATADEVICES)
 
@@ -79,8 +89,8 @@ _TRANSFERTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=576,
-  serialized_end=637,
+  serialized_start=668,
+  serialized_end=729,
 )
 _sym_db.RegisterEnumDescriptor(_TRANSFERTYPE)
 
@@ -125,15 +135,17 @@ _PROGNAME = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=639,
-  serialized_end=718,
+  serialized_start=731,
+  serialized_end=810,
 )
 _sym_db.RegisterEnumDescriptor(_PROGNAME)
 
 progName = enum_type_wrapper.EnumTypeWrapper(_PROGNAME)
 IMUonly = 0
-CameraOnly = 1
+CameraPos = 1
 KalmanFilter = 2
+CameraImgRGB = 3
+CameraImgDepth = 4
 timeSync = 0
 socketInfo = 1
 stateChange = 2
@@ -162,36 +174,50 @@ _DRONEPOSITION = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='position', full_name='dronePosVec.dronePosition.position', index=1,
-      number=2, type=2, cpp_type=6, label=3,
+      name='posShape', full_name='dronePosVec.dronePosition.posShape', index=1,
+      number=2, type=13, cpp_type=3, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=b'\020\001', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='positionDot', full_name='dronePosVec.dronePosition.positionDot', index=2,
+      name='position', full_name='dronePosVec.dronePosition.position', index=2,
       number=3, type=2, cpp_type=6, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=b'\020\001', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='matrixSize', full_name='dronePosVec.dronePosition.matrixSize', index=3,
+      name='rotShape', full_name='dronePosVec.dronePosition.rotShape', index=3,
       number=4, type=13, cpp_type=3, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=b'\020\001', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='rotMatrix', full_name='dronePosVec.dronePosition.rotMatrix', index=4,
+      name='rotation', full_name='dronePosVec.dronePosition.rotation', index=4,
       number=5, type=2, cpp_type=6, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=b'\020\001', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='rotMatrixDot', full_name='dronePosVec.dronePosition.rotMatrixDot', index=5,
-      number=6, type=2, cpp_type=6, label=3,
+      name='timestamp_ns', full_name='dronePosVec.dronePosition.timestamp_ns', index=5,
+      number=6, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='camIteration', full_name='dronePosVec.dronePosition.camIteration', index=6,
+      number=7, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='cameraRaw', full_name='dronePosVec.dronePosition.cameraRaw', index=7,
+      number=8, type=13, cpp_type=3, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -209,7 +235,7 @@ _DRONEPOSITION = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=35,
-  serialized_end=216,
+  serialized_end=251,
 )
 
 
@@ -249,6 +275,13 @@ _DRONECONTROL = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='killswitch', full_name='dronePosVec.droneControl.killswitch', index=4,
+      number=5, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -261,8 +294,8 @@ _DRONECONTROL = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=218,
-  serialized_end=300,
+  serialized_start=253,
+  serialized_end=355,
 )
 
 
@@ -349,8 +382,8 @@ _DATATRANSFERS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=303,
-  serialized_end=512,
+  serialized_start=358,
+  serialized_end=567,
 )
 
 _DRONEPOSITION.fields_by_name['deviceType'].enum_type = _DATADEVICES
@@ -386,9 +419,9 @@ dataTransfers = _reflection.GeneratedProtocolMessageType('dataTransfers', (_mess
 _sym_db.RegisterMessage(dataTransfers)
 
 
+_DRONEPOSITION.fields_by_name['posShape']._options = None
 _DRONEPOSITION.fields_by_name['position']._options = None
-_DRONEPOSITION.fields_by_name['positionDot']._options = None
-_DRONEPOSITION.fields_by_name['matrixSize']._options = None
-_DRONEPOSITION.fields_by_name['rotMatrix']._options = None
-_DRONEPOSITION.fields_by_name['rotMatrixDot']._options = None
+_DRONEPOSITION.fields_by_name['rotShape']._options = None
+_DRONEPOSITION.fields_by_name['rotation']._options = None
+_DRONEPOSITION.fields_by_name['cameraRaw']._options = None
 # @@protoc_insertion_point(module_scope)

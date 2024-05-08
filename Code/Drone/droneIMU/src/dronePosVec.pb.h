@@ -75,14 +75,16 @@ namespace dronePosVec {
 
 enum dataDevices : int {
   IMUonly = 0,
-  CameraOnly = 1,
+  CameraPos = 1,
   KalmanFilter = 2,
+  CameraImgRGB = 3,
+  CameraImgDepth = 4,
   dataDevices_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
   dataDevices_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
 };
 bool dataDevices_IsValid(int value);
 constexpr dataDevices dataDevices_MIN = IMUonly;
-constexpr dataDevices dataDevices_MAX = KalmanFilter;
+constexpr dataDevices dataDevices_MAX = CameraImgDepth;
 constexpr int dataDevices_ARRAYSIZE = dataDevices_MAX + 1;
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* dataDevices_descriptor();
@@ -269,14 +271,38 @@ class dronePosition PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kPositionFieldNumber = 2,
-    kPositionDotFieldNumber = 3,
-    kMatrixSizeFieldNumber = 4,
-    kRotMatrixFieldNumber = 5,
-    kRotMatrixDotFieldNumber = 6,
+    kPosShapeFieldNumber = 2,
+    kPositionFieldNumber = 3,
+    kRotShapeFieldNumber = 4,
+    kRotationFieldNumber = 5,
+    kCameraRawFieldNumber = 8,
     kDeviceTypeFieldNumber = 1,
+    kCamIterationFieldNumber = 7,
+    kTimestampNsFieldNumber = 6,
   };
-  // repeated float position = 2 [packed = true];
+  // repeated uint32 posShape = 2 [packed = true];
+  int posshape_size() const;
+  private:
+  int _internal_posshape_size() const;
+  public:
+  void clear_posshape();
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_posshape(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
+      _internal_posshape() const;
+  void _internal_add_posshape(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
+      _internal_mutable_posshape();
+  public:
+  ::PROTOBUF_NAMESPACE_ID::uint32 posshape(int index) const;
+  void set_posshape(int index, ::PROTOBUF_NAMESPACE_ID::uint32 value);
+  void add_posshape(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
+      posshape() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
+      mutable_posshape();
+
+  // repeated float position = 3 [packed = true];
   int position_size() const;
   private:
   int _internal_position_size() const;
@@ -298,93 +324,71 @@ class dronePosition PROTOBUF_FINAL :
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
       mutable_position();
 
-  // repeated float positionDot = 3 [packed = true];
-  int positiondot_size() const;
+  // repeated uint32 rotShape = 4 [packed = true];
+  int rotshape_size() const;
   private:
-  int _internal_positiondot_size() const;
+  int _internal_rotshape_size() const;
   public:
-  void clear_positiondot();
+  void clear_rotshape();
   private:
-  float _internal_positiondot(int index) const;
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
-      _internal_positiondot() const;
-  void _internal_add_positiondot(float value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
-      _internal_mutable_positiondot();
-  public:
-  float positiondot(int index) const;
-  void set_positiondot(int index, float value);
-  void add_positiondot(float value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
-      positiondot() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
-      mutable_positiondot();
-
-  // repeated uint32 matrixSize = 4 [packed = true];
-  int matrixsize_size() const;
-  private:
-  int _internal_matrixsize_size() const;
-  public:
-  void clear_matrixsize();
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_matrixsize(int index) const;
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_rotshape(int index) const;
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
-      _internal_matrixsize() const;
-  void _internal_add_matrixsize(::PROTOBUF_NAMESPACE_ID::uint32 value);
+      _internal_rotshape() const;
+  void _internal_add_rotshape(::PROTOBUF_NAMESPACE_ID::uint32 value);
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
-      _internal_mutable_matrixsize();
+      _internal_mutable_rotshape();
   public:
-  ::PROTOBUF_NAMESPACE_ID::uint32 matrixsize(int index) const;
-  void set_matrixsize(int index, ::PROTOBUF_NAMESPACE_ID::uint32 value);
-  void add_matrixsize(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  ::PROTOBUF_NAMESPACE_ID::uint32 rotshape(int index) const;
+  void set_rotshape(int index, ::PROTOBUF_NAMESPACE_ID::uint32 value);
+  void add_rotshape(::PROTOBUF_NAMESPACE_ID::uint32 value);
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
-      matrixsize() const;
+      rotshape() const;
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
-      mutable_matrixsize();
+      mutable_rotshape();
 
-  // repeated float rotMatrix = 5 [packed = true];
-  int rotmatrix_size() const;
+  // repeated float rotation = 5 [packed = true];
+  int rotation_size() const;
   private:
-  int _internal_rotmatrix_size() const;
+  int _internal_rotation_size() const;
   public:
-  void clear_rotmatrix();
+  void clear_rotation();
   private:
-  float _internal_rotmatrix(int index) const;
+  float _internal_rotation(int index) const;
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
-      _internal_rotmatrix() const;
-  void _internal_add_rotmatrix(float value);
+      _internal_rotation() const;
+  void _internal_add_rotation(float value);
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
-      _internal_mutable_rotmatrix();
+      _internal_mutable_rotation();
   public:
-  float rotmatrix(int index) const;
-  void set_rotmatrix(int index, float value);
-  void add_rotmatrix(float value);
+  float rotation(int index) const;
+  void set_rotation(int index, float value);
+  void add_rotation(float value);
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
-      rotmatrix() const;
+      rotation() const;
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
-      mutable_rotmatrix();
+      mutable_rotation();
 
-  // repeated float rotMatrixDot = 6 [packed = true];
-  int rotmatrixdot_size() const;
+  // repeated uint32 cameraRaw = 8 [packed = true];
+  int cameraraw_size() const;
   private:
-  int _internal_rotmatrixdot_size() const;
+  int _internal_cameraraw_size() const;
   public:
-  void clear_rotmatrixdot();
+  void clear_cameraraw();
   private:
-  float _internal_rotmatrixdot(int index) const;
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
-      _internal_rotmatrixdot() const;
-  void _internal_add_rotmatrixdot(float value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
-      _internal_mutable_rotmatrixdot();
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_cameraraw(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
+      _internal_cameraraw() const;
+  void _internal_add_cameraraw(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
+      _internal_mutable_cameraraw();
   public:
-  float rotmatrixdot(int index) const;
-  void set_rotmatrixdot(int index, float value);
-  void add_rotmatrixdot(float value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
-      rotmatrixdot() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
-      mutable_rotmatrixdot();
+  ::PROTOBUF_NAMESPACE_ID::uint32 cameraraw(int index) const;
+  void set_cameraraw(int index, ::PROTOBUF_NAMESPACE_ID::uint32 value);
+  void add_cameraraw(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
+      cameraraw() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
+      mutable_cameraraw();
 
   // .dronePosVec.dataDevices deviceType = 1;
   void clear_devicetype();
@@ -395,6 +399,24 @@ class dronePosition PROTOBUF_FINAL :
   void _internal_set_devicetype(::dronePosVec::dataDevices value);
   public:
 
+  // uint32 camIteration = 7;
+  void clear_camiteration();
+  ::PROTOBUF_NAMESPACE_ID::uint32 camiteration() const;
+  void set_camiteration(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_camiteration() const;
+  void _internal_set_camiteration(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // uint64 timestamp_ns = 6;
+  void clear_timestamp_ns();
+  ::PROTOBUF_NAMESPACE_ID::uint64 timestamp_ns() const;
+  void set_timestamp_ns(::PROTOBUF_NAMESPACE_ID::uint64 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint64 _internal_timestamp_ns() const;
+  void _internal_set_timestamp_ns(::PROTOBUF_NAMESPACE_ID::uint64 value);
+  public:
+
   // @@protoc_insertion_point(class_scope:dronePosVec.dronePosition)
  private:
   class _Internal;
@@ -402,17 +424,19 @@ class dronePosition PROTOBUF_FINAL :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 > posshape_;
+  mutable std::atomic<int> _posshape_cached_byte_size_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > position_;
   mutable std::atomic<int> _position_cached_byte_size_;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > positiondot_;
-  mutable std::atomic<int> _positiondot_cached_byte_size_;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 > matrixsize_;
-  mutable std::atomic<int> _matrixsize_cached_byte_size_;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > rotmatrix_;
-  mutable std::atomic<int> _rotmatrix_cached_byte_size_;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > rotmatrixdot_;
-  mutable std::atomic<int> _rotmatrixdot_cached_byte_size_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 > rotshape_;
+  mutable std::atomic<int> _rotshape_cached_byte_size_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > rotation_;
+  mutable std::atomic<int> _rotation_cached_byte_size_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 > cameraraw_;
+  mutable std::atomic<int> _cameraraw_cached_byte_size_;
   int devicetype_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 camiteration_;
+  ::PROTOBUF_NAMESPACE_ID::uint64 timestamp_ns_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_dronePosVec_2eproto;
 };
@@ -535,6 +559,7 @@ class droneControl PROTOBUF_FINAL :
     kMotorFRFieldNumber = 2,
     kMotorBLFieldNumber = 3,
     kMotorBRFieldNumber = 4,
+    kKillswitchFieldNumber = 5,
   };
   // float motorFL = 1;
   void clear_motorfl();
@@ -572,6 +597,15 @@ class droneControl PROTOBUF_FINAL :
   void _internal_set_motorbr(float value);
   public:
 
+  // bool killswitch = 5;
+  void clear_killswitch();
+  bool killswitch() const;
+  void set_killswitch(bool value);
+  private:
+  bool _internal_killswitch() const;
+  void _internal_set_killswitch(bool value);
+  public:
+
   // @@protoc_insertion_point(class_scope:dronePosVec.droneControl)
  private:
   class _Internal;
@@ -583,6 +617,7 @@ class droneControl PROTOBUF_FINAL :
   float motorfr_;
   float motorbl_;
   float motorbr_;
+  bool killswitch_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_dronePosVec_2eproto;
 };
@@ -890,7 +925,54 @@ inline void dronePosition::set_devicetype(::dronePosVec::dataDevices value) {
   // @@protoc_insertion_point(field_set:dronePosVec.dronePosition.deviceType)
 }
 
-// repeated float position = 2 [packed = true];
+// repeated uint32 posShape = 2 [packed = true];
+inline int dronePosition::_internal_posshape_size() const {
+  return posshape_.size();
+}
+inline int dronePosition::posshape_size() const {
+  return _internal_posshape_size();
+}
+inline void dronePosition::clear_posshape() {
+  posshape_.Clear();
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 dronePosition::_internal_posshape(int index) const {
+  return posshape_.Get(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 dronePosition::posshape(int index) const {
+  // @@protoc_insertion_point(field_get:dronePosVec.dronePosition.posShape)
+  return _internal_posshape(index);
+}
+inline void dronePosition::set_posshape(int index, ::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  posshape_.Set(index, value);
+  // @@protoc_insertion_point(field_set:dronePosVec.dronePosition.posShape)
+}
+inline void dronePosition::_internal_add_posshape(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  posshape_.Add(value);
+}
+inline void dronePosition::add_posshape(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_add_posshape(value);
+  // @@protoc_insertion_point(field_add:dronePosVec.dronePosition.posShape)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
+dronePosition::_internal_posshape() const {
+  return posshape_;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
+dronePosition::posshape() const {
+  // @@protoc_insertion_point(field_list:dronePosVec.dronePosition.posShape)
+  return _internal_posshape();
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
+dronePosition::_internal_mutable_posshape() {
+  return &posshape_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
+dronePosition::mutable_posshape() {
+  // @@protoc_insertion_point(field_mutable_list:dronePosVec.dronePosition.posShape)
+  return _internal_mutable_posshape();
+}
+
+// repeated float position = 3 [packed = true];
 inline int dronePosition::_internal_position_size() const {
   return position_.size();
 }
@@ -937,192 +1019,185 @@ dronePosition::mutable_position() {
   return _internal_mutable_position();
 }
 
-// repeated float positionDot = 3 [packed = true];
-inline int dronePosition::_internal_positiondot_size() const {
-  return positiondot_.size();
+// repeated uint32 rotShape = 4 [packed = true];
+inline int dronePosition::_internal_rotshape_size() const {
+  return rotshape_.size();
 }
-inline int dronePosition::positiondot_size() const {
-  return _internal_positiondot_size();
+inline int dronePosition::rotshape_size() const {
+  return _internal_rotshape_size();
 }
-inline void dronePosition::clear_positiondot() {
-  positiondot_.Clear();
+inline void dronePosition::clear_rotshape() {
+  rotshape_.Clear();
 }
-inline float dronePosition::_internal_positiondot(int index) const {
-  return positiondot_.Get(index);
+inline ::PROTOBUF_NAMESPACE_ID::uint32 dronePosition::_internal_rotshape(int index) const {
+  return rotshape_.Get(index);
 }
-inline float dronePosition::positiondot(int index) const {
-  // @@protoc_insertion_point(field_get:dronePosVec.dronePosition.positionDot)
-  return _internal_positiondot(index);
+inline ::PROTOBUF_NAMESPACE_ID::uint32 dronePosition::rotshape(int index) const {
+  // @@protoc_insertion_point(field_get:dronePosVec.dronePosition.rotShape)
+  return _internal_rotshape(index);
 }
-inline void dronePosition::set_positiondot(int index, float value) {
-  positiondot_.Set(index, value);
-  // @@protoc_insertion_point(field_set:dronePosVec.dronePosition.positionDot)
+inline void dronePosition::set_rotshape(int index, ::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  rotshape_.Set(index, value);
+  // @@protoc_insertion_point(field_set:dronePosVec.dronePosition.rotShape)
 }
-inline void dronePosition::_internal_add_positiondot(float value) {
-  positiondot_.Add(value);
+inline void dronePosition::_internal_add_rotshape(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  rotshape_.Add(value);
 }
-inline void dronePosition::add_positiondot(float value) {
-  _internal_add_positiondot(value);
-  // @@protoc_insertion_point(field_add:dronePosVec.dronePosition.positionDot)
-}
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
-dronePosition::_internal_positiondot() const {
-  return positiondot_;
-}
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
-dronePosition::positiondot() const {
-  // @@protoc_insertion_point(field_list:dronePosVec.dronePosition.positionDot)
-  return _internal_positiondot();
-}
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
-dronePosition::_internal_mutable_positiondot() {
-  return &positiondot_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
-dronePosition::mutable_positiondot() {
-  // @@protoc_insertion_point(field_mutable_list:dronePosVec.dronePosition.positionDot)
-  return _internal_mutable_positiondot();
-}
-
-// repeated uint32 matrixSize = 4 [packed = true];
-inline int dronePosition::_internal_matrixsize_size() const {
-  return matrixsize_.size();
-}
-inline int dronePosition::matrixsize_size() const {
-  return _internal_matrixsize_size();
-}
-inline void dronePosition::clear_matrixsize() {
-  matrixsize_.Clear();
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 dronePosition::_internal_matrixsize(int index) const {
-  return matrixsize_.Get(index);
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 dronePosition::matrixsize(int index) const {
-  // @@protoc_insertion_point(field_get:dronePosVec.dronePosition.matrixSize)
-  return _internal_matrixsize(index);
-}
-inline void dronePosition::set_matrixsize(int index, ::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  matrixsize_.Set(index, value);
-  // @@protoc_insertion_point(field_set:dronePosVec.dronePosition.matrixSize)
-}
-inline void dronePosition::_internal_add_matrixsize(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  matrixsize_.Add(value);
-}
-inline void dronePosition::add_matrixsize(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  _internal_add_matrixsize(value);
-  // @@protoc_insertion_point(field_add:dronePosVec.dronePosition.matrixSize)
+inline void dronePosition::add_rotshape(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_add_rotshape(value);
+  // @@protoc_insertion_point(field_add:dronePosVec.dronePosition.rotShape)
 }
 inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
-dronePosition::_internal_matrixsize() const {
-  return matrixsize_;
+dronePosition::_internal_rotshape() const {
+  return rotshape_;
 }
 inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
-dronePosition::matrixsize() const {
-  // @@protoc_insertion_point(field_list:dronePosVec.dronePosition.matrixSize)
-  return _internal_matrixsize();
+dronePosition::rotshape() const {
+  // @@protoc_insertion_point(field_list:dronePosVec.dronePosition.rotShape)
+  return _internal_rotshape();
 }
 inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
-dronePosition::_internal_mutable_matrixsize() {
-  return &matrixsize_;
+dronePosition::_internal_mutable_rotshape() {
+  return &rotshape_;
 }
 inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
-dronePosition::mutable_matrixsize() {
-  // @@protoc_insertion_point(field_mutable_list:dronePosVec.dronePosition.matrixSize)
-  return _internal_mutable_matrixsize();
+dronePosition::mutable_rotshape() {
+  // @@protoc_insertion_point(field_mutable_list:dronePosVec.dronePosition.rotShape)
+  return _internal_mutable_rotshape();
 }
 
-// repeated float rotMatrix = 5 [packed = true];
-inline int dronePosition::_internal_rotmatrix_size() const {
-  return rotmatrix_.size();
+// repeated float rotation = 5 [packed = true];
+inline int dronePosition::_internal_rotation_size() const {
+  return rotation_.size();
 }
-inline int dronePosition::rotmatrix_size() const {
-  return _internal_rotmatrix_size();
+inline int dronePosition::rotation_size() const {
+  return _internal_rotation_size();
 }
-inline void dronePosition::clear_rotmatrix() {
-  rotmatrix_.Clear();
+inline void dronePosition::clear_rotation() {
+  rotation_.Clear();
 }
-inline float dronePosition::_internal_rotmatrix(int index) const {
-  return rotmatrix_.Get(index);
+inline float dronePosition::_internal_rotation(int index) const {
+  return rotation_.Get(index);
 }
-inline float dronePosition::rotmatrix(int index) const {
-  // @@protoc_insertion_point(field_get:dronePosVec.dronePosition.rotMatrix)
-  return _internal_rotmatrix(index);
+inline float dronePosition::rotation(int index) const {
+  // @@protoc_insertion_point(field_get:dronePosVec.dronePosition.rotation)
+  return _internal_rotation(index);
 }
-inline void dronePosition::set_rotmatrix(int index, float value) {
-  rotmatrix_.Set(index, value);
-  // @@protoc_insertion_point(field_set:dronePosVec.dronePosition.rotMatrix)
+inline void dronePosition::set_rotation(int index, float value) {
+  rotation_.Set(index, value);
+  // @@protoc_insertion_point(field_set:dronePosVec.dronePosition.rotation)
 }
-inline void dronePosition::_internal_add_rotmatrix(float value) {
-  rotmatrix_.Add(value);
+inline void dronePosition::_internal_add_rotation(float value) {
+  rotation_.Add(value);
 }
-inline void dronePosition::add_rotmatrix(float value) {
-  _internal_add_rotmatrix(value);
-  // @@protoc_insertion_point(field_add:dronePosVec.dronePosition.rotMatrix)
-}
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
-dronePosition::_internal_rotmatrix() const {
-  return rotmatrix_;
+inline void dronePosition::add_rotation(float value) {
+  _internal_add_rotation(value);
+  // @@protoc_insertion_point(field_add:dronePosVec.dronePosition.rotation)
 }
 inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
-dronePosition::rotmatrix() const {
-  // @@protoc_insertion_point(field_list:dronePosVec.dronePosition.rotMatrix)
-  return _internal_rotmatrix();
+dronePosition::_internal_rotation() const {
+  return rotation_;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
+dronePosition::rotation() const {
+  // @@protoc_insertion_point(field_list:dronePosVec.dronePosition.rotation)
+  return _internal_rotation();
 }
 inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
-dronePosition::_internal_mutable_rotmatrix() {
-  return &rotmatrix_;
+dronePosition::_internal_mutable_rotation() {
+  return &rotation_;
 }
 inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
-dronePosition::mutable_rotmatrix() {
-  // @@protoc_insertion_point(field_mutable_list:dronePosVec.dronePosition.rotMatrix)
-  return _internal_mutable_rotmatrix();
+dronePosition::mutable_rotation() {
+  // @@protoc_insertion_point(field_mutable_list:dronePosVec.dronePosition.rotation)
+  return _internal_mutable_rotation();
 }
 
-// repeated float rotMatrixDot = 6 [packed = true];
-inline int dronePosition::_internal_rotmatrixdot_size() const {
-  return rotmatrixdot_.size();
+// uint64 timestamp_ns = 6;
+inline void dronePosition::clear_timestamp_ns() {
+  timestamp_ns_ = PROTOBUF_ULONGLONG(0);
 }
-inline int dronePosition::rotmatrixdot_size() const {
-  return _internal_rotmatrixdot_size();
+inline ::PROTOBUF_NAMESPACE_ID::uint64 dronePosition::_internal_timestamp_ns() const {
+  return timestamp_ns_;
 }
-inline void dronePosition::clear_rotmatrixdot() {
-  rotmatrixdot_.Clear();
+inline ::PROTOBUF_NAMESPACE_ID::uint64 dronePosition::timestamp_ns() const {
+  // @@protoc_insertion_point(field_get:dronePosVec.dronePosition.timestamp_ns)
+  return _internal_timestamp_ns();
 }
-inline float dronePosition::_internal_rotmatrixdot(int index) const {
-  return rotmatrixdot_.Get(index);
+inline void dronePosition::_internal_set_timestamp_ns(::PROTOBUF_NAMESPACE_ID::uint64 value) {
+  
+  timestamp_ns_ = value;
 }
-inline float dronePosition::rotmatrixdot(int index) const {
-  // @@protoc_insertion_point(field_get:dronePosVec.dronePosition.rotMatrixDot)
-  return _internal_rotmatrixdot(index);
+inline void dronePosition::set_timestamp_ns(::PROTOBUF_NAMESPACE_ID::uint64 value) {
+  _internal_set_timestamp_ns(value);
+  // @@protoc_insertion_point(field_set:dronePosVec.dronePosition.timestamp_ns)
 }
-inline void dronePosition::set_rotmatrixdot(int index, float value) {
-  rotmatrixdot_.Set(index, value);
-  // @@protoc_insertion_point(field_set:dronePosVec.dronePosition.rotMatrixDot)
+
+// uint32 camIteration = 7;
+inline void dronePosition::clear_camiteration() {
+  camiteration_ = 0u;
 }
-inline void dronePosition::_internal_add_rotmatrixdot(float value) {
-  rotmatrixdot_.Add(value);
+inline ::PROTOBUF_NAMESPACE_ID::uint32 dronePosition::_internal_camiteration() const {
+  return camiteration_;
 }
-inline void dronePosition::add_rotmatrixdot(float value) {
-  _internal_add_rotmatrixdot(value);
-  // @@protoc_insertion_point(field_add:dronePosVec.dronePosition.rotMatrixDot)
+inline ::PROTOBUF_NAMESPACE_ID::uint32 dronePosition::camiteration() const {
+  // @@protoc_insertion_point(field_get:dronePosVec.dronePosition.camIteration)
+  return _internal_camiteration();
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
-dronePosition::_internal_rotmatrixdot() const {
-  return rotmatrixdot_;
+inline void dronePosition::_internal_set_camiteration(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  camiteration_ = value;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
-dronePosition::rotmatrixdot() const {
-  // @@protoc_insertion_point(field_list:dronePosVec.dronePosition.rotMatrixDot)
-  return _internal_rotmatrixdot();
+inline void dronePosition::set_camiteration(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_camiteration(value);
+  // @@protoc_insertion_point(field_set:dronePosVec.dronePosition.camIteration)
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
-dronePosition::_internal_mutable_rotmatrixdot() {
-  return &rotmatrixdot_;
+
+// repeated uint32 cameraRaw = 8 [packed = true];
+inline int dronePosition::_internal_cameraraw_size() const {
+  return cameraraw_.size();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
-dronePosition::mutable_rotmatrixdot() {
-  // @@protoc_insertion_point(field_mutable_list:dronePosVec.dronePosition.rotMatrixDot)
-  return _internal_mutable_rotmatrixdot();
+inline int dronePosition::cameraraw_size() const {
+  return _internal_cameraraw_size();
+}
+inline void dronePosition::clear_cameraraw() {
+  cameraraw_.Clear();
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 dronePosition::_internal_cameraraw(int index) const {
+  return cameraraw_.Get(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 dronePosition::cameraraw(int index) const {
+  // @@protoc_insertion_point(field_get:dronePosVec.dronePosition.cameraRaw)
+  return _internal_cameraraw(index);
+}
+inline void dronePosition::set_cameraraw(int index, ::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  cameraraw_.Set(index, value);
+  // @@protoc_insertion_point(field_set:dronePosVec.dronePosition.cameraRaw)
+}
+inline void dronePosition::_internal_add_cameraraw(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  cameraraw_.Add(value);
+}
+inline void dronePosition::add_cameraraw(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_add_cameraraw(value);
+  // @@protoc_insertion_point(field_add:dronePosVec.dronePosition.cameraRaw)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
+dronePosition::_internal_cameraraw() const {
+  return cameraraw_;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
+dronePosition::cameraraw() const {
+  // @@protoc_insertion_point(field_list:dronePosVec.dronePosition.cameraRaw)
+  return _internal_cameraraw();
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
+dronePosition::_internal_mutable_cameraraw() {
+  return &cameraraw_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
+dronePosition::mutable_cameraraw() {
+  // @@protoc_insertion_point(field_mutable_list:dronePosVec.dronePosition.cameraRaw)
+  return _internal_mutable_cameraraw();
 }
 
 // -------------------------------------------------------------------
@@ -1207,6 +1282,26 @@ inline void droneControl::_internal_set_motorbr(float value) {
 inline void droneControl::set_motorbr(float value) {
   _internal_set_motorbr(value);
   // @@protoc_insertion_point(field_set:dronePosVec.droneControl.motorBR)
+}
+
+// bool killswitch = 5;
+inline void droneControl::clear_killswitch() {
+  killswitch_ = false;
+}
+inline bool droneControl::_internal_killswitch() const {
+  return killswitch_;
+}
+inline bool droneControl::killswitch() const {
+  // @@protoc_insertion_point(field_get:dronePosVec.droneControl.killswitch)
+  return _internal_killswitch();
+}
+inline void droneControl::_internal_set_killswitch(bool value) {
+  
+  killswitch_ = value;
+}
+inline void droneControl::set_killswitch(bool value) {
+  _internal_set_killswitch(value);
+  // @@protoc_insertion_point(field_set:dronePosVec.droneControl.killswitch)
 }
 
 // -------------------------------------------------------------------

@@ -81,11 +81,13 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_dronePosVec_2eproto::offsets[]
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   PROTOBUF_FIELD_OFFSET(::dronePosVec::dronePosition, devicetype_),
+  PROTOBUF_FIELD_OFFSET(::dronePosVec::dronePosition, posshape_),
   PROTOBUF_FIELD_OFFSET(::dronePosVec::dronePosition, position_),
-  PROTOBUF_FIELD_OFFSET(::dronePosVec::dronePosition, positiondot_),
-  PROTOBUF_FIELD_OFFSET(::dronePosVec::dronePosition, matrixsize_),
-  PROTOBUF_FIELD_OFFSET(::dronePosVec::dronePosition, rotmatrix_),
-  PROTOBUF_FIELD_OFFSET(::dronePosVec::dronePosition, rotmatrixdot_),
+  PROTOBUF_FIELD_OFFSET(::dronePosVec::dronePosition, rotshape_),
+  PROTOBUF_FIELD_OFFSET(::dronePosVec::dronePosition, rotation_),
+  PROTOBUF_FIELD_OFFSET(::dronePosVec::dronePosition, timestamp_ns_),
+  PROTOBUF_FIELD_OFFSET(::dronePosVec::dronePosition, camiteration_),
+  PROTOBUF_FIELD_OFFSET(::dronePosVec::dronePosition, cameraraw_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::dronePosVec::droneControl, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -95,6 +97,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_dronePosVec_2eproto::offsets[]
   PROTOBUF_FIELD_OFFSET(::dronePosVec::droneControl, motorfr_),
   PROTOBUF_FIELD_OFFSET(::dronePosVec::droneControl, motorbl_),
   PROTOBUF_FIELD_OFFSET(::dronePosVec::droneControl, motorbr_),
+  PROTOBUF_FIELD_OFFSET(::dronePosVec::droneControl, killswitch_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::dronePosVec::dataTransfers, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -112,8 +115,8 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_dronePosVec_2eproto::offsets[]
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::dronePosVec::dronePosition)},
-  { 11, -1, sizeof(::dronePosVec::droneControl)},
-  { 20, -1, sizeof(::dronePosVec::dataTransfers)},
+  { 13, -1, sizeof(::dronePosVec::droneControl)},
+  { 23, -1, sizeof(::dronePosVec::dataTransfers)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -123,25 +126,27 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 };
 
 const char descriptor_table_protodef_dronePosVec_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\021dronePosVec.proto\022\013dronePosVec\"\265\001\n\rdro"
+  "\n\021dronePosVec.proto\022\013dronePosVec\"\330\001\n\rdro"
   "nePosition\022,\n\ndeviceType\030\001 \001(\0162\030.dronePo"
-  "sVec.dataDevices\022\024\n\010position\030\002 \003(\002B\002\020\001\022\027"
-  "\n\013positionDot\030\003 \003(\002B\002\020\001\022\026\n\nmatrixSize\030\004 "
-  "\003(\rB\002\020\001\022\025\n\trotMatrix\030\005 \003(\002B\002\020\001\022\030\n\014rotMat"
-  "rixDot\030\006 \003(\002B\002\020\001\"R\n\014droneControl\022\017\n\007moto"
-  "rFL\030\001 \001(\002\022\017\n\007motorFR\030\002 \001(\002\022\017\n\007motorBL\030\003 "
-  "\001(\002\022\017\n\007motorBR\030\004 \001(\002\"\321\001\n\rdataTransfers\022!"
-  "\n\002ID\030\001 \001(\0162\025.dronePosVec.progName\022\'\n\004typ"
-  "e\030\002 \001(\0162\031.dronePosVec.transferType\022\013\n\003ms"
-  "g\030\003 \001(\t\022\023\n\013timeSync_ns\030\004 \001(\003\022\n\n\002IP\030\005 \001(\t"
-  "\022\014\n\004port\030\006 \001(\r\022\020\n\010sockaddr\030\007 \001(\014\022\023\n\013sock"
-  "addrlen\030\010 \001(\r\022\021\n\tsa_family\030\t \001(\r*<\n\013data"
-  "Devices\022\013\n\007IMUonly\020\000\022\016\n\nCameraOnly\020\001\022\020\n\014"
-  "KalmanFilter\020\002*=\n\014transferType\022\014\n\010timeSy"
-  "nc\020\000\022\016\n\nsocketInfo\020\001\022\017\n\013stateChange\020\002*O\n"
-  "\010progName\022\n\n\006server\020\000\022\t\n\005drone\020\001\022\r\n\testi"
-  "mator\020\002\022\t\n\005arena\020\003\022\n\n\006camera\020\004\022\006\n\002rl\020\005b\006"
-  "proto3"
+  "sVec.dataDevices\022\024\n\010posShape\030\002 \003(\rB\002\020\001\022\024"
+  "\n\010position\030\003 \003(\002B\002\020\001\022\024\n\010rotShape\030\004 \003(\rB\002"
+  "\020\001\022\024\n\010rotation\030\005 \003(\002B\002\020\001\022\024\n\014timestamp_ns"
+  "\030\006 \001(\004\022\024\n\014camIteration\030\007 \001(\r\022\025\n\tcameraRa"
+  "w\030\010 \003(\rB\002\020\001\"f\n\014droneControl\022\017\n\007motorFL\030\001"
+  " \001(\002\022\017\n\007motorFR\030\002 \001(\002\022\017\n\007motorBL\030\003 \001(\002\022\017"
+  "\n\007motorBR\030\004 \001(\002\022\022\n\nkillswitch\030\005 \001(\010\"\321\001\n\r"
+  "dataTransfers\022!\n\002ID\030\001 \001(\0162\025.dronePosVec."
+  "progName\022\'\n\004type\030\002 \001(\0162\031.dronePosVec.tra"
+  "nsferType\022\013\n\003msg\030\003 \001(\t\022\023\n\013timeSync_ns\030\004 "
+  "\001(\003\022\n\n\002IP\030\005 \001(\t\022\014\n\004port\030\006 \001(\r\022\020\n\010sockadd"
+  "r\030\007 \001(\014\022\023\n\013sockaddrlen\030\010 \001(\r\022\021\n\tsa_famil"
+  "y\030\t \001(\r*a\n\013dataDevices\022\013\n\007IMUonly\020\000\022\r\n\tC"
+  "ameraPos\020\001\022\020\n\014KalmanFilter\020\002\022\020\n\014CameraIm"
+  "gRGB\020\003\022\022\n\016CameraImgDepth\020\004*=\n\014transferTy"
+  "pe\022\014\n\010timeSync\020\000\022\016\n\nsocketInfo\020\001\022\017\n\013stat"
+  "eChange\020\002*O\n\010progName\022\n\n\006server\020\000\022\t\n\005dro"
+  "ne\020\001\022\r\n\testimator\020\002\022\t\n\005arena\020\003\022\n\n\006camera"
+  "\020\004\022\006\n\002rl\020\005b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_dronePosVec_2eproto_deps[1] = {
 };
@@ -152,7 +157,7 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_dro
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_dronePosVec_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_dronePosVec_2eproto = {
-  false, false, descriptor_table_protodef_dronePosVec_2eproto, "dronePosVec.proto", 726,
+  false, false, descriptor_table_protodef_dronePosVec_2eproto, "dronePosVec.proto", 818,
   &descriptor_table_dronePosVec_2eproto_once, descriptor_table_dronePosVec_2eproto_sccs, descriptor_table_dronePosVec_2eproto_deps, 3, 0,
   schemas, file_default_instances, TableStruct_dronePosVec_2eproto::offsets,
   file_level_metadata_dronePosVec_2eproto, 3, file_level_enum_descriptors_dronePosVec_2eproto, file_level_service_descriptors_dronePosVec_2eproto,
@@ -170,6 +175,8 @@ bool dataDevices_IsValid(int value) {
     case 0:
     case 1:
     case 2:
+    case 3:
+    case 4:
       return true;
     default:
       return false;
@@ -220,29 +227,33 @@ class dronePosition::_Internal {
 
 dronePosition::dronePosition(::PROTOBUF_NAMESPACE_ID::Arena* arena)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena),
+  posshape_(arena),
   position_(arena),
-  positiondot_(arena),
-  matrixsize_(arena),
-  rotmatrix_(arena),
-  rotmatrixdot_(arena) {
+  rotshape_(arena),
+  rotation_(arena),
+  cameraraw_(arena) {
   SharedCtor();
   RegisterArenaDtor(arena);
   // @@protoc_insertion_point(arena_constructor:dronePosVec.dronePosition)
 }
 dronePosition::dronePosition(const dronePosition& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
+      posshape_(from.posshape_),
       position_(from.position_),
-      positiondot_(from.positiondot_),
-      matrixsize_(from.matrixsize_),
-      rotmatrix_(from.rotmatrix_),
-      rotmatrixdot_(from.rotmatrixdot_) {
+      rotshape_(from.rotshape_),
+      rotation_(from.rotation_),
+      cameraraw_(from.cameraraw_) {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  devicetype_ = from.devicetype_;
+  ::memcpy(&devicetype_, &from.devicetype_,
+    static_cast<size_t>(reinterpret_cast<char*>(&timestamp_ns_) -
+    reinterpret_cast<char*>(&devicetype_)) + sizeof(timestamp_ns_));
   // @@protoc_insertion_point(copy_constructor:dronePosVec.dronePosition)
 }
 
 void dronePosition::SharedCtor() {
-  devicetype_ = 0;
+  ::memset(&devicetype_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&timestamp_ns_) -
+      reinterpret_cast<char*>(&devicetype_)) + sizeof(timestamp_ns_));
 }
 
 dronePosition::~dronePosition() {
@@ -276,12 +287,14 @@ void dronePosition::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
+  posshape_.Clear();
   position_.Clear();
-  positiondot_.Clear();
-  matrixsize_.Clear();
-  rotmatrix_.Clear();
-  rotmatrixdot_.Clear();
-  devicetype_ = 0;
+  rotshape_.Clear();
+  rotation_.Clear();
+  cameraraw_.Clear();
+  ::memset(&devicetype_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&timestamp_ns_) -
+      reinterpret_cast<char*>(&devicetype_)) + sizeof(timestamp_ns_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -301,54 +314,68 @@ const char* dronePosition::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
           _internal_set_devicetype(static_cast<::dronePosVec::dataDevices>(val));
         } else goto handle_unusual;
         continue;
-      // repeated float position = 2 [packed = true];
+      // repeated uint32 posShape = 2 [packed = true];
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedUInt32Parser(_internal_mutable_posshape(), ptr, ctx);
+          CHK_(ptr);
+        } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16) {
+          _internal_add_posshape(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // repeated float position = 3 [packed = true];
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedFloatParser(_internal_mutable_position(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 21) {
+        } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 29) {
           _internal_add_position(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr));
           ptr += sizeof(float);
         } else goto handle_unusual;
         continue;
-      // repeated float positionDot = 3 [packed = true];
-      case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedFloatParser(_internal_mutable_positiondot(), ptr, ctx);
-          CHK_(ptr);
-        } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 29) {
-          _internal_add_positiondot(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr));
-          ptr += sizeof(float);
-        } else goto handle_unusual;
-        continue;
-      // repeated uint32 matrixSize = 4 [packed = true];
+      // repeated uint32 rotShape = 4 [packed = true];
       case 4:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedUInt32Parser(_internal_mutable_matrixsize(), ptr, ctx);
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedUInt32Parser(_internal_mutable_rotshape(), ptr, ctx);
           CHK_(ptr);
         } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 32) {
-          _internal_add_matrixsize(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
+          _internal_add_rotshape(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // repeated float rotMatrix = 5 [packed = true];
+      // repeated float rotation = 5 [packed = true];
       case 5:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 42)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedFloatParser(_internal_mutable_rotmatrix(), ptr, ctx);
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedFloatParser(_internal_mutable_rotation(), ptr, ctx);
           CHK_(ptr);
         } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 45) {
-          _internal_add_rotmatrix(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr));
+          _internal_add_rotation(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr));
           ptr += sizeof(float);
         } else goto handle_unusual;
         continue;
-      // repeated float rotMatrixDot = 6 [packed = true];
+      // uint64 timestamp_ns = 6;
       case 6:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 50)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedFloatParser(_internal_mutable_rotmatrixdot(), ptr, ctx);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 48)) {
+          timestamp_ns_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
-        } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 53) {
-          _internal_add_rotmatrixdot(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr));
-          ptr += sizeof(float);
+        } else goto handle_unusual;
+        continue;
+      // uint32 camIteration = 7;
+      case 7:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 56)) {
+          camiteration_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // repeated uint32 cameraRaw = 8 [packed = true];
+      case 8:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 66)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedUInt32Parser(_internal_mutable_cameraraw(), ptr, ctx);
+          CHK_(ptr);
+        } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 64) {
+          _internal_add_cameraraw(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
+          CHK_(ptr);
         } else goto handle_unusual;
         continue;
       default: {
@@ -386,33 +413,53 @@ failure:
       1, this->_internal_devicetype(), target);
   }
 
-  // repeated float position = 2 [packed = true];
-  if (this->_internal_position_size() > 0) {
-    target = stream->WriteFixedPacked(2, _internal_position(), target);
-  }
-
-  // repeated float positionDot = 3 [packed = true];
-  if (this->_internal_positiondot_size() > 0) {
-    target = stream->WriteFixedPacked(3, _internal_positiondot(), target);
-  }
-
-  // repeated uint32 matrixSize = 4 [packed = true];
+  // repeated uint32 posShape = 2 [packed = true];
   {
-    int byte_size = _matrixsize_cached_byte_size_.load(std::memory_order_relaxed);
+    int byte_size = _posshape_cached_byte_size_.load(std::memory_order_relaxed);
     if (byte_size > 0) {
       target = stream->WriteUInt32Packed(
-          4, _internal_matrixsize(), byte_size, target);
+          2, _internal_posshape(), byte_size, target);
     }
   }
 
-  // repeated float rotMatrix = 5 [packed = true];
-  if (this->_internal_rotmatrix_size() > 0) {
-    target = stream->WriteFixedPacked(5, _internal_rotmatrix(), target);
+  // repeated float position = 3 [packed = true];
+  if (this->_internal_position_size() > 0) {
+    target = stream->WriteFixedPacked(3, _internal_position(), target);
   }
 
-  // repeated float rotMatrixDot = 6 [packed = true];
-  if (this->_internal_rotmatrixdot_size() > 0) {
-    target = stream->WriteFixedPacked(6, _internal_rotmatrixdot(), target);
+  // repeated uint32 rotShape = 4 [packed = true];
+  {
+    int byte_size = _rotshape_cached_byte_size_.load(std::memory_order_relaxed);
+    if (byte_size > 0) {
+      target = stream->WriteUInt32Packed(
+          4, _internal_rotshape(), byte_size, target);
+    }
+  }
+
+  // repeated float rotation = 5 [packed = true];
+  if (this->_internal_rotation_size() > 0) {
+    target = stream->WriteFixedPacked(5, _internal_rotation(), target);
+  }
+
+  // uint64 timestamp_ns = 6;
+  if (this->timestamp_ns() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(6, this->_internal_timestamp_ns(), target);
+  }
+
+  // uint32 camIteration = 7;
+  if (this->camiteration() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(7, this->_internal_camiteration(), target);
+  }
+
+  // repeated uint32 cameraRaw = 8 [packed = true];
+  {
+    int byte_size = _cameraraw_cached_byte_size_.load(std::memory_order_relaxed);
+    if (byte_size > 0) {
+      target = stream->WriteUInt32Packed(
+          8, _internal_cameraraw(), byte_size, target);
+    }
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -431,7 +478,22 @@ size_t dronePosition::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // repeated float position = 2 [packed = true];
+  // repeated uint32 posShape = 2 [packed = true];
+  {
+    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      UInt32Size(this->posshape_);
+    if (data_size > 0) {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+            static_cast<::PROTOBUF_NAMESPACE_ID::int32>(data_size));
+    }
+    int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
+    _posshape_cached_byte_size_.store(cached_size,
+                                    std::memory_order_relaxed);
+    total_size += data_size;
+  }
+
+  // repeated float position = 3 [packed = true];
   {
     unsigned int count = static_cast<unsigned int>(this->_internal_position_size());
     size_t data_size = 4UL * count;
@@ -446,39 +508,24 @@ size_t dronePosition::ByteSizeLong() const {
     total_size += data_size;
   }
 
-  // repeated float positionDot = 3 [packed = true];
-  {
-    unsigned int count = static_cast<unsigned int>(this->_internal_positiondot_size());
-    size_t data_size = 4UL * count;
-    if (data_size > 0) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
-            static_cast<::PROTOBUF_NAMESPACE_ID::int32>(data_size));
-    }
-    int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
-    _positiondot_cached_byte_size_.store(cached_size,
-                                    std::memory_order_relaxed);
-    total_size += data_size;
-  }
-
-  // repeated uint32 matrixSize = 4 [packed = true];
+  // repeated uint32 rotShape = 4 [packed = true];
   {
     size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      UInt32Size(this->matrixsize_);
+      UInt32Size(this->rotshape_);
     if (data_size > 0) {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
             static_cast<::PROTOBUF_NAMESPACE_ID::int32>(data_size));
     }
     int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
-    _matrixsize_cached_byte_size_.store(cached_size,
+    _rotshape_cached_byte_size_.store(cached_size,
                                     std::memory_order_relaxed);
     total_size += data_size;
   }
 
-  // repeated float rotMatrix = 5 [packed = true];
+  // repeated float rotation = 5 [packed = true];
   {
-    unsigned int count = static_cast<unsigned int>(this->_internal_rotmatrix_size());
+    unsigned int count = static_cast<unsigned int>(this->_internal_rotation_size());
     size_t data_size = 4UL * count;
     if (data_size > 0) {
       total_size += 1 +
@@ -486,22 +533,22 @@ size_t dronePosition::ByteSizeLong() const {
             static_cast<::PROTOBUF_NAMESPACE_ID::int32>(data_size));
     }
     int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
-    _rotmatrix_cached_byte_size_.store(cached_size,
+    _rotation_cached_byte_size_.store(cached_size,
                                     std::memory_order_relaxed);
     total_size += data_size;
   }
 
-  // repeated float rotMatrixDot = 6 [packed = true];
+  // repeated uint32 cameraRaw = 8 [packed = true];
   {
-    unsigned int count = static_cast<unsigned int>(this->_internal_rotmatrixdot_size());
-    size_t data_size = 4UL * count;
+    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      UInt32Size(this->cameraraw_);
     if (data_size > 0) {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
             static_cast<::PROTOBUF_NAMESPACE_ID::int32>(data_size));
     }
     int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
-    _rotmatrixdot_cached_byte_size_.store(cached_size,
+    _cameraraw_cached_byte_size_.store(cached_size,
                                     std::memory_order_relaxed);
     total_size += data_size;
   }
@@ -510,6 +557,20 @@ size_t dronePosition::ByteSizeLong() const {
   if (this->devicetype() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_devicetype());
+  }
+
+  // uint32 camIteration = 7;
+  if (this->camiteration() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+        this->_internal_camiteration());
+  }
+
+  // uint64 timestamp_ns = 6;
+  if (this->timestamp_ns() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
+        this->_internal_timestamp_ns());
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -543,13 +604,19 @@ void dronePosition::MergeFrom(const dronePosition& from) {
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
+  posshape_.MergeFrom(from.posshape_);
   position_.MergeFrom(from.position_);
-  positiondot_.MergeFrom(from.positiondot_);
-  matrixsize_.MergeFrom(from.matrixsize_);
-  rotmatrix_.MergeFrom(from.rotmatrix_);
-  rotmatrixdot_.MergeFrom(from.rotmatrixdot_);
+  rotshape_.MergeFrom(from.rotshape_);
+  rotation_.MergeFrom(from.rotation_);
+  cameraraw_.MergeFrom(from.cameraraw_);
   if (from.devicetype() != 0) {
     _internal_set_devicetype(from._internal_devicetype());
+  }
+  if (from.camiteration() != 0) {
+    _internal_set_camiteration(from._internal_camiteration());
+  }
+  if (from.timestamp_ns() != 0) {
+    _internal_set_timestamp_ns(from._internal_timestamp_ns());
   }
 }
 
@@ -574,12 +641,17 @@ bool dronePosition::IsInitialized() const {
 void dronePosition::InternalSwap(dronePosition* other) {
   using std::swap;
   _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
+  posshape_.InternalSwap(&other->posshape_);
   position_.InternalSwap(&other->position_);
-  positiondot_.InternalSwap(&other->positiondot_);
-  matrixsize_.InternalSwap(&other->matrixsize_);
-  rotmatrix_.InternalSwap(&other->rotmatrix_);
-  rotmatrixdot_.InternalSwap(&other->rotmatrixdot_);
-  swap(devicetype_, other->devicetype_);
+  rotshape_.InternalSwap(&other->rotshape_);
+  rotation_.InternalSwap(&other->rotation_);
+  cameraraw_.InternalSwap(&other->cameraraw_);
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(dronePosition, timestamp_ns_)
+      + sizeof(dronePosition::timestamp_ns_)
+      - PROTOBUF_FIELD_OFFSET(dronePosition, devicetype_)>(
+          reinterpret_cast<char*>(&devicetype_),
+          reinterpret_cast<char*>(&other->devicetype_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata dronePosition::GetMetadata() const {
@@ -605,15 +677,15 @@ droneControl::droneControl(const droneControl& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   ::memcpy(&motorfl_, &from.motorfl_,
-    static_cast<size_t>(reinterpret_cast<char*>(&motorbr_) -
-    reinterpret_cast<char*>(&motorfl_)) + sizeof(motorbr_));
+    static_cast<size_t>(reinterpret_cast<char*>(&killswitch_) -
+    reinterpret_cast<char*>(&motorfl_)) + sizeof(killswitch_));
   // @@protoc_insertion_point(copy_constructor:dronePosVec.droneControl)
 }
 
 void droneControl::SharedCtor() {
   ::memset(&motorfl_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&motorbr_) -
-      reinterpret_cast<char*>(&motorfl_)) + sizeof(motorbr_));
+      reinterpret_cast<char*>(&killswitch_) -
+      reinterpret_cast<char*>(&motorfl_)) + sizeof(killswitch_));
 }
 
 droneControl::~droneControl() {
@@ -648,8 +720,8 @@ void droneControl::Clear() {
   (void) cached_has_bits;
 
   ::memset(&motorfl_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&motorbr_) -
-      reinterpret_cast<char*>(&motorfl_)) + sizeof(motorbr_));
+      reinterpret_cast<char*>(&killswitch_) -
+      reinterpret_cast<char*>(&motorfl_)) + sizeof(killswitch_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -687,6 +759,13 @@ const char* droneControl::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 37)) {
           motorbr_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr);
           ptr += sizeof(float);
+        } else goto handle_unusual;
+        continue;
+      // bool killswitch = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 40)) {
+          killswitch_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
         } else goto handle_unusual;
         continue;
       default: {
@@ -741,6 +820,12 @@ failure:
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteFloatToArray(4, this->_internal_motorbr(), target);
   }
 
+  // bool killswitch = 5;
+  if (this->killswitch() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(5, this->_internal_killswitch(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -775,6 +860,11 @@ size_t droneControl::ByteSizeLong() const {
   // float motorBR = 4;
   if (!(this->motorbr() <= 0 && this->motorbr() >= 0)) {
     total_size += 1 + 4;
+  }
+
+  // bool killswitch = 5;
+  if (this->killswitch() != 0) {
+    total_size += 1 + 1;
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -820,6 +910,9 @@ void droneControl::MergeFrom(const droneControl& from) {
   if (!(from.motorbr() <= 0 && from.motorbr() >= 0)) {
     _internal_set_motorbr(from._internal_motorbr());
   }
+  if (from.killswitch() != 0) {
+    _internal_set_killswitch(from._internal_killswitch());
+  }
 }
 
 void droneControl::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
@@ -844,8 +937,8 @@ void droneControl::InternalSwap(droneControl* other) {
   using std::swap;
   _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(droneControl, motorbr_)
-      + sizeof(droneControl::motorbr_)
+      PROTOBUF_FIELD_OFFSET(droneControl, killswitch_)
+      + sizeof(droneControl::killswitch_)
       - PROTOBUF_FIELD_OFFSET(droneControl, motorfl_)>(
           reinterpret_cast<char*>(&motorfl_),
           reinterpret_cast<char*>(&other->motorfl_));
