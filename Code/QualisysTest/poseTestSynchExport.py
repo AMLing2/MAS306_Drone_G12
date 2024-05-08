@@ -37,9 +37,6 @@ timestampOpenCV = numpy.array(timestampOpenCV, dtype=float)
 iterOpenCV = [row[0] for row in dataOpenCV[1:]]
 iterOpenCV = numpy.array(iterOpenCV, dtype=int)
 
-#print("\ndataOpenCV: ", dataOpenCV)
-print("\nTimestampsOpenCV: ", timestampOpenCV)
-
 # ------------ Qualisys Data ---------------
 ### Import data from Qualisys ###
 fileQTM = open(f'qualisysTest{testNr}_6D.tsv')
@@ -59,8 +56,6 @@ pTransArr = numpy.tile(pTransVec, (len(transQTM), 1))
 
 # Correct translation
 transQTM = pTransArr - transQTM
-#print("\nCorrected translation: ", transQTM)
-#print("\nExported variable: ", transQTM[2][1])
 
 #### Start Detection ####
 detectedStartQTM = False
@@ -72,43 +67,31 @@ timeQTM = numpy.array(timeQTM, dtype=float)
 iterQTM = [row[0] for row in QTMdata[14:]]
 iterQTM = numpy.array(iterQTM, dtype=int)
 
-# Find start time
+### Find start time QTM ###
 for i, row in enumerate(transQTM):
 
-    #print("\niteration: ", i)
+    # Last 10 magnitudes
     curTransMagQTM = numpy.linalg.norm(transQTM[i])
-
     last10magQTM.append(curTransMagQTM)
     if (len(last10magQTM) > 10):
         last10magQTM.pop(0)
-    #print("\nLast10: ", last10magQTM)
 
+    # Movement detection
     if (not detectedStartQTM) and (len(last10magQTM) == 10) and (abs(curTransMagQTM - last10magQTM[0]) > tolerance):
         #print("i from loop: ", i)
         startTimeQTM = timeQTM[i]
         startIterQTM = iterQTM[i] # used?
         detectedStartQTM = True
-#print("\nQTM start time: ", startTimeQTM)
-#print("\nQTM iter start: ", startIterQTM)
+
 # Start value to be changed
 correctTimeQTM = startTimeQTM
 
-# Convert from strings
-#timeQTM = [float(element) for element in timeQTM]
-#print("\ntimeQTM: ", timeQTM)
-
 # Difference list -------> starts @ 1 not 0 <--------
 dTimeQTM = [timeQTM[i]-timeQTM[i-1] for i in range(1, len(timeQTM))]
-#print("\ndTimeQTM: ", dTimeQTM)
-
-#print("\nLen: ", len(timeQTM))
-#print("\nLenDiff: ", len(dTimeQTM))
-
 
 #### Rotation ####
 # Extract all rows of columns 10 to 18 (excluding headers)
 rotElementsQTM = [row[12:21] for row in QTMdata[14:]]
-#print("\nRotmatQTM: ", rotElementsQTM)
 rotElementsQTM = [[float(element) for element in sublist] for sublist in rotElementsQTM]
 
 # Rotation Matrix for relating frames: Qualisys -> D435
@@ -125,8 +108,6 @@ for row in rotElementsQTM:
     matrix = matrix @ rotMatQTM2OpenCV # Convert orientation
     rotMatQTM.append(matrix)
 # ------------ Qualisys Data ---------------
-#print("\nRotmatQTM: ", rotMatQTM)
-
 
 # Setup csv file
 filename = f"ExportedResults_{testNr}.csv" 
@@ -140,31 +121,27 @@ with open(filename, 'w') as csvfile:
 		csvwriter = csv.writer(csvfile)
 		csvwriter.writerow(fields)
 
-#rounds = []
-
 with open(filename,'a') as csvfile:
     # Set writer for loop
     csvwriter = csv.writer(csvfile)
         
     # From 0 to end(iterOpenCV)
-    for loopRound in range(len(iterOpenCV)):
-    
+    for loopRound in range(len(iterOpenCV)):    
         ########################## THIS IS DONE INSIDE DETECTION #########################
 
         # Create transVectors
-        print("\nloopRound: ", loopRound)
         transVector0 = numpy.array(dataOpenCV[loopRound+1][2:5], dtype=numpy.float32)
         transVector1 = numpy.array(dataOpenCV[loopRound+1][5:8], dtype=numpy.float32)
         # Create rotVectors
         rotVector0 = numpy.array(dataOpenCV[loopRound+1][8:11], dtype=numpy.float32)
         rotVector1 = numpy.array(dataOpenCV[loopRound+1][11:14], dtype=numpy.float32)
 
+        ### Find start time OpenCV ###
         # Save current magnitude
         curTransMag = numpy.linalg.norm(transVector0)
 
-        #### START DETECTION ####
+        # Movement detection
         if (not detectedStart) and (len(last10mag) == 10) and (abs(last10mag[0] - curTransMag) > tolerance):
-            #print("loopRound: ", loopRound)
             startTime = timestampOpenCV[loopRound]
             startLoop = loopRound
             detectedStart = True
@@ -174,6 +151,7 @@ with open(filename,'a') as csvfile:
         if (len(last10mag) > 10):
             last10mag.pop(0)
 
+        # Current timestamp
         curTime = timestampOpenCV[loopRound] - startTime
 
         # Match closest timestamps
@@ -184,6 +162,7 @@ with open(filename,'a') as csvfile:
                     correctTimeQTM = timeQTM[i]
                     break
             
+            # Convert to rotation matrices
             rotMat0, _ = cv2.Rodrigues(rotVector0)
             rotMat1, _ = cv2.Rodrigues(rotVector1)
             
@@ -202,7 +181,7 @@ with open(filename,'a') as csvfile:
                                 transVector1[0], transVector1[1], transVector1[2],])
             # transVector1 was added later, hence it's last placement to avoid plot script redesign
             
-            ########################## THIS IS DONE INSIDE DETECTION #########################
+        ########################## THIS IS DONE INSIDE DETECTION #########################
 
 print("\nStartOpen: ", startTime)
 print("\nStartQTM: ", startTimeQTM)
