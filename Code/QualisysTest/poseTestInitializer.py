@@ -1,12 +1,7 @@
-# --------------------------------------- Libraries ---------------------------------------
 import cv2
 import cv2.aruco as aruco # For simplification
 import pyrealsense2 as rs
 import numpy
-from numpy import sin, cos
-import time
-from math import pi
-# --------------------------------------- Libraries ---------------------------------------
 
 # ------------------- Constant variables for simple changes -------------------
 axesLength = 0.1
@@ -21,8 +16,6 @@ rotMatCalib = numpy.array([
     [ 0.0, 1.0, 0.0],
     [ 0.0, 0.0,-1.0]
 ])
-rotVecCalib, _ = cv2.Rodrigues(rotMatCalib)
-
 
 # Physical marker sizes
 markerSize = 0.167 # Marker sides [m]
@@ -31,15 +24,11 @@ markerPoints = numpy.array([[-markerSize / 2, markerSize / 2, 0],
                               [markerSize / 2, -markerSize / 2, 0],
                               [-markerSize / 2, -markerSize / 2, 0]], dtype=numpy.float32)
 
-defaultRightCorner = numpy.array([((markerSize/2)*(1+1-1)/3)*1000, 
-                                  ((markerSize/2)*(1+1-1)/3)*1000, 0.0])
-
-# vvv INTRINSICS ARE FOR 848x480 vvv
-    # Distortion Coefficients
+# Distortion Coefficients
 distortionCoefficients = numpy.array(
     [ 0.0, 0.0, 0.0, 0.0, 0.0]) # [k1, k2, p1, p2, k3]
 
-    # Intrinsic Camera Matrix
+# Intrinsic Camera Matrix
 fx = 608.76301751
 fy = 609.23981796
 cx = 429.37397121
@@ -48,10 +37,6 @@ cameraMatrix = numpy.array([
 [ fx,   0.0, cx ],
 [ 0.0,  fy,  cy ],
 [ 0.0,  0.0, 1.0]])
-
-print("\nCamera Matrix\n", cameraMatrix)
-print("\nDistortion Coefficients\n", distortionCoefficients)
-
 # ------------------- Constant variables for simple changes -------------------
 
 # Set dictionary for the markers
@@ -72,9 +57,6 @@ transVectors = []
 reprojError = 0
 
 while(True):
-
-    startTime = time.time_ns()
-    
     # Frame Collection
     frame = pipe.wait_for_frames()          # collect frames from camera (depth, color, etc)
     
@@ -97,18 +79,11 @@ while(True):
                 markerPoints, markerCorner, cameraMatrix, distortionCoefficients, rvecs=rotVectors, tvecs=transVectors, reprojectionError=reprojError,
                 useExtrinsicGuess=False, flags=cv2.SOLVEPNP_IPPE)
 
-            # Print current vectors
-            print("\nRotation Vectors: ", rotVectors)
-            print("\ntransVectors[0]: ", transVectors[0].flatten())
-
             # Draw marker axes
             cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
                             distCoeffs=distortionCoefficients, rvec=rotVectors[0], tvec=transVectors[0], length=axesLength)
-            
-            # Print Current marker ID
-            print("\nCurrent ID: ", markerID)
-        
-            # 
+
+            # Calculate angle difference 
             curRotMat, _ = cv2.Rodrigues(rotVectors[0])
             print("\nCurrent Rotmat: ", curRotMat)
             rotMatDiff = numpy.dot(curRotMat, rotMatCalib.T)
@@ -129,14 +104,6 @@ while(True):
         break
     elif pressedKey == ord('p'):    # Press P to pause
         cv2.waitKey(-1)
-
-    endTime = time.time_ns()
-    diffTime = endTime - startTime
-    #print("\nThis frame [ns]: ", diffTime)
-    #print("\nTimestamp [ns]: ", startTime)
-
-    # Variabler for Adrian export:
-        # startTime, rotVectors, transVectors[0], depthDist, markerID
 
 pipe.stop()             # Stop recording
 cv2.destroyAllWindows() # Free resources
