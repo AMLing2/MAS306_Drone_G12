@@ -105,12 +105,14 @@ enum transferType : int {
   timeSync = 0,
   socketInfo = 1,
   stateChange = 2,
+  start = 3,
+  end = 4,
   transferType_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
   transferType_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
 };
 bool transferType_IsValid(int value);
 constexpr transferType transferType_MIN = timeSync;
-constexpr transferType transferType_MAX = stateChange;
+constexpr transferType transferType_MAX = end;
 constexpr int transferType_ARRAYSIZE = transferType_MAX + 1;
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* transferType_descriptor();
@@ -276,6 +278,7 @@ class dronePosition PROTOBUF_FINAL :
     kRotShapeFieldNumber = 4,
     kRotationFieldNumber = 5,
     kCameraRawFieldNumber = 8,
+    kRotation2FieldNumber = 9,
     kDeviceTypeFieldNumber = 1,
     kCamIterationFieldNumber = 7,
     kTimestampNsFieldNumber = 6,
@@ -390,6 +393,28 @@ class dronePosition PROTOBUF_FINAL :
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
       mutable_cameraraw();
 
+  // repeated float rotation2 = 9 [packed = true];
+  int rotation2_size() const;
+  private:
+  int _internal_rotation2_size() const;
+  public:
+  void clear_rotation2();
+  private:
+  float _internal_rotation2(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
+      _internal_rotation2() const;
+  void _internal_add_rotation2(float value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
+      _internal_mutable_rotation2();
+  public:
+  float rotation2(int index) const;
+  void set_rotation2(int index, float value);
+  void add_rotation2(float value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
+      rotation2() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
+      mutable_rotation2();
+
   // .dronePosVec.dataDevices deviceType = 1;
   void clear_devicetype();
   ::dronePosVec::dataDevices devicetype() const;
@@ -434,6 +459,8 @@ class dronePosition PROTOBUF_FINAL :
   mutable std::atomic<int> _rotation_cached_byte_size_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 > cameraraw_;
   mutable std::atomic<int> _cameraraw_cached_byte_size_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > rotation2_;
+  mutable std::atomic<int> _rotation2_cached_byte_size_;
   int devicetype_;
   ::PROTOBUF_NAMESPACE_ID::uint32 camiteration_;
   ::PROTOBUF_NAMESPACE_ID::uint64 timestamp_ns_;
@@ -1198,6 +1225,53 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >
 dronePosition::mutable_cameraraw() {
   // @@protoc_insertion_point(field_mutable_list:dronePosVec.dronePosition.cameraRaw)
   return _internal_mutable_cameraraw();
+}
+
+// repeated float rotation2 = 9 [packed = true];
+inline int dronePosition::_internal_rotation2_size() const {
+  return rotation2_.size();
+}
+inline int dronePosition::rotation2_size() const {
+  return _internal_rotation2_size();
+}
+inline void dronePosition::clear_rotation2() {
+  rotation2_.Clear();
+}
+inline float dronePosition::_internal_rotation2(int index) const {
+  return rotation2_.Get(index);
+}
+inline float dronePosition::rotation2(int index) const {
+  // @@protoc_insertion_point(field_get:dronePosVec.dronePosition.rotation2)
+  return _internal_rotation2(index);
+}
+inline void dronePosition::set_rotation2(int index, float value) {
+  rotation2_.Set(index, value);
+  // @@protoc_insertion_point(field_set:dronePosVec.dronePosition.rotation2)
+}
+inline void dronePosition::_internal_add_rotation2(float value) {
+  rotation2_.Add(value);
+}
+inline void dronePosition::add_rotation2(float value) {
+  _internal_add_rotation2(value);
+  // @@protoc_insertion_point(field_add:dronePosVec.dronePosition.rotation2)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
+dronePosition::_internal_rotation2() const {
+  return rotation2_;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
+dronePosition::rotation2() const {
+  // @@protoc_insertion_point(field_list:dronePosVec.dronePosition.rotation2)
+  return _internal_rotation2();
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
+dronePosition::_internal_mutable_rotation2() {
+  return &rotation2_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
+dronePosition::mutable_rotation2() {
+  // @@protoc_insertion_point(field_mutable_list:dronePosVec.dronePosition.rotation2)
+  return _internal_mutable_rotation2();
 }
 
 // -------------------------------------------------------------------

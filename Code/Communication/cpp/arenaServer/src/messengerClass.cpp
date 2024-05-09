@@ -7,6 +7,7 @@
 #include <arpa/inet.h> //for inet_ntop
 //rename this file 
 #include <cerrno>
+#include <condition_variable> //for blocking queues
 
 //std::cout<<"errno:"<<strerror(errno)<<", "<<errno<<std::endl;
 
@@ -227,7 +228,7 @@ ssize_t AbMessenger::getThreadList(std::thread* tbuffer[], size_t tbufferlen)
 /* Server functions */
 ssize_t ServerSocket::initRecv()//TODO: fix
 {
-    setTimeout(60,0);
+    setTimeout(30,0);
     ssize_t msgSize;
     msgSize = serverRecvfrom(&buffer_[0],bufferSize_);
     if (msgSize < 0)
@@ -479,7 +480,7 @@ bool AbMessenger::getConnection()
 
 int AbMessenger::joinThread()
 {
-    std::cout<<"joining thrread of: "<<strName<<std::endl;
+    //std::cout<<"joining thrread of: "<<strName<<std::endl;
     threadloop_ = false;
     if(tRecv_.joinable())
     {
@@ -528,6 +529,56 @@ int AbMessenger::startThread(threadStartType startType)
         tSend_.detach();
     }
     return 0;
+}
+
+void AbMessenger::appendToQueue_(std::queue<std::string>& queueNum,const std::string& msg) //unsure if msg should be a reference or not
+{
+    //should do more to this 
+    queueNum.push(msg);
+}
+
+int AbMessenger::blockingGetQueue_(std::queue<std::string>& queueNum,std::string& msg,int timeout_ms)
+{
+    std::unique_lock lock(m_);
+    while (queueNum.empty())
+    {
+        cv_.wait_for(lock,std::chrono::milliseconds(timeout_ms));
+        return -1;
+    }
+    msg = queueNum.front();
+    return 1;
+}
+
+int AbMessenger::waitforProgStart_()
+{
+    std::cout<<strName<<" waiting for program start signal"<<std::endl;
+    std::unique_lock lock(m_);
+    cv_.wait(lock);
+    return 0;
+}
+
+void AbMessenger::conditionNotify(bool startProg)
+{
+    dronePosVec::dataTransfers data;
+    data.Clear();
+    if (!startProg)
+    {
+        data.set_type(dronePosVec::end);
+        data.set_msg("end");
+        threadloop_ = false;
+    }
+    else
+    {
+        data.set_type(dronePosVec::start);
+        data.set_msg("start");
+        data.set_timesync_ns(sendInterval_.count());   
+    }
+    
+    data.set_id(classProgram_);  
+    data.SerializeToArray(sendMsg_,bufferSize_);
+
+    clientSend(sendMsg_,data.ByteSizeLong());
+    cv_.notify_all(); //can cause "thundering herd" bottleneck but should only last for a short time before threads start sleeping again
 }
 
 threadStartType AbMessenger::getThreadStart()

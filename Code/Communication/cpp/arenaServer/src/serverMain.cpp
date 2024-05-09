@@ -23,8 +23,9 @@ int main()
 
     std::vector<std::unique_ptr<AbMessenger>> vpMessengers;
     vpMessengers.push_back(std::make_unique<CameraMessenger>(serverMain.getServerTimer(),localAddr,10000000, 10000000,queues[0]));
-    vpMessengers.push_back(std::make_unique<EstimatorMessenger>(serverMain.getServerTimer(),localAddr,10000000, 10000000,queues[0]));
-    vpMessengers.push_back(std::make_unique<DroneMessenger>(serverMain.getServerTimer(),localAddr,10000000, 10000000,queues[0]));
+    vpMessengers.push_back(std::make_unique<EstimatorMessenger>(serverMain.getServerTimer(),localAddr,10000000, 10000000,queues[0],queues[2]));
+    vpMessengers.push_back(std::make_unique<DroneMessenger>(serverMain.getServerTimer(),localAddr,10000000, 10000000,queues[0],queues[1]));
+    vpMessengers.push_back(std::make_unique<RLMessenger>(serverMain.getServerTimer(),localAddr,10000000, 10000000,queues[1],queues[0]));
 
     serverMain.setSocketList(&vpMessengers);
     bool connectloop = true;
@@ -69,15 +70,35 @@ int main()
         }
     }
 
-    std::cout<<"press enter to end program"<<std::endl;
-    int a;
-    std::cin>>a;
-
-    std::cout<<"ending threads"<<std::endl;
-    for(const std::unique_ptr<AbMessenger>& i: vpMessengers) //end all threads (kind of slow because it does it one by one... might take 1000ms)
+    std::cout<<"type 0 to end program, 1 to start"<<std::endl;
+    bool mainlooping = true;
+    while(mainlooping)
     {
-        i->joinThread();
-    }
+        int a;
+        std::cin>>a;
 
+        switch (a)
+        {
+        case 1:
+            //start
+            std::cout<<"starting program"<<std::endl;
+            for(const std::unique_ptr<AbMessenger>& i: vpMessengers)
+            {
+                i->conditionNotify(true);
+            }
+            break;
+        
+        default:
+            mainlooping = false;
+            //finish:
+            std::cout<<"ending threads"<<std::endl;
+            for(const std::unique_ptr<AbMessenger>& i: vpMessengers) //end all threads (kind of slow because it does it one by one... might take 1000ms)
+            {
+                i->conditionNotify(false);
+                i->joinThread();
+            }
+            break;
+        }
+    }
     return 0;
 }

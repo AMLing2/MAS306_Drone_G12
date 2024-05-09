@@ -168,9 +168,10 @@ p = mp.Process(target=multiprocessFunc,args=(('128.39.200.239',20002),q,))
 p.start()
 dpCam = dronePosVec_pb2.dronePosition()
 dpCam.Clear()
-dpCam.deviceType = dronePosVec_pb2.CameraOnly
+dpCam.deviceType = dronePosVec_pb2.CameraPos
 matrixSize = [2,3]
-dpCam.matrixSize[:] = matrixSize
+dpCam.rotShape[:] = matrixSize
+dpCam.posShape[:] = matrixSize
 #input()
 
 if True: #UNINDEX LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -313,7 +314,7 @@ if True: #UNINDEX LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                         rotVectorsExp[m] = rotVectors[i][n]
                         transVectorsExp[m] = transVectors[i][n]
                         m += 1
-                dpCam.rotMatrix[:] = rotVectorsExp
+                dpCam.rotation[:] = rotVectorsExp
                 dpCam.position[:] = transVectorsExp
 
         # Depth Stream: Add color map

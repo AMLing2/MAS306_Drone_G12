@@ -11,6 +11,7 @@ message dronePosition{
 	uint64 timestamp_ns = 6; //likely mono, so two timestamps needed to be useful
 	uint32 camIteration = 7; //where in array to append cameraRaw to cameraIMG
 	repeated uint32 cameraRaw = 8 	[packed=true];
+	repeated float rotation2 = 9		[packed=true];
 }
 
 enum dataDevices {
@@ -45,6 +46,8 @@ enum transferType {
 	timeSync = 0;
 	socketInfo = 1;
 	stateChange = 2;
+	start = 3;
+	end = 4;
 }
 
 enum progName{

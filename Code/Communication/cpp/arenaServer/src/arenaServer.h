@@ -10,6 +10,7 @@
 #include <thread>
 #include <queue>
 #include <atomic>
+#include <condition_variable>
 
 using ns_t = std::chrono::nanoseconds;
 
@@ -120,25 +121,43 @@ public:
 	{
 		//no code
 	}
+	AbMessenger(ns_t timer, std::string addr, long int recvInterval, long int sendInterval,std::queue<std::string> sharedQueue1,std::queue<std::string> sharedQueue2,const dronePosVec::progName progType, threadStartType threadfuncs,std::string stringName)
+	:SocketMethods(timer,addr)
+	,strName(stringName)
+	,recvInterval_(ns_t(recvInterval))
+	,sendInterval_(ns_t(sendInterval))
+	,q(sharedQueue1)
+	,q2(sharedQueue2)
+	,classProgram_(progType)
+	,threadFuncs_(threadfuncs)
+	{
+		//no code
+	}
 	virtual ~AbMessenger() = default;
 	virtual ssize_t initRecv() override;
 	//functions to be overrided:
-	virtual void recvThread() = 0;
-	virtual void sendThread() = 0;
+	virtual void recvThread(); //generic: recv and add to q
+	virtual void sendThread(); //generic: send from q2
 
 	int startThread(threadStartType startType);
-	int joinThread(); //TODO: make
+	int joinThread();
 	ssize_t getThreadList(std::thread* tbuffer[], size_t tbufferlen); //currently unused 
 	dronePosVec::progName getName();
 	bool getConnection();
 	void setConnection(bool status);
 	const std::string strName;
 	threadStartType getThreadStart();
+	/*starts this programs threads and also sends a message to the client to start*/
+	void conditionNotify(bool startProg);
 
 protected:
+	int waitforProgStart_();
+	void appendToQueue_(std::queue<std::string>& queueNum,const std::string& msg);
+	int blockingGetQueue_(std::queue<std::string>& queueNum,std::string& msg,int timeout);
 	const ns_t recvInterval_;
 	const ns_t sendInterval_;
 	std::queue<std::string> q;
+	std::queue<std::string> q2;
 	std::atomic_bool threadloop_ = true;
 
 	bool connected_ = false;
@@ -151,6 +170,8 @@ protected:
 	char sendMsg_[1024]; //do these really need to be that big?
 	std::thread tRecv_;
 	std::thread tSend_;
+	std::mutex m_;
+	std::condition_variable cv_;
 //in private, add protobuf stuff
 }; //AbMessenger
 
@@ -181,33 +202,41 @@ public:
 	{
 
 	}
-    virtual void recvThread() override;
-	virtual void sendThread() override; //unused for camera
+    //virtual void recvThread() override;
+	//virtual void sendThread() override; //unused for camera
 }; //CameraMessenger
 
 class EstimatorMessenger : public AbMessenger {
 public:
-    EstimatorMessenger(ns_t timer, std::string addr, long int recvInterval, long int sendInterval,std::queue<std::string> sharedQueue)
-    :AbMessenger(timer,addr,recvInterval,sendInterval,sharedQueue,dronePosVec::estimator,threadStartType::sendRecv,"Estimator")
+    EstimatorMessenger(ns_t timer, std::string addr, long int recvInterval, long int sendInterval,std::queue<std::string> sharedQueue1,std::queue<std::string> sharedQueue2)
+    :AbMessenger(timer,addr,recvInterval,sendInterval,sharedQueue1,sharedQueue2,dronePosVec::estimator,threadStartType::sendRecv,"Estimator")
     {
         socketSetup_(0);
     }
-    virtual void recvThread() override;
-	virtual void sendThread() override;
-
-private:
-
-};
+    //virtual void recvThread() override;
+	//virtual void sendThread() override;
+}; //EstimatorMessenger
 
 class DroneMessenger : public AbMessenger {
 public:
-    DroneMessenger(ns_t timer, std::string addr, long int recvInterval, long int sendInterval,std::queue<std::string> sharedQueue)
-    :AbMessenger(timer,addr,recvInterval,sendInterval,sharedQueue,dronePosVec::drone,threadStartType::sendRecv,"Drone")
+    DroneMessenger(ns_t timer, std::string addr, long int recvInterval, long int sendInterval,std::queue<std::string> sharedQueue1,std::queue<std::string> sharedQueue2)
+    :AbMessenger(timer,addr,recvInterval,sendInterval,sharedQueue1,sharedQueue2,dronePosVec::drone,threadStartType::sendRecv,"Drone")
     {
         socketSetup_(0);
     }
-    virtual void recvThread() override;
-	virtual void sendThread() override; //unsure if i will separate these
+    //virtual void recvThread() override;
+	//virtual void sendThread() override; //unsure if i will separate these
+}; //DroneMessenger
+
+class RLMessenger : public AbMessenger {
+public:
+    RLMessenger(ns_t timer, std::string addr, long int recvInterval, long int sendInterval,std::queue<std::string> sharedQueue1,std::queue<std::string> sharedQueue2)
+    :AbMessenger(timer,addr,recvInterval,sendInterval,sharedQueue1,sharedQueue2,dronePosVec::rl,threadStartType::sendRecv,"RL")
+    {
+        socketSetup_(0);
+    }
+    //virtual void recvThread() override;
+	//virtual void sendThread() override; //unsure if i will separate these
 }; //DroneMessenger
 
 #endif //SOCKETCLASS_H

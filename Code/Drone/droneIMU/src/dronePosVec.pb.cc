@@ -88,6 +88,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_dronePosVec_2eproto::offsets[]
   PROTOBUF_FIELD_OFFSET(::dronePosVec::dronePosition, timestamp_ns_),
   PROTOBUF_FIELD_OFFSET(::dronePosVec::dronePosition, camiteration_),
   PROTOBUF_FIELD_OFFSET(::dronePosVec::dronePosition, cameraraw_),
+  PROTOBUF_FIELD_OFFSET(::dronePosVec::dronePosition, rotation2_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::dronePosVec::droneControl, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -115,8 +116,8 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_dronePosVec_2eproto::offsets[]
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::dronePosVec::dronePosition)},
-  { 13, -1, sizeof(::dronePosVec::droneControl)},
-  { 23, -1, sizeof(::dronePosVec::dataTransfers)},
+  { 14, -1, sizeof(::dronePosVec::droneControl)},
+  { 24, -1, sizeof(::dronePosVec::dataTransfers)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -126,27 +127,28 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 };
 
 const char descriptor_table_protodef_dronePosVec_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\021dronePosVec.proto\022\013dronePosVec\"\330\001\n\rdro"
+  "\n\021dronePosVec.proto\022\013dronePosVec\"\357\001\n\rdro"
   "nePosition\022,\n\ndeviceType\030\001 \001(\0162\030.dronePo"
   "sVec.dataDevices\022\024\n\010posShape\030\002 \003(\rB\002\020\001\022\024"
   "\n\010position\030\003 \003(\002B\002\020\001\022\024\n\010rotShape\030\004 \003(\rB\002"
   "\020\001\022\024\n\010rotation\030\005 \003(\002B\002\020\001\022\024\n\014timestamp_ns"
   "\030\006 \001(\004\022\024\n\014camIteration\030\007 \001(\r\022\025\n\tcameraRa"
-  "w\030\010 \003(\rB\002\020\001\"f\n\014droneControl\022\017\n\007motorFL\030\001"
-  " \001(\002\022\017\n\007motorFR\030\002 \001(\002\022\017\n\007motorBL\030\003 \001(\002\022\017"
-  "\n\007motorBR\030\004 \001(\002\022\022\n\nkillswitch\030\005 \001(\010\"\321\001\n\r"
-  "dataTransfers\022!\n\002ID\030\001 \001(\0162\025.dronePosVec."
-  "progName\022\'\n\004type\030\002 \001(\0162\031.dronePosVec.tra"
-  "nsferType\022\013\n\003msg\030\003 \001(\t\022\023\n\013timeSync_ns\030\004 "
-  "\001(\003\022\n\n\002IP\030\005 \001(\t\022\014\n\004port\030\006 \001(\r\022\020\n\010sockadd"
-  "r\030\007 \001(\014\022\023\n\013sockaddrlen\030\010 \001(\r\022\021\n\tsa_famil"
-  "y\030\t \001(\r*a\n\013dataDevices\022\013\n\007IMUonly\020\000\022\r\n\tC"
-  "ameraPos\020\001\022\020\n\014KalmanFilter\020\002\022\020\n\014CameraIm"
-  "gRGB\020\003\022\022\n\016CameraImgDepth\020\004*=\n\014transferTy"
-  "pe\022\014\n\010timeSync\020\000\022\016\n\nsocketInfo\020\001\022\017\n\013stat"
-  "eChange\020\002*O\n\010progName\022\n\n\006server\020\000\022\t\n\005dro"
-  "ne\020\001\022\r\n\testimator\020\002\022\t\n\005arena\020\003\022\n\n\006camera"
-  "\020\004\022\006\n\002rl\020\005b\006proto3"
+  "w\030\010 \003(\rB\002\020\001\022\025\n\trotation2\030\t \003(\002B\002\020\001\"f\n\014dr"
+  "oneControl\022\017\n\007motorFL\030\001 \001(\002\022\017\n\007motorFR\030\002"
+  " \001(\002\022\017\n\007motorBL\030\003 \001(\002\022\017\n\007motorBR\030\004 \001(\002\022\022"
+  "\n\nkillswitch\030\005 \001(\010\"\321\001\n\rdataTransfers\022!\n\002"
+  "ID\030\001 \001(\0162\025.dronePosVec.progName\022\'\n\004type\030"
+  "\002 \001(\0162\031.dronePosVec.transferType\022\013\n\003msg\030"
+  "\003 \001(\t\022\023\n\013timeSync_ns\030\004 \001(\003\022\n\n\002IP\030\005 \001(\t\022\014"
+  "\n\004port\030\006 \001(\r\022\020\n\010sockaddr\030\007 \001(\014\022\023\n\013sockad"
+  "drlen\030\010 \001(\r\022\021\n\tsa_family\030\t \001(\r*a\n\013dataDe"
+  "vices\022\013\n\007IMUonly\020\000\022\r\n\tCameraPos\020\001\022\020\n\014Kal"
+  "manFilter\020\002\022\020\n\014CameraImgRGB\020\003\022\022\n\016CameraI"
+  "mgDepth\020\004*Q\n\014transferType\022\014\n\010timeSync\020\000\022"
+  "\016\n\nsocketInfo\020\001\022\017\n\013stateChange\020\002\022\t\n\005star"
+  "t\020\003\022\007\n\003end\020\004*O\n\010progName\022\n\n\006server\020\000\022\t\n\005"
+  "drone\020\001\022\r\n\testimator\020\002\022\t\n\005arena\020\003\022\n\n\006cam"
+  "era\020\004\022\006\n\002rl\020\005b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_dronePosVec_2eproto_deps[1] = {
 };
@@ -157,7 +159,7 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_dro
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_dronePosVec_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_dronePosVec_2eproto = {
-  false, false, descriptor_table_protodef_dronePosVec_2eproto, "dronePosVec.proto", 818,
+  false, false, descriptor_table_protodef_dronePosVec_2eproto, "dronePosVec.proto", 861,
   &descriptor_table_dronePosVec_2eproto_once, descriptor_table_dronePosVec_2eproto_sccs, descriptor_table_dronePosVec_2eproto_deps, 3, 0,
   schemas, file_default_instances, TableStruct_dronePosVec_2eproto::offsets,
   file_level_metadata_dronePosVec_2eproto, 3, file_level_enum_descriptors_dronePosVec_2eproto, file_level_service_descriptors_dronePosVec_2eproto,
@@ -192,6 +194,8 @@ bool transferType_IsValid(int value) {
     case 0:
     case 1:
     case 2:
+    case 3:
+    case 4:
       return true;
     default:
       return false;
@@ -231,7 +235,8 @@ dronePosition::dronePosition(::PROTOBUF_NAMESPACE_ID::Arena* arena)
   position_(arena),
   rotshape_(arena),
   rotation_(arena),
-  cameraraw_(arena) {
+  cameraraw_(arena),
+  rotation2_(arena) {
   SharedCtor();
   RegisterArenaDtor(arena);
   // @@protoc_insertion_point(arena_constructor:dronePosVec.dronePosition)
@@ -242,7 +247,8 @@ dronePosition::dronePosition(const dronePosition& from)
       position_(from.position_),
       rotshape_(from.rotshape_),
       rotation_(from.rotation_),
-      cameraraw_(from.cameraraw_) {
+      cameraraw_(from.cameraraw_),
+      rotation2_(from.rotation2_) {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   ::memcpy(&devicetype_, &from.devicetype_,
     static_cast<size_t>(reinterpret_cast<char*>(&timestamp_ns_) -
@@ -292,6 +298,7 @@ void dronePosition::Clear() {
   rotshape_.Clear();
   rotation_.Clear();
   cameraraw_.Clear();
+  rotation2_.Clear();
   ::memset(&devicetype_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&timestamp_ns_) -
       reinterpret_cast<char*>(&devicetype_)) + sizeof(timestamp_ns_));
@@ -378,6 +385,16 @@ const char* dronePosition::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
+      // repeated float rotation2 = 9 [packed = true];
+      case 9:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 74)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedFloatParser(_internal_mutable_rotation2(), ptr, ctx);
+          CHK_(ptr);
+        } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 77) {
+          _internal_add_rotation2(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr));
+          ptr += sizeof(float);
+        } else goto handle_unusual;
+        continue;
       default: {
       handle_unusual:
         if ((tag & 7) == 4 || tag == 0) {
@@ -460,6 +477,11 @@ failure:
       target = stream->WriteUInt32Packed(
           8, _internal_cameraraw(), byte_size, target);
     }
+  }
+
+  // repeated float rotation2 = 9 [packed = true];
+  if (this->_internal_rotation2_size() > 0) {
+    target = stream->WriteFixedPacked(9, _internal_rotation2(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -553,6 +575,21 @@ size_t dronePosition::ByteSizeLong() const {
     total_size += data_size;
   }
 
+  // repeated float rotation2 = 9 [packed = true];
+  {
+    unsigned int count = static_cast<unsigned int>(this->_internal_rotation2_size());
+    size_t data_size = 4UL * count;
+    if (data_size > 0) {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+            static_cast<::PROTOBUF_NAMESPACE_ID::int32>(data_size));
+    }
+    int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
+    _rotation2_cached_byte_size_.store(cached_size,
+                                    std::memory_order_relaxed);
+    total_size += data_size;
+  }
+
   // .dronePosVec.dataDevices deviceType = 1;
   if (this->devicetype() != 0) {
     total_size += 1 +
@@ -609,6 +646,7 @@ void dronePosition::MergeFrom(const dronePosition& from) {
   rotshape_.MergeFrom(from.rotshape_);
   rotation_.MergeFrom(from.rotation_);
   cameraraw_.MergeFrom(from.cameraraw_);
+  rotation2_.MergeFrom(from.rotation2_);
   if (from.devicetype() != 0) {
     _internal_set_devicetype(from._internal_devicetype());
   }
@@ -646,6 +684,7 @@ void dronePosition::InternalSwap(dronePosition* other) {
   rotshape_.InternalSwap(&other->rotshape_);
   rotation_.InternalSwap(&other->rotation_);
   cameraraw_.InternalSwap(&other->cameraraw_);
+  rotation2_.InternalSwap(&other->rotation2_);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(dronePosition, timestamp_ns_)
       + sizeof(dronePosition::timestamp_ns_)
