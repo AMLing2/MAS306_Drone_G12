@@ -38,12 +38,6 @@ diffzCV0QTM = zeros(length(time), 1);
 diffxCV1QTM = zeros(length(time), 1);
 diffyCV1QTM = zeros(length(time), 1);
 diffzCV1QTM = zeros(length(time), 1);
-% Start times
-timeTol = 1e-3;
-zStartTime = 0;
-zStopTime = time(end);
-zStartAvgDiff = find(abs(time-zStartTime) < timeTol);
-zStopAvgDiff = find(abs(time-zStopTime) < timeTol);
 
 % Append differences to lists
 for i = 1 : length(time)
@@ -63,12 +57,6 @@ for i = 1 : length(time)
         diffzCV1QTM(i) = abs(zCV1(i) - zQTM(i));
     end
 end
-% for i = zStartAvgDiff : zStopAvgDiff
-%     if (zQTM(i) ~= trans(3)) && (zCV0(i) ~= 0)
-%         diffzV01(i) = abs(zCV0(i) - zCV1(i));
-%         diffzCVQTM(i) = abs(zCV0(i) - zQTM(i));
-%     end
-% end
 
 format long
 % Calculate average difference from list
@@ -83,15 +71,15 @@ avgDiffyCV1QTM = mean(diffyCV1QTM);
 avgDiffzCV1QTM = mean(diffzCV1QTM);
 % Present average differences
 avgDiffVecs = table(avgDiffxVecs, avgDiffyVecs, avgDiffzVecs)
-avgDiffQTMv0 = table(avgDiffxCV0QTM, avgDiffyCV0QTM, avgDiffzCV0QTM);
-avgDiffQTMv1 = table(avgDiffxCV1QTM, avgDiffyCV1QTM, avgDiffzCV1QTM);
+avgDiffQTMv0 = table(avgDiffxCV0QTM, avgDiffyCV0QTM, avgDiffzCV0QTM)
+avgDiffQTMv1 = table(avgDiffxCV1QTM, avgDiffyCV1QTM, avgDiffzCV1QTM)
 
 %% Translation Plotting
 transPlot = figure(Name="Plot of Translation comparison");
 
 % X plotting
 transIndicesX = (xQTM ~= trans(1));
-sgtitle("Position Comparison: transVector[0] and QTM")
+sgtitle("Position Comparison: transVectors[0] and QTM")
 subplot(3,1,1)
 plot(time,xCV0, '.r')
 hold on
@@ -143,7 +131,7 @@ saveas(transPlot, ['poseTest_',num2str(testNr), '_TransPlot.png'])
 
 %% Translation Difference between QTM and transVectors[0]
 transDiffPlot = figure(Name='TransDiffPlot');
-sgtitle('Difference between transVector[0] and QTM as function of QTM')
+sgtitle('Difference between transVectors[0] and QTM as function of QTM')
 dLims = 0.3;
 
 % X plotting
@@ -174,23 +162,22 @@ xlabel('z [m]')
 ylim([-dLims dLims])
 
 % Export figure
-%set(transPlot,'units','normalized','outerposition',[0 0 1 1])
 saveas(transDiffPlot, ['poseTest_',num2str(testNr), '_transDiffPlot'])
 saveas(transDiffPlot, ['poseTest_',num2str(testNr), '_TransDiffPlot.png'])
 
-%%
-%%%%%%%%%%%%%%%%%% Rotation Vec0 and Matrix %%%%%%%%%%%%%%%%%%
+%% Rotation Comparison: rotMat0 and QTM
 rot0matPlot = figure(Name="Rotation comparison0");
-sgtitle("Rotation Matrix Comparison: Vec0 and QTM")
+sgtitle("Rotation Matrix Comparison: rotMat0 and QTM")
 
-% Plotting rotVector[0] with QTM
+% Plotting rotVectors[0] with QTM
 for i = 1:9
     subplot(3, 3, i);
     
     vec0 = data(:, i+7); % v0Rij
     QTM = data(:, i+25); % v1Rij
-    validIndices = (QTM ~= 0) & (vec0 ~= 0);
 
+    % Plot only when neither are zero
+    validIndices = (QTM ~= 0) & (vec0 ~= 0);
     if any(i == [1,4,7])
         plot(time(validIndices), vec0(validIndices), '.r')
     elseif any(i == [2,5,8])
@@ -203,11 +190,9 @@ for i = 1:9
     q = plot(time(validIndices), QTM(validIndices), '.k', MarkerSize=1);
     
     xlabel('Time [seconds]');
-    % xlim([0 time(end)])
     xlim([startTime stopTime])
     title(['Element ', num2str(i)])
     hold off
-    %xlim([25 125])
     ylim([-1 1])
 end
 
@@ -232,69 +217,49 @@ set(icons, 'MarkerSize', 20)
 % Export figure
 set(rot0matPlot,'units','normalized','outerposition',[0 0 1 1])
 saveas(rot0matPlot, ['poseTest_',num2str(testNr), '_rot0matPlot'])
-%saveas(rot0matPlot, ['poseTest_',num2str(testNr), '_rot0matPlot.png'])
-exportgraphics(rot0matPlot, ['poseTest_',num2str(testNr), '_rot0matPlot.pdf'], ...
-               'ContentType', 'vector');
-%%%%%%%%%%%%%%%%%% Rotation Vec0 and Matrix %%%%%%%%%%%%%%%%%%
+saveas(rot0matPlot, ['poseTest_',num2str(testNr), '_rot0matPlot.png'])
 
-%%%%%%%%%%%%% Rotation Vec0 and Matrix diff plot %%%%%%%%%%%%%
+%% Rotation: Difference between rotMat0 and QTM
 rot0matDiffPlot = figure(Name="RotationDifference0");
-sgtitle("Rotation Matrix Element Difference: Vec0 - QTM")
+sgtitle("Rotation Matrix Element Difference: rotMat0 - QTM")
 
-% Plotting rotVector[0] with QTM
+% Plotting rotVectors[0] - QTM
 for i = 1:9
     subplot(3, 3, i);
     
     vec0 = data(:, i+7); % v0Rij
     QTM = data(:, i+25); % v1Rij
     
-    % Plot only when QTM rotation matrix != 0
+    % Plot only when neither are zero
     validIndices = (QTM ~= 0) & (vec0 ~= 0);
     plot(time(validIndices), (vec0(validIndices)-QTM(validIndices)), ...
          '.k', MarkerSize=1)
     
     xlabel('Time [seconds]');
-    % xlim([0 time(end)])
     xlim([startTime stopTime])
     title(['Element ', num2str(i)])
     hold off
-    %xlim([25 125])
     ylim([-1 1])
 end
-
-% % Add a bit space to the figure
-% fig = gcf;
-% fig.Position(3) = fig.Position(3) + 250;
-% 
-% % Add common legend outside subplots
-% [lgd, icons] = legend('$\Delta R_{nm}$', 'Interpreter', 'latex');
-% lgd.Position(1) = 0.465;
-% lgd.Position(2) = 0.008;
-% 
-% % Change size of legend icons
-% icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
-% set(icons, 'MarkerSize', 20)
 
 % Export figure
 set(rot0matDiffPlot,'units','normalized','outerposition',[0 0 1 1])
 saveas(rot0matDiffPlot, ['poseTest_',num2str(testNr), '_rot0matDiffPlot'])
-% saveas(rot0matDiffPlot, ['poseTest_',num2str(testNr), '_rot0matDiffPlot.png'])
-exportgraphics(rot0matDiffPlot, ['poseTest_',num2str(testNr), '_rot0matDiffPlot.pdf'], ...
-               'ContentType', 'vector');
-%%%%%%%%%%%%% Rotation Vec0 and Matrix diff plot %%%%%%%%%%%%%
+saveas(rot0matDiffPlot, ['poseTest_',num2str(testNr), '_rot0matDiffPlot.png'])
 
-%%%%%%%%%%%%%%%%%% Rotation Vec1 and Matrix %%%%%%%%%%%%%%%%%%
+%% Rotation Comparison: rotMat1 and QTM
 rot1matPlot = figure(Name="Rotation Comparison1");
-sgtitle("Rotation Matrix Comparison: Vec1 and QTM")
+sgtitle("Rotation Matrix Comparison: rotMat1 and QTM")
 
-% Plotting rotVector[1] with QTM
+% Plotting rotVectors[1] with QTM
 for i = 1:9
     subplot(3, 3, i);
     
     vec1 = data(:, i+16); % v0Rij
     QTM = data(:, i+25); % v1Rij
+    
+    % Plot only when neither are zero
     validIndices = (QTM ~= 0) & (vec1 ~= 0);
-
     if any(i == [1,4,7])
         plot(time(validIndices), vec1(validIndices), '.r')
     elseif any(i == [2,5,8])
@@ -307,11 +272,9 @@ for i = 1:9
     plot(time(validIndices), QTM(validIndices), '.k', MarkerSize=1)
     
     xlabel('Time [seconds]');
-    % xlim([0 time(end)])
     xlim([startTime stopTime])
     title(['Element ', num2str(i)])
     hold off
-    %xlim([25 125])
     ylim([-1 1])
 end
 
@@ -326,7 +289,6 @@ v1 = plot(nan, nan, '.r');
 v2 = plot(nan, nan, '.g');
 v3 = plot(nan, nan, '.', 'Color',[109/255, 209/255, 255/255]);
 [lgd, icons] = legend([v1 v2 v3 q], lgdEntries);
-%[lgd, icons] = legend('Vec1', 'QTM');
 lgd.Position(1) = 0.01;
 lgd.Position(2) = 0.4;
 
@@ -337,64 +299,47 @@ set(icons, 'MarkerSize', 20)
 % Export figure
 set(rot1matPlot,'units','normalized','outerposition',[0 0 1 1])
 saveas(rot1matPlot, ['poseTest_',num2str(testNr), '_rot1matPlot'])
-% saveas(rot1matPlot, ['poseTest_',num2str(testNr), '_rot1matPlot.png'])
-exportgraphics(rot1matPlot, ['poseTest_',num2str(testNr), '_rot1matPlot.pdf'], ...
-               'ContentType', 'vector');
-%%%%%%%%%%%%%%%%%% Rotation Vec1 and Matrix %%%%%%%%%%%%%%%%%%
+saveas(rot1matPlot, ['poseTest_',num2str(testNr), '_rot1matPlot.png'])
 
-%%%%%%%%%%%%% Rotation Vec1 and Matrix diff plot %%%%%%%%%%%%%
+%% Rotation: Difference between rotMat1 and QTM
 rot1matDiffPlot = figure(Name="RotationDifference1");
-sgtitle("Rotation Matrix Element Difference: Vec1 - QTM")
+sgtitle("Rotation Matrix Element Difference: rotMat1 - QTM")
 
-% Plotting rotVector[1] with QTM
+% Plotting rotVectors[1] with QTM
 for i = 1:9
     subplot(3, 3, i);
     
     vec1 = data(:, i+16); % v0Rij
     QTM = data(:, i+25); % v1Rij
     
-    % Plot only when QTM rotation matrix != 0
+    % Plot only when neither are zero
     validIndices = (QTM ~= 0) & (vec1 ~= 0);
     plot(time(validIndices), (vec1(validIndices)-QTM(validIndices)), ...
          '.k', MarkerSize=1)
     
     xlabel('Time [seconds]');
-    % xlim([0 time(end)])
     xlim([startTime stopTime])
     title(['Element ', num2str(i)])
     hold off
-    %xlim([25 125])
     ylim([-1 1])
 end
-
-% Add a bit space to the figure
-% fig = gcf;
-% fig.Position(3) = fig.Position(3) + 250;
-% % Add common legend outside subplots
-% [lgd, icons] = legend('$\Delta R_{nm}$', 'Interpreter', 'latex');
-% lgd.Position(1) = 0.465;
-% lgd.Position(2) = 0.008;
-% % Change size of legend icons
-% icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
-% set(icons, 'MarkerSize', 20)
 
 % Export figure
 set(rot1matDiffPlot,'units','normalized','outerposition',[0 0 1 1])
 saveas(rot1matDiffPlot, ['poseTest_',num2str(testNr), '_rot1matDiffPlot'])
-% saveas(rot1matDiffPlot, ['poseTest_',num2str(testNr), '_rot1matDiffPlot.png'])
-exportgraphics(rot1matDiffPlot, ['poseTest_',num2str(testNr), '_rot1matDiffPlot.pdf'], ...
-               'ContentType', 'vector');
-%%%%%%%%%%%%% Rotation Vec1 and Matrix diff plot %%%%%%%%%%%%%
+saveas(rot1matDiffPlot, ['poseTest_',num2str(testNr), '_rot1matDiffPlot.png'])
 
-%%%%%%%%%%%%%%%%%%%%%%% Angle diff plot %%%%%%%%%%%%%%%%%%%%%%
+%% Angle Difference: rotMat to Axis-Angle
 angleDiffPlot = figure(Name="AngleDiffPlot");
 hold on
-% angles0 = zeros(length(time), 1);
-% angles1 = zeros(length(time), 1);
+
+% Initialize
 angChoice = zeros(length(time), 1);
-% eul0 = zeros(length(time), 3);
-% eul1 = zeros(length(time), 3);
+
+validIndices = [];
+
 for i = 1 : length(time)
+    % Extract Matrices
     rotMat0 = [data(i,8), data(i,9), data(i,10);
                data(i,11), data(i,12), data(i,13);
                data(i,14), data(i,15), data(i,16)];
@@ -404,19 +349,22 @@ for i = 1 : length(time)
     rotMatQTM = [data(i,26), data(i,27), data(i,28);
                  data(i,29), data(i,30), data(i,31);
                  data(i,32), data(i,33), data(i,34)];
+    % Calculate Cifference Matrices
     rotMatDiff0 = rotMat0' * rotMatQTM;
     rotMatDiff1 = rotMat1' * rotMatQTM;
-    % eul0(i,:) = rotm2eul(rotMatDiff0);
-    % eul1(i,:) = rotm2eul(rotMatDiff1);
-
+    % Convert to Axis-Angle
     rotVecDiff0 = rotm2axang(rotMatDiff0);
     rotVecDiff1 = rotm2axang(rotMatDiff1);
-    % angles0(i) = rad2deg(rotVecDiff0(4));
-    % angles1(i) = rad2deg(rotVecDiff1(4));
-    
+    % Extract angle
     ang0 = rad2deg(rotVecDiff0(4));
     ang1 = rad2deg(rotVecDiff1(4));
     
+    % Plot only if neither matrix is all zeros
+    if ~all(rotMatQTM(:) == 0) && ~all(rotMat0(:) == 0) && ~all(rotMat1(:) == 0)
+        validIndices(end+1) = i;
+    end
+
+    % Choose closest
     if ang0 < ang1
         angChoice(i) = ang0;
     else
@@ -424,25 +372,18 @@ for i = 1 : length(time)
     end
 end
 
-% Plot only when QTM rotation matrix != 0
-%plotY = rad2deg(eul0(:,1));
-validIndices = (QTM ~= 0);
 plot(time(validIndices), angChoice(validIndices), '.k', MarkerSize=1)
 title("Difference from Axis-Angle: Closest choice")
 ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
-% xlim([0 time(end)])
 xlim([startTime stopTime])
 ylim([0 90])
 
 % Export figure
-%set(rot1matDiffPlot,'units','normalized','outerposition',[0 0 1 1])
 saveas(angleDiffPlot, ['poseTest_',num2str(testNr), '_angleDiffPlot'])
-% saveas(angleDiffPlot, ['poseTest_',num2str(testNr), '_angleDiffPlot.png'])
-exportgraphics(angleDiffPlot, ['poseTest_',num2str(testNr), '_angleDiffPlot.pdf'], ...
-               'ContentType', 'vector');
-%%%%%%%%%%%%%%%%%%%%%%% Angle diff plot %%%%%%%%%%%%%%%%%%%%%%
+saveas(angleDiffPlot, ['poseTest_',num2str(testNr), '_angleDiffPlot.png'])
 
+%%
 %%%%%%%%%%%%%%%% XY Projection Plot - Azimuth %%%%%%%%%%%%%%%%
     % atan2 wrapping 360 deg:
         % https://se.mathworks.com/matlabcentral/
