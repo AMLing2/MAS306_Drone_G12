@@ -42,17 +42,17 @@ diffzCV1QTM = zeros(length(time), 1);
 % Append differences to lists
 for i = 1 : length(time)
     if (xQTM(i) ~= trans(1)) && (xCV0(i) ~= 0)
-        diffxV01(i) = abs(xCV0(i) - xCV1(i));
+        diffxV01(i)    = abs(xCV0(i) - xCV1(i));
         diffxCV0QTM(i) = abs(xCV0(i) - xQTM(i));
         diffxCV1QTM(i) = abs(xCV1(i) - xQTM(i));
     end
     if (yQTM(i) ~= trans(2)) && (yCV0(i) ~= 0)
-        diffyV01(i) = abs(yCV0(i) - yCV1(i));
+        diffyV01(i)    = abs(yCV0(i) - yCV1(i));
         diffyCV0QTM(i) = abs(yCV0(i) - yQTM(i)); % Sign flip, diff frames
         diffyCV1QTM(i) = abs(yCV1(i) - yQTM(i)); % Sign flip, diff frames
     end
     if (zQTM(i) ~= trans(3)) && (zCV0(i) ~= 0)
-        diffzV01(i) = abs(zCV0(i) - zCV1(i));
+        diffzV01(i)    = abs(zCV0(i) - zCV1(i));
         diffzCV0QTM(i) = abs(zCV0(i) - zQTM(i));
         diffzCV1QTM(i) = abs(zCV1(i) - zQTM(i));
     end
@@ -69,10 +69,10 @@ avgDiffzCV0QTM = mean(diffzCV0QTM);
 avgDiffxCV1QTM = mean(diffxCV1QTM);
 avgDiffyCV1QTM = mean(diffyCV1QTM);
 avgDiffzCV1QTM = mean(diffzCV1QTM);
-% Present average differences
-avgDiffVecs = table(avgDiffxVecs, avgDiffyVecs, avgDiffzVecs)
-avgDiffQTMv0 = table(avgDiffxCV0QTM, avgDiffyCV0QTM, avgDiffzCV0QTM)
-avgDiffQTMv1 = table(avgDiffxCV1QTM, avgDiffyCV1QTM, avgDiffzCV1QTM)
+% Present Mean Absolute Deviation
+madVecs = table(avgDiffxVecs, avgDiffyVecs, avgDiffzVecs)
+madQTMv0 = table(avgDiffxCV0QTM, avgDiffyCV0QTM, avgDiffzCV0QTM)
+madQTMv1 = table(avgDiffxCV1QTM, avgDiffyCV1QTM, avgDiffzCV1QTM)
 
 %% Translation Plotting
 transPlot = figure(Name="Plot of Translation comparison");
@@ -383,28 +383,20 @@ ylim([0 90])
 saveas(angleDiffPlot, ['poseTest_',num2str(testNr), '_angleDiffPlot'])
 saveas(angleDiffPlot, ['poseTest_',num2str(testNr), '_angleDiffPlot.png'])
 
-%%
-%%%%%%%%%%%%%%%% XY Projection Plot - Azimuth %%%%%%%%%%%%%%%%
-    % atan2 wrapping 360 deg:
-        % https://se.mathworks.com/matlabcentral/
-        % answers/202915-converting-atan2-output-to-360-deg
+%% XY Projection Plot - Azimuth Angle
+% atan2 wrapping 360 deg:
+    % https://se.mathworks.com/matlabcentral/
+    % answers/202915-converting-atan2-output-to-360-deg
 CV0anglesXplot = zeros(length(time), 1);
 CV0anglesYplot = zeros(length(time), 1);
 CV1anglesXplot = zeros(length(time), 1);
 CV1anglesYplot = zeros(length(time), 1);
 QTManglesXplot = zeros(length(time), 1);
 QTManglesYplot = zeros(length(time), 1);
-% diff0AnglesX = zeros(length(time),1);
-% diff0AnglesY = zeros(length(time),1);
-% diff1AnglesX = zeros(length(time),1);
-% diff1AnglesY = zeros(length(time),1);
 diffAnglesX = zeros(length(time), 1);
 diffAnglesY = zeros(length(time), 1);
 CVanglesXchoice = zeros(length(time), 1);
 CVanglesYchoice = zeros(length(time), 1);
-% diffAngles = zeros(length(time), 1);
-% eul0 = zeros(length(time), 3);
-% eul1 = zeros(length(time), 3);
 
 for i = 1 : length(time)
     x0_x = data(i,8);
