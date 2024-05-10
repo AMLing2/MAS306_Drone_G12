@@ -2,7 +2,7 @@ clc; clear; close all;
 
 %% Import Results from Pose Validation Test
 
-testNr = 2;
+testNr = 0;
 fileName = ['ExportedResults_', num2str(testNr), '.csv'];
 data = csvread(fileName, 1,0);
 
@@ -20,12 +20,12 @@ zCV1 = data(:,37);
 trans = [0.190 0.143 1.564]; % Physically measured in m
 
 % X Limits for Translation Plots [seconds]
-startTimeTrans = 9.4;
-stopTimeTrans  = 186;
+startTimeTrans = 0;
+stopTimeTrans  = time(end);
 
 % X Limits for Rotation Plots [seconds]
-startTimeRot = 125;
-stopTimeRot  = 185;
+startTimeRot = 0;
+stopTimeRot  = time(end);
 
 %% Translation Analysis
 
@@ -49,8 +49,8 @@ for i = 1 : length(time)
     end
     if (yQTM(i) ~= trans(2)) && (yCV0(i) ~= 0)
         diffyV01(i)    = abs(yCV0(i) - yCV1(i));
-        diffyCV0QTM(i) = abs(yCV0(i) - yQTM(i)); % Sign flip, diff frames
-        diffyCV1QTM(i) = abs(yCV1(i) - yQTM(i)); % Sign flip, diff frames
+        diffyCV0QTM(i) = abs(yCV0(i) - yQTM(i));
+        diffyCV1QTM(i) = abs(yCV1(i) - yQTM(i));
     end
     if (zQTM(i) ~= trans(3)) && (zCV0(i) ~= 0)
         diffzV01(i)    = abs(zCV0(i) - zCV1(i));
@@ -160,7 +160,7 @@ xlabel('z [m]')
 ylim([-dLims dLims])
 
 % Export figure
-saveas(transDiffPlot, ['poseTest_',num2str(testNr), '_transDiffPlot'])
+saveas(transDiffPlot, ['poseTest_',num2str(testNr), '_TransDiffPlot'])
 saveas(transDiffPlot, ['poseTest_',num2str(testNr), '_TransDiffPlot.png'])
 
 %% Rotation Comparison: rotMat0 and QTM
@@ -384,9 +384,10 @@ saveas(angleDiffPlot, ['poseTest_',num2str(testNr), '_angleDiffPlot.png'])
 %% XY Projection - Azimuth Angle Calculations
 
 % Enable/disable modulo wrapping of angle and set limits
-    %    0 --> Enable Wrapping,  from    0 to 360
-    % -180 --> Disable Wrapping, from -180 to 180 
-startAngle = 0; % Degrees
+wrappingX = false;
+wrappingY = false;
+xStart = 0;
+yStart = 0;
 
 % Initialization
 CV0anglesXplot = zeros(length(time), 1);
@@ -420,26 +421,30 @@ for i = 1 : length(time)
     yQTM_y = data(i,30);
 
     % Check angle range
-    if (startAngle == -180)
-        % Trig w/o wrapping
-        CV0anglesXplot(i) = atan2d(x0_y,x0_x);
-        CV0anglesYplot(i) = atan2d(y0_y,y0_x);
-        CV1anglesXplot(i) = atan2d(x1_y,x1_x);
-        CV1anglesYplot(i) = atan2d(y1_y,y1_x);
-        QTManglesXplot(i) = atan2d(xQTM_y, xQTM_x);
-        QTManglesYplot(i) = atan2d(yQTM_y, yQTM_x);
-    else
+    if wrappingX
         % Trig with modulo wrapping
         CV0anglesXplot(i) = mod(atan2d(x0_y,x0_x), 360);
-        CV0anglesYplot(i) = mod(atan2d(y0_y,y0_x), 360);
-        
         CV1anglesXplot(i) = mod(atan2d(x1_y,x1_x), 360);
-        CV1anglesYplot(i) = mod(atan2d(y1_y,y1_x), 360);
-
         QTManglesXplot(i) = mod(atan2d(xQTM_y, xQTM_x), 360);
-        QTManglesYplot(i) = mod(atan2d(yQTM_y, yQTM_x), 360);
+    else
+        % Trig w/o wrapping
+        CV0anglesXplot(i) = atan2d(x0_y,x0_x);
+        CV1anglesXplot(i) = atan2d(x1_y,x1_x);
+        QTManglesXplot(i) = atan2d(xQTM_y, xQTM_x);
     end
-    
+
+    if wrappingY
+        % Trig with modulo wrapping
+        CV0anglesYplot(i) = mod(atan2d(y0_y,y0_x), 360);
+        CV1anglesYplot(i) = mod(atan2d(y1_y,y1_x), 360);
+        QTManglesYplot(i) = mod(atan2d(yQTM_y, yQTM_x), 360);
+    else
+        % Trig w/o wrapping
+        CV0anglesYplot(i) = atan2d(y0_y,y0_x);
+        CV1anglesYplot(i) = atan2d(y1_y,y1_x);
+        QTManglesYplot(i) = atan2d(yQTM_y, yQTM_x);
+    end
+
     diff0AnglesX = QTManglesXplot(i) - CV0anglesXplot(i);
     diff0AnglesY = QTManglesYplot(i) - CV0anglesYplot(i);
 
@@ -478,7 +483,7 @@ plot(time(validIndices), QTManglesXplot(validIndices), '.k', MarkerSize=1)
 ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
 xlim([startTimeRot stopTimeRot])
-ylim([startAngle (startAngle+360)])
+ylim([xStart (xStart+360)])
 
 [~, icons] = legend('CV0 $\theta$ from X-axis', 'QTM $\theta$ from Y-axis', ...
     'Interpreter', 'latex', 'Location','best');
@@ -495,7 +500,7 @@ plot(time(validIndices), QTManglesYplot(validIndices), '.k', MarkerSize=1)
 ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
 xlim([startTimeRot stopTimeRot])
-ylim([startAngle (startAngle+360)])
+ylim([yStart (yStart+360)])
 
 [~, icons] = legend('CV0 $\theta$ from Y-axis', 'QTM $\theta$ from Y-axis', ...
     'Interpreter', 'latex', 'Location','best');
@@ -522,7 +527,7 @@ hold on
 plot(time(validIndices), QTManglesXplot(validIndices), '.k', MarkerSize=1)
 ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
-ylim([startAngle (startAngle+360)])
+ylim([xStart (xStart+360)])
 xlim([startTimeRot stopTimeRot])
 
 [~, icons] = legend('CV1 $\theta$ from X-axis', 'QTM $\theta$ from Y-axis', ...
@@ -539,7 +544,7 @@ hold on
 plot(time(validIndices), QTManglesYplot(validIndices), '.k', MarkerSize=1)
 ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
-ylim([startAngle (startAngle+360)])
+ylim([yStart (yStart+360)])
 xlim([startTimeRot stopTimeRot])
 
 [~, icons] = legend('CV1 $\theta$ from Y-axis', 'QTM $\theta$ from Y-axis', ...
@@ -566,7 +571,7 @@ hold on
 plot(time(validIndices), QTManglesXplot(validIndices), '.k', MarkerSize=1)
 ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
-ylim([startAngle (startAngle+360)])
+ylim([xStart (xStart+360)])
 xlim([startTimeRot stopTimeRot])
 
 [~, icons] = legend('CV $\theta$ from X-axis', 'QTM $\theta$ from Y-axis', ...
@@ -583,7 +588,7 @@ hold on
 plot(time(validIndices), QTManglesYplot(validIndices), '.k', MarkerSize=1)
 ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
-ylim([startAngle (startAngle+360)])
+ylim([yStart (yStart+360)])
 xlim([startTimeRot stopTimeRot])
 
 [~, icons] = legend('CV $\theta$ from Y-axis', 'QTM $\theta$ from Y-axis', ...
@@ -610,7 +615,7 @@ ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
 [h, icons] = legend('X-axis diff', 'Y-axis diff');
 ylim([-30 30])
-xlim([0 time(end)])
+xlim([startTimeRot stopTimeRot])
 
 % Change size of legend icons
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
