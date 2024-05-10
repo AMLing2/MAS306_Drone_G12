@@ -4,12 +4,23 @@ import queue
 import multiprocessing as mp
 from . import dronePosVec_pb2
 from enum import Flag, auto
+import traceback #temp, for debugging
+import csv
 
 class SendrecvType(Flag):
     GENERICSEND = auto()
     GENERICRECV = auto()
     #GENERICSEND = 0b0100
     NO_MP =       auto()
+
+__global_Server_Time = 0
+__interval_Send = 100000000
+
+def getTimeNow(): #returns ns
+    return time.time_ns()
+
+#def intervalTimePrev(): #returns ns
+#    return float(time.time_ns() - ((time.time_ns() - __global_Server_Time) % __interval_Send) - __interval_Send)
 
 class DataSending:
     mpLoop = True
@@ -23,12 +34,13 @@ class DataSending:
     dataMsg = dronePosVec_pb2.dataTransfers()
     dp = dronePosVec_pb2.dronePosition()
 
-    def __init__(self,serverAddress,queueCamera,processType):
+    def __init__(self,serverAddress,processType):
         self.serverAddress = serverAddress
         self.sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-        self.q = queueCamera #depracated
         self.processType = processType
         self.sock.setblocking(True)
+        global __interval_Send
+        __interval_Send = self.sendinterval
 
     def send(self,msg):
         self.sock.send(msg)
@@ -57,6 +69,8 @@ class DataSending:
         self.dataMsg.ParseFromString(self.recv())
         self.offset = self.dataMsg.timeSync_ns
         self.globalTimer = self.globalTimer - self.offset
+        global __global_Server_Time
+        __global_Server_Time = self.globalTimer
         print("offset: " + str(self.offset))
 
     def sleepTimeCalc(self,interval,timer):
@@ -153,14 +167,18 @@ class DataSending:
         if(self.dataMsg.type == dronePosVec_pb2.start):
             if self.dataMsg.timeSync_ns != 0: #change sending time
                 self.sendinterval = self.dataMsg.timeSync_ns
+                global __interval_Send
+                __interval_Send = self.sendinterval #update the global interval
             return 0
         else:
             return -1
 
 
 class arenaCommunication:
+    expectedTime = 0 #temp
     qSend = None
     qRecv = None
+    mpEvent = mp.Event()
     pSend = None
     pRecv = None
     deviceType = None
@@ -181,7 +199,6 @@ class arenaCommunication:
         self.dp.rotShape[:] = self.matrixSize
         self.dc = dronePosVec_pb2.droneControl()
         self.dc.Clear()
-
         self.serverIP = socket.gethostbyname(hostname)
 
         if startflags != 0: #no start flags for manual socket starting (NO_MP reccomended)
@@ -194,50 +211,62 @@ class arenaCommunication:
             exit(-1)
 
         if (SendrecvType.NO_MP in startflags): # start unthreaded socket for custom writing
-            self.c = DataSending(self.serverIP,self.qRecv,self.deviceType)
+            self.c = DataSending(self.serverIP,self.deviceType)
             if self.c.dserverConnect() == 0:
                 self.c.checklist()
             return None
 
-        self.qSend = mp.Queue(1)
+        self.qSend = mp.Queue(2)
         self.qRecv = mp.Queue(2)
 
         if (SendrecvType.GENERICSEND in startflags) and (SendrecvType.GENERICRECV in startflags): #starts generic socket that sends and recvs
-            self.p = mp.Process(target=self.multiprocessRecvSend_,args=((self.serverIP,20002),self.qSend,self.qRecv,))
+            self.p = mp.Process(target=self.multiprocessRecvSend_,args=((self.serverIP,20002),))
             self.p.start()
             return None
 
         elif (SendrecvType.GENERICSEND in startflags): # start send multiprocess only (for camera usually)
-            self.p = mp.Process(target=self.multiprocessSend_,args=((self.serverIP,20002),self.qSend,))
+            self.p = mp.Process(target=self.multiprocessSend_,args=((self.serverIP,20002),))
             self.p.start()
         elif (SendrecvType.GENERICRECV in startflags): # start recv multiprocess only
-            self.p = mp.Process(target=self.multiprocessRecv_,args=((self.serverIP,20002),self.qSend,))
+            self.p = mp.Process(target=self.multiprocessRecv_,args=((self.serverIP,20002),))
             self.p.start()
 
+    def safeQueueGet(self,_q,_block,_timeout):
+        try:
+            self.mpEvent.set()
+            qval = _q.get(block= _block, timeout=_timeout) #class exception here
+            self.mpEvent.clear()
+            return qval
+        except Exception as e:
+            print("exception:" + repr(e))
+            self.mpEvent.clear()
+            return str(0)
+
     def addPosToSendQueue(self):
-            if self.qSend.full() == True:
+            self.qSend.put(self.dp.SerializeToString())
+            if (self.qSend.full() == True) and (not (self.mpEvent.is_set())): #kind of bad use of a queue because 
                 try:
                     self.qSend.get(timeout=0.01) #empty if previous is still not read
-                except Exception: #will be called if both threads try to get() at the same time
-                    pass
-            self.qSend.put(self.dp.SerializeToString())
+                except Exception as e: #will be called if both threads try to get() at the same time
+                    print("add to queue: exception:" + repr(e))
+            
 
     def addPosToRecvQueue(self):
-        if self.qRecv.full() == True:
-            try:
-                self.qRecv.get(timeout=0.01) #empty if previous is still not read
-            except Exception: #will be called if both threads try to get() at the same time
-                pass
         self.qRecv.put(self.dp.SerializeToString())
+        if (self.qRecv.full() == True) and (not (self.mpEvent.is_set())):
+            try:
+                self.qRecv.get(timeout=0.05) #empty if previous is still not read
+            except Exception as e: #will be called if both threads try to get() at the same time
+                print("add to queue: exception:" + repr(e))
+        
 
     def addMotToSendQueue(self):
-        if self.qSend.full() == True:
+        self.qSend.put(self.dc.SerializeToString(),True,None)
+        if (self.qSend.full() == True) and (not (self.mpEvent.is_set())):
             try:
-                self.qSend.get(timeout=0.01) #empty if previous is still not read
-            except Exception: #will be called if both threads try to get() at the same time
-                print(str(Exception))
-
-        self.qSend.put(self.dc.SerializeToString())
+                self.qSend.get(timeout=0.01) #empty 1st in queue only, if previous is still not read
+            except Exception as e: #will be called if both threads try to get() at the same time
+                print("add to queue: exception:" + repr(e))
 
     def endmps(self): #must be called before ending program if using multiprocesses
         self.p.join()
@@ -245,11 +274,11 @@ class arenaCommunication:
     # ----------------------------------- GENERIC RECV AND SENDS ----------------------------------
     # used for inbuilt functions such as camera or if not using self made recieve or sending methods for RL
     #generic sender (used for camera)
-    def multiprocessSend_(self,serverAddress,queueCam):
+    def multiprocessSend_(self,serverAddress):
         print("sender multiprocess starting")
-        self.c = DataSending(serverAddress,queueCam,self.deviceType)
+        self.c = DataSending(serverAddress,self.deviceType)
 
-        timeout = None
+        qtimeout = 10
         if self.c.dserverConnect() == 0:
             self.c.checklist()
             if self.c.waitForStartSignal() == -1:
@@ -260,8 +289,8 @@ class arenaCommunication:
                 time.sleep(self.c.sleepTimeCalc(self.c.sendinterval,self.c.globalTimer))
                 try:
                     #c.send(msg) #test
-                    self.c.send(queueCam.get(block= True, timeout=timeout)) #real
-                    timeout = 5 # set to 5s after initial
+                    self.c.send(self.safeQueueGet(self.qSend,True,qtimeout))
+                    qtimeout = 5 # set to 5s after initial
                 except Exception as e:
                     self.c.mpLoop = False #timeout 
                     print("exception:" + repr(e))
@@ -269,9 +298,9 @@ class arenaCommunication:
         print("sender multiprocess closing")
 
     #generic reciever
-    def multiprocessRecv_(self,serverAddress,queue):
+    def multiprocessRecv_(self,serverAddress):
         print("reciever multiprocess starting")
-        self.c = DataSending(serverAddress,queue,self.deviceType)
+        self.c = DataSending(serverAddress,self.deviceType)
 
         recvMsg = 0
         if self.c.dserverConnect() == 0:
@@ -285,12 +314,12 @@ class arenaCommunication:
                 time.sleep(self.c.sleepTimeCalc(self.c.sendinterval,self.c.globalTimer))
                 try:
                     recvMsg = self.c.recv()
-                    if queue.full() == True:
+                    if (self.qSend.full() == True) and (not (self.mpEvent.is_set())):
                         try:
-                            queue.get(timeout=0.01) #empty if previous is still not read
+                            self.qSend.get(timeout=0.05) #empty if previous is still not read
                         except Exception: #will be called if both threads try to get() at the same time
                             pass
-                    queue.put(recvMsg)
+                    self.qSend.put(recvMsg)
 
                     self.sock.settimeout(5.0)
                 except Exception as e:
@@ -300,34 +329,45 @@ class arenaCommunication:
         print("reciever multiprocess closing")
 
      #generic synchronised send and reciever
-    def multiprocessRecvSend_(self,serverAddress,qRecv,qSend):
+    def multiprocessRecvSend_(self,serverAddress):
         print("send and recieve multiprocess starting")
-        self.c = DataSending(serverAddress,qRecv,self.deviceType)
+        self.c = DataSending(serverAddress,self.deviceType)
+        #csv
+        fields = ['expected time','actual time']
+        filename = "times.csv"
+        #csv
+        with open(filename, 'w') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(fields)
 
-        timeout = 10
-        recvMsg = 0
-        if self.c.dserverConnect() == 0:
-            self.c.checklist()
-            if self.c.waitForStartSignal() == -1:
-                self.c.mpLoop = False #dont start program
-
-            #main loop
-            self.c.sock.settimeout(10.0) #long initial timeout for if server is still doing things
-            while(self.c.mpLoop):
-                time.sleep(self.c.sleepTimeCalc(self.c.sendinterval,self.c.globalTimer))
-                try:
-                    self.c.send(qSend.get(block= True, timeout=timeout)) #TODO: fix hangup
-                    recvMsg = self.c.recv()
-                    if self.qRecv.full() == True:
-                        try:
-                            self.qRecv.get(timeout=0.01) #empty if previous is still not read
-                        except Exception: #will be called if both threads try to get() at the same time
-                            pass
-                    self.qRecv.put(recvMsg)
-                    self.sock.settimeout(5.0)
-                    timeout = 5 # set to 5s after initial
-                except Exception as e:
-                    self.c.mpLoop = False #timeout 
-                    print("exception:" + repr(e))
+            qtimeout = 10
+            recvMsg = []
+            if self.c.dserverConnect() == 0:
+                self.c.checklist()
+                if self.c.waitForStartSignal() == -1:
+                    self.c.mpLoop = False #dont start program
+                writer.writerow({self.c.globalTimer/1000000,(getTimeNow())/1000000})
+        
+                #main loop
+                self.c.sock.settimeout(10.0) #long initial timeout for if server is still doing things
+                while(self.c.mpLoop):
+                    time.sleep(self.c.sleepTimeCalc(self.c.sendinterval,self.c.globalTimer))
+                    self.expectedTime = getTimeNow()
+                    try:
+                        self.c.send(self.safeQueueGet(self.qSend,True,qtimeout))
+                        recvMsg = self.c.recv()
+                        if self.qRecv.full() == True:
+                            try:
+                                self.qRecv.get(timeout=0.05) #empty if previous is still not read
+                            except Exception: #will be called if both threads try to get() at the same time
+                                pass
+                        self.qRecv.put(recvMsg)
+                        writer.writerow({0,(getTimeNow())/1000000})
+                        print("msg recieved with time difference (ms): " + str((getTimeNow() - self.expectedTime)/1000000))
+                        self.c.sock.settimeout(5.0)
+                        qtimeout = 5 # set to 5s after 
+                    except Exception as e:
+                        self.c.mpLoop = False #timeout 
+                        print("exception:" + repr(e))
 
         print("send and reciever multiprocess closing")

@@ -228,7 +228,7 @@ ssize_t AbMessenger::getThreadList(std::thread* tbuffer[], size_t tbufferlen)
 /* Server functions */
 ssize_t ServerSocket::initRecv()//TODO: fix
 {
-    setTimeout(30,0);
+    setTimeout(5,0);
     ssize_t msgSize;
     msgSize = serverRecvfrom(&buffer_[0],bufferSize_);
     if (msgSize < 0)
@@ -539,11 +539,18 @@ void AbMessenger::appendToQueue_(std::queue<std::string>& queueNum,const std::st
 
 int AbMessenger::blockingGetQueue_(std::queue<std::string>& queueNum,std::string& msg,int timeout_ms)
 {
-    std::unique_lock lock(m_);
+    //std::unique_lock lock(m_);
+    ns_t timeNow = monoTimeNow_();
+    ns_t timeouttime = ns_t(std::chrono::milliseconds(timeout_ms));
     while (queueNum.empty())
     {
-        cv_.wait_for(lock,std::chrono::milliseconds(timeout_ms));
-        return -1;
+        //std::cout<<strName<<" queue empty"<<std::endl;
+        //cv_.wait_for(lock,std::chrono::milliseconds(timeout_ms));
+        //really wanted to do this with a conditional variable like the above line but would be hard to tell other AbMessenger child classes to unlock it
+        if ((monoTimeNow_() - timeNow) > timeouttime) //5 seconds timeout
+        {
+            return -1;
+        }
     }
     msg = queueNum.front();
     return 1;

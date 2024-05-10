@@ -27,12 +27,13 @@ void AbMessenger::recvThread()
             try
             {
                 data.ParseFromArray(recvMsg_,msgsize);
-                appendToQueue_(q,std::string(recvMsg_,msgsize));
+                //std::cout<<strName<<" msg recieved: "<<std::string(recvMsg_,msgsize)<<std::endl; //TEMP
+                appendToQueue_(*pq1,std::string(recvMsg_,msgsize));
             }
             catch(const std::exception& e)
             {
                 std::cerr << e.what() << '\n'; //incorrect message, possibly caused by port scanning or error on other process, thread should continue
-                appendToQueue_(q,std::string(errorStr,1)); //append empty string, correct protobuf messages never start with '\0'
+                appendToQueue_(*pq1,std::string(errorStr,1)); //append empty string, correct protobuf messages never start with '\0'
             }
         }
         else
@@ -59,24 +60,24 @@ void AbMessenger::sendThread()
     while(threadloop_)
     {
         //data.Clear();
-        r = blockingGetQueue_(q2,msg,5000);
+        r = blockingGetQueue_(*pq2,msg,5000);
         if (r == -1) //timeout from blocking queue
         {
             std::cout<<strName<<" timeout from queue get,"<< " rval: "<<r<<std::endl;
             threadloop_ = false;
             break;
-            
         }
         else if (msg[0] == '\0')
         {
             //will happen if any wrong messages get passed through, just ignore for now
             std::cout<<strName<<" incorrect message recieved from queue,"<< " rval: "<<r<<std::endl;
-            q2.pop();
+            pq2->pop();
         }
         else
         {
+            //std::cout<<strName<<" msg sent: "<<msg<<std::endl; //TEMP
             clientSend(msg.c_str(),msg.size());
-            q2.pop();
+            pq2->pop();
         }
         sleeptoInterval_(sendInterval_);
     }

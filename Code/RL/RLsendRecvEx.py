@@ -3,11 +3,12 @@ from Modules import arenaComm
 from Modules import dronePosVec_pb2
 import math
 import time
+import traceback
 
 hostname = 'b12.uia.no'
 messager = arenaComm.arenaCommunication(arenaComm.SendrecvType.GENERICRECV | arenaComm.SendrecvType.GENERICSEND,hostname,{1,3},dronePosVec_pb2.rl)
 
-msg = None
+msg = "0" #string
 motorvals = 0
 running = True
 dp = dronePosVec_pb2.dronePosition()
@@ -15,10 +16,13 @@ dp = dronePosVec_pb2.dronePosition()
 try:
     while running:
         if messager.qRecv.empty() == False:
-            msg = messager.qRecv.get()
-            dp.ParseFromString(msg)
-            print("msg recieved with type: " + str(dp.deviceType))
-
+            msg = messager.safeQueueGet(messager.qRecv,True,5)
+            #print("msg:" + str(msg))
+            if not (len(msg) < 2): #an string with 0 might get sent due to an error
+                dp.ParseFromString(msg)
+                #print("msg recieved: " + str(dp.position))
+            #else:
+                #print("fail msg recieved")
         #
         # PYTORCH COULD GO HERE FOR EXAMPLE
         #

@@ -14,7 +14,7 @@
 int main()
 {
     const int queueCount = 10;
-    std::queue<std::string> queues[queueCount]; //would prefer to have char* queue type but cant pass length that way :/
+    std::queue<std::string> queues[queueCount]; //would prefer to have char* queue type but cant pass length that way
 
     int unconnected;
     const std::string localAddr = getSelfIP(".uia.no");//"128.39.200.239"; //127.0.0.1 //change to resolve selfhost
@@ -22,10 +22,10 @@ int main()
     ServerMain serverMain(timenow,localAddr,20002);
 
     std::vector<std::unique_ptr<AbMessenger>> vpMessengers;
-    vpMessengers.push_back(std::make_unique<CameraMessenger>(serverMain.getServerTimer(),localAddr,10000000, 10000000,queues[0]));
-    vpMessengers.push_back(std::make_unique<EstimatorMessenger>(serverMain.getServerTimer(),localAddr,10000000, 10000000,queues[0],queues[2]));
-    vpMessengers.push_back(std::make_unique<DroneMessenger>(serverMain.getServerTimer(),localAddr,10000000, 10000000,queues[0],queues[1]));
-    vpMessengers.push_back(std::make_unique<RLMessenger>(serverMain.getServerTimer(),localAddr,10000000, 10000000,queues[1],queues[0]));
+    vpMessengers.push_back(std::make_unique<CameraMessenger>(serverMain.getServerTimer(),localAddr,10000000, 10000000,&queues[0])); // Camera
+    vpMessengers.push_back(std::make_unique<EstimatorMessenger>(serverMain.getServerTimer(),localAddr,10000000, 10000000,&queues[0],&queues[2])); //Estimator
+    vpMessengers.push_back(std::make_unique<DroneMessenger>(serverMain.getServerTimer(),localAddr,10000000, 10000000,&queues[0],&queues[1])); //Drone
+    vpMessengers.push_back(std::make_unique<RLMessenger>(serverMain.getServerTimer(),localAddr,10000000, 10000000,&queues[1],&queues[0])); //RL
 
     serverMain.setSocketList(&vpMessengers);
     bool connectloop = true;
@@ -70,11 +70,12 @@ int main()
         }
     }
 
-    std::cout<<"type 0 to end program, 1 to start"<<std::endl;
+    std::cout<<"type 'end' or '0' to end program, 'run' to start, 'help' for options"<<std::endl; //TODO: fix this
     bool mainlooping = true;
+    int a;
     while(mainlooping)
     {
-        int a;
+        
         std::cin>>a;
 
         switch (a)
