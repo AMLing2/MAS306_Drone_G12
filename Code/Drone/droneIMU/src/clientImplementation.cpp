@@ -129,6 +129,22 @@ ssize_t SocketMethods::clientRecv(char* buffer, size_t bufferSize)
 	return recvLen;
 }
 
+ssize_t SocketMethods::clientRecv(char* buffer, size_t bufferSize,bool pass)
+{
+    ssize_t recvLen;
+    if (pass == true)
+    {
+        recvLen = recv(f_socket_, buffer, bufferSize,MSG_PEEK);
+    }
+    else
+    {
+        recvLen = clientRecv(buffer, bufferSize);
+    }
+    
+	buffer[recvLen] = '\0';
+	return recvLen;
+}
+
 int SocketMethods::clientConnect(struct sockaddr* clientAddr,socklen_t addrLen)
 {
     int r = connect(f_socket_,clientAddr,addrLen);
@@ -392,9 +408,8 @@ int ClientClass::startThread(threadStartType startType)
 //threads should be guaranteed to end soon after threadloop is called
 int ClientClass::joinThread()
 {
+    std::cout<<"joining threads"<<std::endl;
     threadloop = false; 
-    freeaddrinfo(plocalAddr_);
-    freeaddrinfo(pServerAddr_);
     bool waiting = true;
     while(waiting)
     {
@@ -409,22 +424,67 @@ int ClientClass::joinThread()
         else
         {
             waiting = false;
-            return 0;
         }
     }
+    freeaddrinfo(plocalAddr_);
+    freeaddrinfo(pServerAddr_);
     return 0;
 }
-//--------------------------------------QUEUE METHODS NAMESPACE FUNCTIONS-------------------------------------
-/*
-bool qMethods::blockingFront(std::string& value, std::queue<std::string>& q,int timeout_ms)
+
+int ClientClass::waitForStartSignal_(bool passRecv)
 {
-    std::unique_lock<std::mutex> lock(qMethods::guard);
-    while(q.empty())
+    std::cout<<"waiting for signal to start program"<<std::endl;
+    setTimeout(120,0);
+    data_.Clear();
+    ssize_t msgLen = 0;
+    try
     {
-        qMethods::signal.wait_for(lock,std::chrono::milliseconds(timeout_ms));
-        return false;
+        if (passRecv)
+        {
+            msgLen = clientRecv(recvMsg_,bufferSize_,true);
+        }
+        else
+        {
+            msgLen = clientRecv(recvMsg_,bufferSize_);
+        }
+        data_.ParseFromArray(recvMsg_,msgLen);
     }
-    value = q.front();
-    return true;
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        threadloop = false;
+        return -1;
+    }
+    if (data_.type() == dronePosVec::start)
+    {
+        if (data_.timesync_ns() > 0)
+        {
+            sendInterval_ = ns_t(data_.timesync_ns()); //TODO: give both
+        }
+        return 0;
+    }
+    return -1;
 }
-*/
+
+int ClientClass::blockingGetQueue_(std::queue<std::string>& queueNum,std::string& msg,int timeout_ms)
+{
+    std::unique_lock lock(m_);
+    cv_.wait_for(lock,std::chrono::milliseconds(timeout_ms));
+    /*
+    while (queueNum.empty())
+    {
+        cv_.wait_for(lock,std::chrono::milliseconds(timeout_ms));
+        return -1;
+    }
+    */
+    msg = queueNum.front();
+    return 1;
+}
+
+void ClientClass::conditionNotify()
+{
+    if (readingQueue == true)
+    {
+        cv_.notify_one();
+    }
+}

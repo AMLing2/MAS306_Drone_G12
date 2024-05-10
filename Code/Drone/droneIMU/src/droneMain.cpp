@@ -3,6 +3,9 @@
 #include "dronePosVec.pb.h"
 #include <iostream>
 
+volatile bool mainExit = false;
+void sig_handler(int signum);
+
 int main()
 {
     int spiHandle = spiInit();
@@ -24,7 +27,7 @@ int main()
     dp.add_posshape(3);
 
     //ClientClass droneClass("127.0.0.1",dronePosVec::drone,"128.39.200.239",20002,threadStartType::sendOnly);
-    ClientClass droneClass("dronearena.uia.no",dronePosVec::drone,"b12.uia.no",20002,threadStartType::sendOnly);
+    ClientClass droneClass("dronearena.uia.no",dronePosVec::drone,"b12.uia.no",20002,threadStartType::sendRecv); //temp sendRecv, normally sendOnly for IMU
     if (droneClass.connectServer() == 0)
     {
         if (droneClass.checkList() < 0)
@@ -39,7 +42,7 @@ int main()
         return -1;
     }
     droneClass.startThread(droneClass.threadFuncs);
-
+    signal(SIGINT, &sig_handler);
     while(droneClass.threadloop) //TODO: make some way of exiting safely
     {
         accel.readData();
@@ -58,13 +61,29 @@ int main()
             }
         }
         droneClass.sendQueue.push(dp.SerializeAsString());
+        droneClass.conditionNotify(); //tell thread that its safe to read queue (............... this is basically just the same as using an atomic_string at this point)
 
         //std::this_thread::sleep_for(std::chrono::microseconds(50));
+        if (mainExit)
+        {
+            droneClass.threadloop = false;
+        }
     }
     droneClass.joinThread();
     gpioEnd(spiHandle); //needs to be called before end of program
-    std::cout<<"press enter to exit"<<std::endl;
-    int a;
-    std::cin>>a;
     return 0;
+}
+
+void sig_handler(int signum)
+{
+    if (signum == SIGINT)
+    {
+        mainExit = true;
+        std::cerr << "Interrupt signal (" << signum << ") received.\n";
+    }
+    else
+    {
+        //restore default signal handler
+        signal(signum, SIG_DFL);
+    }
 }

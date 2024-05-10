@@ -9,7 +9,7 @@
 #include <thread>
 #include <atomic>
 #include <queue>
-#include <condition_variable>
+#include <condition_variable> //for blocking queues
 
 using ns_t = std::chrono::nanoseconds;
 
@@ -43,6 +43,7 @@ public:
 	int clientConnect(struct sockaddr* clientAddr,socklen_t addrLen);
 	ssize_t clientSend(const char* msg, size_t msgSize);
 	ssize_t clientRecv(char* buffer, size_t bufferSize);
+	ssize_t clientRecv(char* buffer, size_t bufferSize,bool pass);
 	void setTimeout();
 	void setTimeout(const long int sec,const long int microSec);
     int socketShutdown();
@@ -92,12 +93,19 @@ public:
 	const threadStartType threadFuncs;
 	std::queue<std::string> sendQueue;
 	std::atomic_bool readingQueue = false;
-	std::atomic_bool threadloop = true;//this needs to be atomic as it may be chagned and read at the same time at program end
+	volatile std::atomic_bool threadloop = true;//this needs to be atomic as it may be chagned and read at the same time at program end
+	void conditionNotify();
 
 private:
     //int connectNewServer_();
+
+	int blockingGetQueue_(std::queue<std::string>& queueNum,std::string& msg,int timeout_ms);
+	std::mutex m_;
+	std::condition_variable cv_;
+
 	void getNextAddr_();
     int cSyncTime_();
+	int waitForStartSignal_(bool passRecv);
 
     int statechange_();
     struct sockaddr nextAddress_;

@@ -2,38 +2,64 @@
 
 void ClientClass::recvThread()
 {
+    std::cout<<"drone recv Thread up"<<std::endl;
+    dronePosVec::droneControl dc;
+    waitForStartSignal_(true);
+    std::cout<<"drone recv Thread start"<<std::endl;
 
-}
-
-void ClientClass::sendThread() 
-{
-    std::cout<<"drone sendThread up"<<std::endl;
     setTimeout(5,0);
-    int i = 0;
+    ssize_t msglen = 0; //needs to be signed
     while(threadloop)
     {
         sleeptoInterval_(sendInterval_);
-        //this whole section is wierd and kind of bad to be honest, works well in python but maybe not so well when ported to c++
-        //TODO: redo
         try
         {
-            if (sendQueue.size() >= 1) //TODO: ideally should be blocking with a timeout
+            msglen = clientRecv(recvMsg_,bufferSize_);
+            if ((msglen <= 1) || (recvMsg_[0] == '\0'))// || (recvMsg_[0] == -1)) //msg of size 1 (0 sent) or -1 might be sent in case of error
             {
-                readingQueue = true; //prevents string from being deleted while it is wanted
-                clientSend(sendQueue.front().c_str(),sendQueue.front().size());
-                sendQueue.pop();
-                readingQueue = false;
-                //i = 0;
+                threadloop = false;
+                break;
             }
+            else
+            {
+                dc.Clear();
+                dc.ParseFromArray(recvMsg_,msglen);
+                std::cout<<"msg recieved: "<<dc.motorfl()<<std::endl; //TEMP
+            }
+            //std::cout<<"msg recieved: "<<std::string(recvMsg_,msglen)<<std::endl; //TEMP
         }
-        catch(const std::exception& e) //this wont catch like desired because no timeout from blocking...
+        catch(const std::exception& e)
         {
             std::cerr << e.what() << '\n';
             threadloop = false;
         }
-        i++;
-        if (i > 5) //TODO: temporary and kinda bad exit method but will "timeout" after 5 x n interval ms
+    }
+    std::cout<<"drone recvThread done"<<std::endl;
+}
+
+void ClientClass::sendThread() 
+{
+    std::cout<<"drone send Thread up"<<std::endl;
+
+    waitForStartSignal_(false);
+    std::cout<<"drone sendThread start"<<std::endl;
+    setTimeout(5,0);
+    std::string msg;
+    while(threadloop)
+    {
+        sleeptoInterval_(sendInterval_);
+        try
         {
+            readingQueue = true; //prevents string from being deleted while it is wanted
+            blockingGetQueue_(sendQueue,msg,5000);
+            clientSend(msg.c_str(),msg.size());
+            sendQueue.pop();
+            readingQueue = false;
+        }
+        catch(const std::exception& e)
+        {
+            std::cout<<"error"<<std::endl;
+            std::cerr << e.what() << '\n';
             threadloop = false;
         }
     }
