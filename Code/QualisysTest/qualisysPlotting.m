@@ -86,7 +86,6 @@ hold on
 plot(time(transIndicesX),xQTM(transIndicesX), '.k', MarkerSize=1)
 ylabel('x [m]')
 xlabel('Time [seconds]')
-% xlim([0 time(end)])
 xlim([startTimeTrans stopTimeTrans])
 [~, icons] = legend('xCV', 'xQTM', 'Location','eastoutside');
 % Change size of legend icons
@@ -101,7 +100,6 @@ hold on
 plot(time(transIndicesY),yQTM(transIndicesY), '.k', MarkerSize=1)
 ylabel('y [m]')
 xlabel('Time [seconds]')
-% xlim([0 time(end)])
 xlim([startTimeTrans stopTimeTrans])
 [~, icons] = legend('yCV0', 'yQTM', 'Location','eastoutside');
 % Change size of legend icons
@@ -117,7 +115,6 @@ hold on
 plot(time(transIndicesZ),zQTM(transIndicesZ), '.k', MarkerSize=1)
 ylabel('z [m]')
 xlabel('Time [seconds]')
-% xlim([0 time(end)])
 xlim([startTimeTrans stopTimeTrans])
 [~, icons] = legend('zCV0', 'zQTM', 'Location','eastoutside');
 % Change size of legend icons
@@ -176,8 +173,8 @@ for i = 1:9
     vec0 = data(:, i+7); % v0Rij
     QTM = data(:, i+25); % v1Rij
 
-    % Plot only when neither are zero
-    validIndices = (QTM ~= 0) & (vec0 ~= 0);
+    % Plot only when QTM is tracking
+    validIndices = (QTM ~= 0);
     if any(i == [1,4,7])
         plot(time(validIndices), vec0(validIndices), '.r')
     elseif any(i == [2,5,8])
@@ -230,8 +227,8 @@ for i = 1:9
     vec0 = data(:, i+7); % v0Rij
     QTM = data(:, i+25); % v1Rij
     
-    % Plot only when neither are zero
-    validIndices = (QTM ~= 0) & (vec0 ~= 0);
+    % Plot only when QTM is tracking
+    validIndices = (QTM ~= 0);
     plot(time(validIndices), (vec0(validIndices)-QTM(validIndices)), ...
          '.k', MarkerSize=1)
     
@@ -258,8 +255,8 @@ for i = 1:9
     vec1 = data(:, i+16); % v0Rij
     QTM = data(:, i+25); % v1Rij
     
-    % Plot only when neither are zero
-    validIndices = (QTM ~= 0) & (vec1 ~= 0);
+    % Plot only when QTM is tracking
+    validIndices = (QTM ~= 0);
     if any(i == [1,4,7])
         plot(time(validIndices), vec1(validIndices), '.r')
     elseif any(i == [2,5,8])
@@ -269,7 +266,7 @@ for i = 1:9
             '.', 'Color',[109/255, 209/255, 255/255])
     end
     hold on
-    plot(time(validIndices), QTM(validIndices), '.k', MarkerSize=1)
+    q = plot(time(validIndices), QTM(validIndices), '.k', MarkerSize=1);
     
     xlabel('Time [seconds]');
     xlim([startTime stopTime])
@@ -283,7 +280,7 @@ fig = gcf;
 fig.Position(3) = fig.Position(3) + 250;
 
 % Add common legend outside subplots
-lgdEntries = {'rVec1x','rVec1y','rVec1z', 'QTM'};
+lgdEntries = {'rVec0x','rVec0y','rVec0z', 'QTM'};
 hold on
 v1 = plot(nan, nan, '.r');
 v2 = plot(nan, nan, '.g');
@@ -312,8 +309,8 @@ for i = 1:9
     vec1 = data(:, i+16); % v0Rij
     QTM = data(:, i+25); % v1Rij
     
-    % Plot only when neither are zero
-    validIndices = (QTM ~= 0) & (vec1 ~= 0);
+    % Plot only when QTM is tracking
+    validIndices = (QTM ~= 0);
     plot(time(validIndices), (vec1(validIndices)-QTM(validIndices)), ...
          '.k', MarkerSize=1)
     
@@ -359,8 +356,8 @@ for i = 1 : length(time)
     ang0 = rad2deg(rotVecDiff0(4));
     ang1 = rad2deg(rotVecDiff1(4));
     
-    % Plot only if neither matrix is all zeros
-    if ~all(rotMatQTM(:) == 0) && ~all(rotMat0(:) == 0) && ~all(rotMat1(:) == 0)
+    % Plot only if QTM matrix is not all zeros
+    if all(rotMatQTM(:) ~= 0)
         validIndices(end+1) = i;
     end
 
