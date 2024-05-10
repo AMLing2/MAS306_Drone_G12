@@ -2,7 +2,7 @@ clc; clear; close all;
 
 %% Import Results from Pose Validation Test
 
-testNr = 2;
+testNr = 1;
 fileName = ['ExportedResults_', num2str(testNr), '.csv'];
 data = csvread(fileName, 1,0);
 
@@ -380,10 +380,14 @@ ylim([0 90])
 saveas(angleDiffPlot, ['poseTest_',num2str(testNr), '_angleDiffPlot'])
 saveas(angleDiffPlot, ['poseTest_',num2str(testNr), '_angleDiffPlot.png'])
 
-%% XY Projection Plot - Azimuth Angle
-% atan2 wrapping 360 deg:
-    % https://se.mathworks.com/matlabcentral/
-    % answers/202915-converting-atan2-output-to-360-deg
+%% XY Projection - Azimuth Angle Calculations
+
+% Enable/disable modulo wrapping of angle and set limits
+    %    0 --> Enable Wrapping,  from    0 to 360
+    % -180 --> Disable Wrapping, from -180 to 180 
+startAngle = 0; % Degrees
+
+% Initialization
 CV0anglesXplot = zeros(length(time), 1);
 CV0anglesYplot = zeros(length(time), 1);
 CV1anglesXplot = zeros(length(time), 1);
@@ -396,68 +400,84 @@ CVanglesXchoice = zeros(length(time), 1);
 CVanglesYchoice = zeros(length(time), 1);
 
 for i = 1 : length(time)
+    % Save iteration's components for rotVectors[0]
     x0_x = data(i,8);
     x0_y = data(i,11);
     y0_x = data(i,9);
     y0_y = data(i,12);
 
+    % Save iteration's components for rotVectors[1]
     x1_x = data(i,17);
     x1_y = data(i,20);
     y1_x = data(i,18);
     y1_y = data(i,21);
 
-    CV0anglesX = atan2d(x0_y,x0_x) + 360*(x0_y<0);
-    CV0anglesY = atan2d(y0_y,y0_x);
-
-    % Experimental
-    CV0anglesXplot(i) = CV0anglesX;
-    CV0anglesYplot(i) = CV0anglesY;
-
-    CV1anglesX = atan2d(x1_y,x1_x) + 360*(x1_y<0);
-    CV1anglesY = atan2d(y1_y,y1_x);
-
-    % Experimental
-    CV1anglesXplot(i) = CV1anglesX;
-    CV1anglesYplot(i) = CV1anglesY;
-
+    % Save iteration's components for QTM
     xQTM_x = data(i,26);
     xQTM_y = data(i,29);
     yQTM_x = data(i,27);
     yQTM_y = data(i,30);
 
-    QTManglesX = atan2d(xQTM_y, xQTM_x) + 360*(xQTM_y<0);
-    QTManglesY = atan2d(yQTM_y, yQTM_x);
+    if (startAngle == -180)
+        % Trig w/o wrapping
+        CV0anglesXplot(i) = atan2d(x0_y,x0_x);
+        CV0anglesYplot(i) = atan2d(y0_y,y0_x);
+        CV1anglesXplot(i) = atan2d(x1_y,x1_x);
+        CV1anglesYplot(i) = atan2d(y1_y,y1_x);
+        QTManglesXplot(i) = atan2d(xQTM_y, xQTM_x);
+        QTManglesYplot(i) = atan2d(yQTM_y, yQTM_x);
+    else
+        % Trig with modulo wrapping
+        CV0anglesXplot(i) = mod(atan2d(x0_y,x0_x), 360);
+        CV0anglesYplot(i) = mod(atan2d(y0_y,y0_x), 360);
+        
+        CV1anglesXplot(i) = mod(atan2d(x1_y,x1_x), 360);
+        CV1anglesYplot(i) = mod(atan2d(y1_y,y1_x), 360);
+
+        QTManglesXplot(i) = mod(atan2d(xQTM_y, xQTM_x), 360);
+        QTManglesYplot(i) = mod(atan2d(yQTM_y, yQTM_x), 360);
+    end
+    % Experimental
+    % CV0anglesXplot(i) = CV0anglesX;
+    % CV0anglesYplot(i) = CV0anglesY;
 
     % Experimental
-    QTManglesXplot(i) = QTManglesX;
-    QTManglesYplot(i) = QTManglesY;
+    % CV1anglesXplot(i) = CV1anglesX;
+    % CV1anglesYplot(i) = CV1anglesY;
+
+    % Experimental
+    % QTManglesXplot(i) = QTManglesX;
+    % QTManglesYplot(i) = QTManglesY;
     
-    diff0AnglesX = QTManglesX - CV0anglesX;
-    diff0AnglesY = QTManglesY - CV0anglesY;
+    diff0AnglesX = QTManglesXplot(i) - CV0anglesXplot(i);
+    diff0AnglesY = QTManglesYplot(i) - CV0anglesYplot(i);
 
-    diff1AnglesX = QTManglesX - CV1anglesX;
-    diff1AnglesY = QTManglesY - CV1anglesY;
+    diff1AnglesX = QTManglesXplot(i) - CV1anglesXplot(i);
+    diff1AnglesY = QTManglesYplot(i) - CV1anglesYplot(i);
 
+    % Choose closest angle from x-axis
     if abs(diff0AnglesX) < abs(diff1AnglesX)
         diffAnglesX(i) = diff0AnglesX;
-        CVanglesXchoice(i) = CV0anglesX;
+        CVanglesXchoice(i) = CV0anglesXplot(i);
     else
         diffAnglesX(i) = diff1AnglesX;
-        CVanglesXchoice(i) = CV1anglesX;
+        CVanglesXchoice(i) = CV1anglesXplot(i);
     end
+    % Choose closest angle from y-axis
     if abs(diff0AnglesY) < abs(diff1AnglesY)
         diffAnglesY(i) = diff0AnglesY;
-        CVanglesYchoice(i) = CV0anglesY;
+        CVanglesYchoice(i) = CV0anglesYplot(i);
     else
         diffAnglesY(i) = diff1AnglesY;
-        CVanglesYchoice(i) = CV1anglesY;
+        CVanglesYchoice(i) = CV1anglesYplot(i);
     end
 end
 
-xStart = 90;
-yStart = -10;
+xStart = 0;
+yStart = 0;
 
-%%%%%%%% Angle Plot: Vec0 and QTM %%%%%%%%
+%% Azimuth Angle Plot: Vec0 and QTM
+
 % Plot only when QTM rotation matrix != 0
 %plotY = rad2deg(eul0(:,1));
 %validIndices = (QTM ~= 0);
@@ -472,9 +492,8 @@ hold on
 plot(time(validIndices), QTManglesXplot(validIndices), '.k', MarkerSize=1)
 ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
-% xlim([0 time(end)])
 xlim([startTime stopTime])
-ylim([xStart (xStart+360)])
+ylim([startAngle (startAngle+360)])
 
 [h, icons] = legend('CV0 $\theta$ from X-axis', 'QTM $\theta$ from Y-axis', ...
     'Interpreter', 'latex', 'Location','best');
@@ -491,9 +510,8 @@ hold on
 plot(time(validIndices), QTManglesYplot(validIndices), '.k', MarkerSize=1)
 ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
-% xlim([0 time(end)])
 xlim([startTime stopTime])
-ylim([yStart (yStart+360)])
+ylim([startAngle (startAngle+360)])
 
 [h, icons] = legend('CV0 $\theta$ from Y-axis', 'QTM $\theta$ from Y-axis', ...
     'Interpreter', 'latex', 'Location','best');
@@ -504,11 +522,10 @@ set(icons, 'MarkerSize', 20)
 % Export figure
 %set(rot1matDiffPlot,'units','normalized','outerposition',[0 0 1 1])
 saveas(XYprojVec0, ['poseTest_',num2str(testNr), '_XYprojVec0'])
-% saveas(XYprojVec0, ['poseTest_',num2str(testNr), '_XYprojVec0.png'])
-exportgraphics(XYprojVec0, ['poseTest_',num2str(testNr), '_XYprojVec0.pdf'], ...
-               'ContentType', 'vector');
+saveas(XYprojVec0, ['poseTest_',num2str(testNr), '_XYprojVec0.png'])
 
-%%%%%%%% Angle Plot: Vec1 and QTM %%%%%%%%
+%% Azimuth Angle Plot: Vec1 and QTM
+
 % Plot only when QTM rotation matrix != 0
 %plotY = rad2deg(eul0(:,1));
 %validIndices = (QTM ~= 0);
@@ -523,8 +540,7 @@ hold on
 plot(time(validIndices), QTManglesXplot(validIndices), '.k', MarkerSize=1)
 ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
-ylim([xStart (xStart+360)])
-% xlim([0 time(end)])
+ylim([startAngle (startAngle+360)])
 xlim([startTime stopTime])
 
 [h, icons] = legend('CV1 $\theta$ from X-axis', 'QTM $\theta$ from Y-axis', ...
@@ -542,8 +558,7 @@ hold on
 plot(time(validIndices), QTManglesYplot(validIndices), '.k', MarkerSize=1)
 ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
-ylim([yStart (yStart+360)])
-% xlim([0 time(end)])
+ylim([startAngle (startAngle+360)])
 xlim([startTime stopTime])
 
 [h, icons] = legend('CV1 $\theta$ from Y-axis', 'QTM $\theta$ from Y-axis', ...
@@ -555,11 +570,10 @@ set(icons, 'MarkerSize', 20)
 % Export figure
 %set(rot1matDiffPlot,'units','normalized','outerposition',[0 0 1 1])
 saveas(XYprojVec1, ['poseTest_',num2str(testNr), '_XYprojVec1'])
-% saveas(XYprojVec1, ['poseTest_',num2str(testNr), '_XYprojVec1.png'])
-exportgraphics(XYprojVec1, ['poseTest_',num2str(testNr), '_XYprojVec1.pdf'], ...
-               'ContentType', 'vector');
+saveas(XYprojVec1, ['poseTest_',num2str(testNr), '_XYprojVec1.png'])
 
-%%%%%%%% Angle Plot: Vector Choice and QTM %%%%%%%%
+%% Azimuth Angle Plot: Vector Choice and QTM
+
 % Plot only when QTM rotation matrix != 0
 %plotY = rad2deg(eul0(:,1));
 %validIndices = (QTM ~= 0);
@@ -574,8 +588,7 @@ hold on
 plot(time(validIndices), QTManglesXplot(validIndices), '.k', MarkerSize=1)
 ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
-ylim([xStart (xStart+360)])
-% xlim([0 time(end)])
+ylim([startAngle (startAngle+360)])
 xlim([startTime stopTime])
 
 [h, icons] = legend('CV $\theta$ from X-axis', 'QTM $\theta$ from Y-axis', ...
@@ -593,8 +606,7 @@ hold on
 plot(time(validIndices), QTManglesYplot(validIndices), '.k', MarkerSize=1)
 ylabel("Angle [degrees]")
 xlabel("Time [seconds]")
-ylim([yStart (yStart+360)])
-% xlim([0 time(end)])
+ylim([startAngle (startAngle+360)])
 xlim([startTime stopTime])
 
 [h, icons] = legend('CV $\theta$ from Y-axis', 'QTM $\theta$ from Y-axis', ...
@@ -606,11 +618,10 @@ set(icons, 'MarkerSize', 20)
 % Export figure
 %set(rot1matDiffPlot,'units','normalized','outerposition',[0 0 1 1])
 saveas(XYprojVecChoice, ['poseTest_',num2str(testNr), '_XYprojVecChoice'])
-% saveas(XYprojVecChoice, ['poseTest_',num2str(testNr), '_XYprojVecChoice.png'])
-exportgraphics(XYprojVecChoice, ['poseTest_',num2str(testNr), '_XYprojVecChoice.pdf'], ...
-               'ContentType', 'vector');
+saveas(XYprojVecChoice, ['poseTest_',num2str(testNr), '_XYprojVecChoice.png'])
 
-%%%%%%%% Difference Plot %%%%%%%%
+%% Difference Azimuth Angle Plot: Choice - QTM
+
 % Plot only when QTM rotation matrix != 0
 %plotY = rad2deg(eul0(:,1));
 validIndices = (QTM ~= 0);
@@ -632,7 +643,4 @@ set(icons, 'MarkerSize', 20)
 % Export figure
 %set(rot1matDiffPlot,'units','normalized','outerposition',[0 0 1 1])
 saveas(XYprojDiff, ['poseTest_',num2str(testNr), '_XYprojDiff'])
-% saveas(XYprojDiff, ['poseTest_',num2str(testNr), '_XYprojDiff.png'])
-exportgraphics(XYprojDiff, ['poseTest_',num2str(testNr), '_XYprojDiff.pdf'], ...
-               'ContentType', 'vector');
-%%%%%%%%%%%%%%%% XY Projection Plot - Azimuth %%%%%%%%%%%%%%%%
+saveas(XYprojDiff, ['poseTest_',num2str(testNr), '_XYprojDiff.png'])
