@@ -1,6 +1,6 @@
 clc; clear; close all;
 
-%%%%%%%%%%%%%%% Translation Diff Plotting - Pos %%%%%%%%%%%%%%
+%% Import, Append and Plot Data - Translation
 
 for testNr = 0 : 4
     if (testNr ~= 3)
@@ -22,9 +22,6 @@ for testNr = 0 : 4
             xCV0 = [xCV0; data(:,5)];
             yCV0 = [yCV0; -data(:,6)]; % Flip axis, different frames
             zCV0 = [zCV0; data(:,7)];
-            % xCV1 = data(:,35)];
-            % yCV1 = -data(:,36)]; % Same here
-            % zCV1 = data(:,37)];
         end
     end
 end
@@ -76,6 +73,11 @@ ylim([zLimY1 zLimY2])
 distDotSize = 1; % Size of plotted points
 boxTrans = 0.07; % Color of boxes outside \pm 1*sigma
 
+% Export figure
+%set(rot1matDiffPlot,'units','normalized','outerposition',[0 0 1 1])
+% saveas(transDiffPlot, 'transDiffPlotCombined.png')
+saveas(transDiffPlot, 'transDiffPlotCombined')
+
 %% Z Distributions
 
 zQTM = zQTM(transIndicesZ);
@@ -109,7 +111,7 @@ for i = 1 : distNums
     right = max(curQTM);
 
     % Plot intervals
-    subplot(3,3,i)
+    subplot(sqrt(distNums),sqrt(distNums),i)
     plot(curQTM, curDiff,'.', 'Color',[109/255, 209/255, 255/255], ...
         MarkerSize=distDotSize)
     ylabel('difference [m]')
@@ -125,15 +127,13 @@ for i = 1 : distNums
 
     % Fit Normal Distribution
     zPD = fitdist(curDiff, 'normal');
-    y = midVal - normalize( pdf(zPD, zDiff), 'range' ) * distScale;
     zStdDev(i) = zPD.sigma;
     zExpVal(i) = zPD.mu;
     
     % Plot Distribution
     hold on 
-    % plot(y, zDiff, '.k', MarkerSize=1)
-    yline(zExpVal(i)+zStdDev(i), 'k')%, LineWidth=1)
-    yline(zPD.mu-zPD.sigma, 'k')%, LineWidth=1)
+    yline(zExpVal(i)+zStdDev(i), 'k')
+    yline(zPD.mu-zPD.sigma, 'k')
     % Grey area below
     patch([left, right, right, left], ...
           [zLimY1,       zLimY1,    zPD.mu-zPD.sigma, zPD.mu-zPD.sigma], ...
@@ -144,16 +144,9 @@ for i = 1 : distNums
           'k', 'FaceAlpha', boxTrans, 'EdgeColor', 'none')
 end
 
-% Add a bit space to the figure
-fig = gcf;
-fig.Position(3) = fig.Position(3) + 250;
-% Add common legend outside subplots
-[lgd, icons] = legend('zDiff', 'zDistribution');
-lgd.Position(1) = 0.0;
-lgd.Position(2) = 0.5;
-% Change size of legend icons
-icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
-set(icons, 'MarkerSize', 20)
+% Export figure
+set(zIntervalPlots,'units','normalized','outerposition',[0 0 1 1])
+saveas(zIntervalPlots, 'zIntervalPlots')
 
 %% X Distributions
 
@@ -188,7 +181,7 @@ for i = 1 : distNums
     right = max(curQTM);
 
     % Plot intervals
-    subplot(3,3,i)
+    subplot(sqrt(distNums),sqrt(distNums),i)
     plot(curQTM, curDiff,'.r', MarkerSize=distDotSize)
     ylabel('difference [m]')
     xlabel('x [m]')
@@ -203,15 +196,13 @@ for i = 1 : distNums
 
     % Fit Normal Distribution
     xPD = fitdist(curDiff, 'normal');
-    y = midVal - normalize( pdf(xPD, xDiff), 'range' ) * distScale;
     xStdDev(i) = xPD.sigma;
     xExpVal(i) = xPD.mu;
     
     % Plot Distribution
     hold on 
-    % plot(y, xDiff, '.k', MarkerSize=1)
-    yline(xExpVal(i)+xStdDev(i), 'k')%, LineWidth=1)
-    yline(xPD.mu-xPD.sigma, 'k')%, LineWidth=1)
+    yline(xExpVal(i)+xStdDev(i), 'k')
+    yline(xPD.mu-xPD.sigma, 'k')
     % Grey area below
     patch([left, right, right, left], ...
           [xLimY1,       xLimY1,    xPD.mu-xPD.sigma, xPD.mu-xPD.sigma], ...
@@ -222,16 +213,9 @@ for i = 1 : distNums
           'k', 'FaceAlpha', boxTrans, 'EdgeColor', 'none')
 end
 
-% Add a bit space to the figure
-fig = gcf;
-fig.Position(3) = fig.Position(3) + 250;
-% Add common legend outside subplots
-[lgd, icons] = legend('xDiff', 'xDistribution');
-lgd.Position(1) = 0.0;
-lgd.Position(2) = 0.5;
-% Change size of legend icons
-icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
-set(icons, 'MarkerSize', 20)
+% Export figure
+set(xIntervalPlots,'units','normalized','outerposition',[0 0 1 1])
+saveas(xIntervalPlots, 'xIntervalPlots')
 
 %% Y Distributions
 
@@ -242,7 +226,7 @@ yQTM = yQTM(transIndicesX);
 yDiffSorted = yDiff(yQTMindices);
 
 % Split the data into evenly distributed intervals
-distNums = 16;
+distNums = 9;
 intervals = linspace(yQTMsorted(1), yQTMsorted(end), (distNums+1));
 
 % Find indices closest to bounds of intervals
@@ -266,7 +250,7 @@ for i = 1 : distNums
     right = max(curQTM);
 
     % Plot intervals
-    subplot(4,4,i)
+    subplot(sqrt(distNums),sqrt(distNums),i)
     plot(curQTM, curDiff,'.g', MarkerSize=distDotSize)
     ylabel('difference [m]')
     xlabel('y [m]')
@@ -281,15 +265,13 @@ for i = 1 : distNums
 
     % Fit Normal Distribution
     yPD = fitdist(curDiff, 'normal');
-    y = midVal - normalize( pdf(yPD, yDiff), 'range' ) * distScale;
     yStdDev(i) = yPD.sigma;
     yExpVal(i) = yPD.mu;
     
     % Plot Distribution
     hold on 
-    % plot(y, yDiff, '.k', MarkerSize=1)
-    yline(yExpVal(i)+yStdDev(i), 'k')%, LineWidth=0.8)
-    yline(yPD.mu-yPD.sigma, 'k')%, LineWidth=0.8)
+    yline(yExpVal(i)+yStdDev(i), 'k')
+    yline(yPD.mu-yPD.sigma, 'k')
     % Grey area below
     patch([left, right, right, left], ...
           [yLimY1,       yLimY1,    yPD.mu-yPD.sigma, yPD.mu-yPD.sigma], ...
@@ -300,13 +282,6 @@ for i = 1 : distNums
           'k', 'FaceAlpha', boxTrans, 'EdgeColor', 'none')
 end
 
-% Add a bit space to the figure
-fig = gcf;
-fig.Position(3) = fig.Position(3) + 250;
-% Add common legend outside subplots
-[lgd, icons] = legend('yDiff', 'yDistribution');
-lgd.Position(1) = 0.0;
-lgd.Position(2) = 0.5;
-% Change size of legend icons
-icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
-set(icons, 'MarkerSize', 20)
+% Export figure
+set(yIntervalPlots,'units','normalized','outerposition',[0 0 1 1])
+saveas(yIntervalPlots, 'yIntervalPlots')
