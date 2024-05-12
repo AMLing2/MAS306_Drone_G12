@@ -1,7 +1,7 @@
 clc; clear; close all;
 
 %% Implement data
-testNr = 2;
+testNr = 1;
 fileName = ['ExportedResults_', num2str(testNr), '.csv'];
 data = csvread(fileName, 1,0);
 
@@ -15,7 +15,7 @@ zCV0 = data(:,7);
 
 trans = [0.190 0.143 1.564]; % Physically measured in m
 
-%%%%%%%%%%%%%%%% Interpolation Setup %%%%%%%%%%%%%%%%
+%% Interpolation
 
 % New timeseries with constant period
 Hz = 100;               % [samples/second]
@@ -30,18 +30,22 @@ zQTMi(nanIdx) = NaN;
 % Interpolation: (oldTime, interpBetween, newTime)
 zQTMi = interp1(time(~isnan(zQTMi)), zQTMi(~isnan(zQTMi)), t);
 
+% Remove NaN's after data
+while isnan(zQTMi(end))
+    zQTMi(end) = [];
+    t(end) = [];
+end
+
 %%%%% Interpolation Plotting %%%%%
-% figure(Name="zQTMinterpolation");
-% plot(t, zQTMi,'.y')
-% hold on
-% % plot(t, zQTMiSpline,'.g', MarkerSize=2)
-% plot(time,zQTM, '.k', MarkerSize=1)
-% title('Interpolation of QTM data')
-% legend('InterpolatedQTM', 'QTM', 'Location', 'best')
+figure(Name="zQTMinterpolation");
+plot(t, zQTMi,'.', Color=[.85 .85 .85])
+hold on
+validIndicesQTM = (zQTM ~= trans(3));
+plot(time(validIndicesQTM),zQTM(validIndicesQTM), '.k', MarkerSize=1)
+title('Interpolation of QTM data')
+legend('InterpolatedQTM', 'QTM', 'Location', 'best')
 
-%%%%%%%%%%%%%%%% Interpolation Setup %%%%%%%%%%%%%%%%
-
-%%%%%%%%%% Speed/Acceleration Setup %%%%%%%%%%
+%% Speed and Acceleration
 
 % Preallocate Space
 zDotQTM =    zeros(length(zQTMi)-1,1);
@@ -57,20 +61,23 @@ for i = 2 : length(t)
     zDotDotQTM(i) = (zDotQTM(i) - zDotQTM(i-1))/(dt); % [m/s^2]
 end
 
+% Set default seed for consistent simulation noise
+rng("default")
+
 % Output Noise Density - Datasheet BMI088
-ond = 190;      % [ug/sqrt(Hz)]
-g = 9.80665;    % [m/s^2]
+ond = 190*10^-6;    % [ug/sqrt(Hz)]
+g = 9.80665;        % [m/s^2]
 % Convert to scalar
-scale = ond*g/(10^6)/sqrt(Hz);
+scale = ond*sqrt(Hz)/g;
 % Zero Mean White Gaussian Noise
 Wn = wgn(length(zDotDotQTM),1,scale, 'linear');
 
 % Noisy IMU signal
 simIMU = zDotDotQTM + Wn;
 % Standard Deviation for Covariance (matrix) Q
-% stdDevIMU = std(Wn);
+stdDevIMU = std(Wn);
 
-%%%%%%%%%% Speed/Acceleration Setup %%%%%%%%%%
+%% Kalman Filter
 
 % Initialization
 timeTol = 0.01;     % Sync low sps to high sps
@@ -96,19 +103,20 @@ I = eye(2);
 
 % Process Noise w_n
 Q = cov(Wn); % Covariance (Matrix)
-% Q = stdDevIMU^2;
+Q2 = stdDevIMU^2;
+Q3 = var(Wn);
 
-% Sigma import: f(x) = p1*x + p2
-p1 = 0.0378;
-p2 = -0.0032;
+% zSigma import: f(z) = p1*z + p2
+p1 =  0.0380;
+p2 = -0.0029;
 
 % Measurement Noise v_n
-R = 0.15; % Covariance (Matrix)
+% R = 0.15; % Covariance (Matrix)
 
 % State Covariance (Matrix)
 P = B*Q*B';
 
-%%%%%%%% Constant Rate: Kalman Filter %%%%%%%%
+% Constant Rate: Kalman Filter
 for i = 2 : length(t)
 
     % Find closest value
@@ -127,7 +135,7 @@ for i = 2 : length(t)
     u = simIMU(i);
 
     % Update Measurement Noise
-    R = p1*y + p2;
+    R = (p1*y + p2)^2;
     
     % Prediction
     x = A*x + B*u;
@@ -144,13 +152,21 @@ for i = 2 : length(t)
     zKalman(i)    = x(1);
     zDotKalman(i) = x(2);
 end
-%%%%%%%% Constant Rate: Kalman Filter %%%%%%%%
 
 % xlims: position and speed
 startTime = 0;
 stopTime = time(end);
 
-%%%%%%%%%%%%%%%%% Translation Plotting %%%%%%%%%%%%%%%%%
+% Calculate difference
+diff = zKalman - zQTMi';
+
+% Extract and display statistics
+avgDiff = mean(diff);
+stdDiff = std(diff);
+madDiff = mad(diff);
+table(avgDiff, stdDiff, madDiff)
+
+%% Translation Plotting
 transPlot = figure(Name="TranslationPlot");
 
 % Plot Measured Position from D435 Camera
@@ -160,9 +176,9 @@ hold on
 % Plot Reference from QTM
 plot(t,zQTMi, '.k', MarkerSize=1)
 % Plot Kalman Filter Estimate Position
-plot(t, zKalman, '.r', MarkerSize=1)
+plot(t, zKalman, '.b', MarkerSize=1)
 
-[a, icons] = legend('zCV0', 'zQTMinterp', 'zKalman', 'Location','eastoutside');
+[~, icons] = legend('zCV0', 'zQTMinterp', 'zKalman', 'Location','eastoutside');
 % Change size of legend icons
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
@@ -170,9 +186,9 @@ set(icons, 'MarkerSize', 20)
 ylabel('z [m]')
 xlabel('Time [seconds]')
 xlim([startTime stopTime])
-%%%%%%%%%%%%%%%%% Translation Plotting %%%%%%%%%%%%%%%%%
+title('1D Kalman Filter')
 
-%%%%%%%%%%%%%%%%%% Plot Speeds %%%%%%%%%%%%%%%%%%
+%% Speed Plotting
 speedPlot = figure(Name="SpeedPlot");
 
 % Plot Reference Speed
@@ -182,7 +198,7 @@ hold on
 % Plot Estimated Speed
 plot(t,zDotKalman, '.r', MarkerSize=1)
 
-[a, icons] = legend('zDotQTM', 'zDotKalman', 'Location','eastoutside');
+[~, icons] = legend('zDotQTM', 'zDotKalman', 'Location','eastoutside');
 % Change size of legend icons
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
@@ -191,7 +207,7 @@ ylabel('zDot [m/s]')
 xlabel('Time [seconds]')
 xlim([startTime stopTime])
 
-%%%%%%%%%%%%%%%%%% Plot Accelerations %%%%%%%%%%%%%%%%%%
+%% Acceleration Plotting
 accPlot = figure(Name="AccPlot");
 
 % Plot Simulation with Noise

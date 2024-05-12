@@ -1,7 +1,7 @@
 clc; clear; close all;
 
 %% Implement data
-testNr = 2;
+testNr = 1;
 fileName = ['ExportedResults_', num2str(testNr), '.csv'];
 data = csvread(fileName, 1,0);
 
@@ -14,6 +14,11 @@ yCV0 = -data(:,6); % Flip axis, different frames
 zCV0 = data(:,7);
 
 trans = [0.190 0.143 1.564]; % Physically measured in m
+
+% Markersizes
+mSize = 2;
+qSize = 1.5;
+kSize = 1.5;
 
 %%%%%%%%%%%%%%%% Interpolation Setup %%%%%%%%%%%%%%%%
 
@@ -186,14 +191,14 @@ v = [ (p1x*xCV0(1)^2 + p2x*xCV0(1) + p3x)^2  ;
 % State Covariance (Matrix)
 P = B*Q*B';
 
-%%%%%%%% Constant Rate: Kalman Filter %%%%%%%%
+% Constant Rate: Kalman Filter
 for i = 2 : length(t)
 
     % Find closest value
     for CViter = 1 : length(time)
         if (abs(time(CViter) - t(i)) < timeTol)
             y = [xCV0(CViter); yCV0(CViter); zCV0(CViter)];
-            
+
             % Update Measurement Noise
             v = [ (p1x*x(1)^2 + p2x*x(1) + p3x)^2  ; % x
                   (p1y*x(3)^2 + p2y*x(3) + p3y)^2  ; % y
@@ -231,23 +236,23 @@ for i = 2 : length(t)
     zKalman(i)    = x(5);
     zDotKalman(i) = x(6);
 end
-%%%%%%%% Constant Rate: Kalman Filter %%%%%%%%
 
 % xlims: position and speed
 startTime = 0;
 stopTime = time(end);
 
-%%%%%%%%%%%%%%%%% x Translation Plotting %%%%%%%%%%%%%%%%%
+%% X Translation Plotting 
+
 xTransPlot = figure(Name="xTranslationPlot");
 
 % Plot Measured Position from D435 Camera
-plot(time,xCV0, ...
-    '.', 'Color',[109/255, 209/255, 255/255])
+plot(time,xCV0, '.', 'Color',[109/255, 209/255, 255/255],...
+    MarkerSize=)
 hold on
 % Plot Reference from QTM
-plot(t,xQTMi, '.k', MarkerSize=1)
+plot(t,xQTMi, '.k', MarkerSize=qSize)
 % Plot Kalman Filter Estimate Position
-plot(t, xKalman, '.r', MarkerSize=1)
+plot(t, xKalman, '.r', MarkerSize=kSize)
 
 [~, icons] = legend('xCV0', 'xQTMinterp', 'xKalman', 'Location','eastoutside');
 % Change size of legend icons
@@ -257,9 +262,12 @@ set(icons, 'MarkerSize', 20)
 ylabel('x [m]')
 xlabel('Time [seconds]')
 xlim([startTime stopTime])
-%%%%%%%%%%%%%%%%% x Translation Plotting %%%%%%%%%%%%%%%%%
+title('3D Kalman Filter: x Estimate')
 
-%%%%%%%%%%%%%%%%% y Translation Plotting %%%%%%%%%%%%%%%%%
+set(xTransPlot,'units','normalized','outerposition',[0 0 1 1])
+
+
+%% Y Translation Plotting 
 yTransPlot = figure(Name="yTranslationPlot");
 
 % Plot Measured Position from D435 Camera
@@ -269,7 +277,7 @@ hold on
 % Plot Reference from QTM
 plot(t,yQTMi, '.k', MarkerSize=1)
 % Plot Kalman Filter Estimate Position
-plot(t, yKalman, '.r', MarkerSize=1)
+plot(t, yKalman, '.','Color', '#1D9300', MarkerSize=1)
 
 [~, icons] = legend('yCV0', 'yQTMinterp', 'yKalman', 'Location','eastoutside');
 % Change size of legend icons
@@ -279,9 +287,11 @@ set(icons, 'MarkerSize', 20)
 ylabel('y [m]')
 xlabel('Time [seconds]')
 xlim([startTime stopTime])
-%%%%%%%%%%%%%%%%% Translation Plotting %%%%%%%%%%%%%%%%%
+title('3D Kalman Filter: y Estimate')
 
-%%%%%%%%%%%%%%%%% z Translation Plotting %%%%%%%%%%%%%%%%%
+set(yTransPlot,'units','normalized','outerposition',[0 0 1 1])
+
+%% Z Translation Plotting 
 zTransPlot = figure(Name="zTranslationPlot");
 
 % Plot Measured Position from D435 Camera
@@ -291,7 +301,7 @@ hold on
 % Plot Reference from QTM
 plot(t,zQTMi, '.k', MarkerSize=1)
 % Plot Kalman Filter Estimate Position
-plot(t, zKalman, '.r', MarkerSize=1)
+plot(t, zKalman, '.b', MarkerSize=1)
 
 [a, icons] = legend('zCV0', 'zQTMinterp', 'zKalman', 'Location','eastoutside');
 % Change size of legend icons
@@ -301,4 +311,6 @@ set(icons, 'MarkerSize', 20)
 ylabel('z [m]')
 xlabel('Time [seconds]')
 xlim([startTime stopTime])
-%%%%%%%%%%%%%%%%% Translation Plotting %%%%%%%%%%%%%%%%%
+title('3D Kalman Filter: z Estimate')
+
+set(zTransPlot,'units','normalized','outerposition',[0 0 1 1])
