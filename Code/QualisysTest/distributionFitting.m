@@ -49,7 +49,7 @@ xlabel('x [m]')
 xlim([-0.5 0.6])
 ylim([xLimY1 xLimY2])
 
-% Y plotting - Remember to flip sign, only axis which is aligned
+% Y plotting - Sign is flipped above, only axis which is aligned
 transIndicesY = (yQTM ~= trans(2));
 subplot(3,1,2)
 yDiff = yQTM(transIndicesY) - yCV0(transIndicesY);
@@ -74,8 +74,6 @@ distDotSize = 1; % Size of plotted points
 boxTrans = 0.07; % Color of boxes outside \pm 1*sigma
 
 % Export figure
-%set(rot1matDiffPlot,'units','normalized','outerposition',[0 0 1 1])
-% saveas(transDiffPlot, 'transDiffPlotCombined.png')
 saveas(transDiffPlot, 'transDiffPlotCombined')
 
 %% Z Distributions
