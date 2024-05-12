@@ -2,7 +2,7 @@ clc; clear; close all;
 
 %% Import Results from Pose Validation Test
 
-testNr = 0;
+testNr = 4;
 fileName = ['ExportedResults_', num2str(testNr), '.csv'];
 data = csvread(fileName, 1,0);
 
@@ -21,11 +21,11 @@ trans = [0.190 0.143 1.564]; % Physically measured in m
 
 % X Limits for Translation Plots [seconds]
 startTimeTrans = 0;
-stopTimeTrans  = time(end);
+stopTimeTrans  = 47;
 
 % X Limits for Rotation Plots [seconds]
 startTimeRot = 0;
-stopTimeRot  = time(end);
+stopTimeRot  = 47;
 
 %% Translation Analysis
 
@@ -386,8 +386,8 @@ saveas(angleDiffPlot, ['poseTest_',num2str(testNr), '_angleDiffPlot.png'])
 % Enable/disable modulo wrapping of angle and set limits
 wrappingX = false;
 wrappingY = false;
-xStart = 0;
-yStart = 0;
+xStart = -270;
+yStart = -360;
 
 % Initialization
 CV0anglesXplot = zeros(length(time), 1);
