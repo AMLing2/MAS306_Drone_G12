@@ -16,11 +16,15 @@ zCV0 = data(:,7);
 trans = [0.190 0.143 1.564]; % Physically measured in m
 
 % Markersizes
-mSize = 2;
-qSize = 1.5;
-kSize = 1.5;
+mSize = 4;
+qSize = 3;
+kSize = 3.5;
 
-%%%%%%%%%%%%%%%% Interpolation Setup %%%%%%%%%%%%%%%%
+% xlims: position and speed
+startTime = 60;
+stopTime = 85;
+
+%% Interpolation
 
 % New timeseries with constant period
 Hz = 100;               % [samples/second]
@@ -43,37 +47,46 @@ xQTMi = interp1(time(~isnan(xQTMi)), xQTMi(~isnan(xQTMi)), t);
 yQTMi = interp1(time(~isnan(yQTMi)), yQTMi(~isnan(yQTMi)), t);
 zQTMi = interp1(time(~isnan(zQTMi)), zQTMi(~isnan(zQTMi)), t);
 
-%%%%% Interpolation Plotting %%%%%
-%     % X
-% figure(Name="xQTMinterpolation");
-% plot(t, xQTMi,'.y')
-% hold on
-% % plot(t, zQTMiSpline,'.g', MarkerSize=2)
-% plot(time,xQTM, '.k', MarkerSize=1)
-% title('Interpolation of QTM data: x')
-% legend('xInterpolatedQTM', 'xQTM', 'Location', 'best')
-% 
-%     % Y
-% figure(Name="yQTMinterpolation");
-% plot(t, yQTMi,'.y')
-% hold on
-% % plot(t, zQTMiSpline,'.g', MarkerSize=2)
-% plot(time,yQTM, '.k', MarkerSize=1)
-% title('Interpolation of QTM data: y')
-% legend('yInterpolatedQTM', 'yQTM', 'Location', 'best')
-% 
-%     % Z
-% figure(Name="zQTMinterpolation");
-% plot(t, zQTMi,'.y')
-% hold on
-% % plot(t, zQTMiSpline,'.g', MarkerSize=2)
-% plot(time,zQTM, '.k', MarkerSize=1)
-% title('Interpolation of QTM data: z')
-% legend('zInterpolatedQTM', 'zQTM', 'Location', 'best')
+% Remove last NaN's - same indices for all
+while isnan(zQTMi(end))
+    xQTMi(end) = [];
+    yQTMi(end) = [];
+    zQTMi(end) = [];
+    t(end) = [];
+end
 
-%%%%%%%%%%%%%%%% Interpolation Setup %%%%%%%%%%%%%%%%
+% Plotting
+    % X
+figure(Name="xQTMinterpolation");
+plot(t, xQTMi,'.', 'Color','#CEB7B7')
+hold on
+% plot(t, zQTMiSpline,'.g', MarkerSize=2)
+plot(time,xQTM, '.k', MarkerSize=1)
+title('Interpolation of QTM data: x')
+legend('xInterpolatedQTM', 'xQTM', 'Location', 'best')
+% xlim([startTime stopTime])
 
-%%%%%%%%%% Speed/Acceleration Setup %%%%%%%%%%
+    % Y
+figure(Name="yQTMinterpolation");
+plot(t, yQTMi,'.', 'Color','#C4D383')
+hold on
+% plot(t, zQTMiSpline,'.g', MarkerSize=2)
+plot(time,yQTM, '.k', MarkerSize=1)
+title('Interpolation of QTM data: y')
+legend('yInterpolatedQTM', 'yQTM', 'Location', 'best')
+% xlim([startTime stopTime])
+
+    % Z
+figure(Name="zQTMinterpolation");
+plot(t, zQTMi,'.', 'Color','#77CCD1')
+hold on
+% plot(t, zQTMiSpline,'.g', MarkerSize=2)
+plot(time,zQTM, '.k', MarkerSize=1)
+title('Interpolation of QTM data: z')
+legend('zInterpolatedQTM', 'zQTM', 'Location', 'best')
+% xlim([startTime stopTime])
+
+%% Speed and Acceleration
 
 % Preallocate Space
 xDotQTM =    zeros(length(xQTMi)-1,1);
@@ -116,7 +129,7 @@ zSimIMU = zDotDotQTM + zWn;
 % Standard Deviation for Covariance (matrix) Q
 % stdDevIMU = std(Wn);
 
-%%%%%%%%%% Speed/Acceleration Setup %%%%%%%%%%
+%% 3D Kalman Filter
 
 % Initialization
 timeTol = 0.01;     % Sync low sps to high sps
@@ -237,17 +250,13 @@ for i = 2 : length(t)
     zDotKalman(i) = x(6);
 end
 
-% xlims: position and speed
-startTime = 0;
-stopTime = time(end);
-
 %% X Translation Plotting 
 
 xTransPlot = figure(Name="xTranslationPlot");
 
 % Plot Measured Position from D435 Camera
-plot(time,xCV0, '.', 'Color',[109/255, 209/255, 255/255],...
-    MarkerSize=)
+plot(time,xCV0, '.', 'Color','#CEB7B7',...
+    MarkerSize=mSize)
 hold on
 % Plot Reference from QTM
 plot(t,xQTMi, '.k', MarkerSize=qSize)
@@ -271,13 +280,13 @@ set(xTransPlot,'units','normalized','outerposition',[0 0 1 1])
 yTransPlot = figure(Name="yTranslationPlot");
 
 % Plot Measured Position from D435 Camera
-plot(time,yCV0, ...
-    '.', 'Color',[109/255, 209/255, 255/255])
+plot(time,yCV0, '.', 'Color','#C4D383', ...
+    MarkerSize=mSize)
 hold on
 % Plot Reference from QTM
-plot(t,yQTMi, '.k', MarkerSize=1)
+plot(t,yQTMi, '.k', MarkerSize=qSize)
 % Plot Kalman Filter Estimate Position
-plot(t, yKalman, '.','Color', '#1D9300', MarkerSize=1)
+plot(t, yKalman, '.','Color', '#1D9300', MarkerSize=kSize)
 
 [~, icons] = legend('yCV0', 'yQTMinterp', 'yKalman', 'Location','eastoutside');
 % Change size of legend icons
@@ -295,13 +304,13 @@ set(yTransPlot,'units','normalized','outerposition',[0 0 1 1])
 zTransPlot = figure(Name="zTranslationPlot");
 
 % Plot Measured Position from D435 Camera
-plot(time,zCV0, ...
-    '.', 'Color',[109/255, 209/255, 255/255])
+plot(time,zCV0, '.', 'Color',[109/255, 209/255, 255/255], ...
+    MarkerSize=mSize)
 hold on
 % Plot Reference from QTM
-plot(t,zQTMi, '.k', MarkerSize=1)
+plot(t,zQTMi, '.k', MarkerSize=qSize)
 % Plot Kalman Filter Estimate Position
-plot(t, zKalman, '.b', MarkerSize=1)
+plot(t, zKalman, '.b', MarkerSize=kSize)
 
 [a, icons] = legend('zCV0', 'zQTMinterp', 'zKalman', 'Location','eastoutside');
 % Change size of legend icons

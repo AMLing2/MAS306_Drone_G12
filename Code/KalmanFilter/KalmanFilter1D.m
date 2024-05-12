@@ -15,6 +15,10 @@ zCV0 = data(:,7);
 
 trans = [0.190 0.143 1.564]; % Physically measured in m
 
+% xlims: position and speed
+startTime = 0;
+stopTime = time(end);
+
 %% Interpolation
 
 % New timeseries with constant period
@@ -152,10 +156,6 @@ for i = 2 : length(t)
     zKalman(i)    = x(1);
     zDotKalman(i) = x(2);
 end
-
-% xlims: position and speed
-startTime = 0;
-stopTime = time(end);
 
 % Calculate difference
 diff = zKalman - zQTMi';
