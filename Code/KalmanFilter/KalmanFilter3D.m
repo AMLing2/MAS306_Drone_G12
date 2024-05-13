@@ -19,10 +19,12 @@ trans = [0.190 0.143 1.564]; % Physically measured in m
 mSize = 4;
 qSize = 3;
 kSize = 3.5;
+iSize = 6;
+rSize = 4;
 
 % xlims: position and speed
-startTime = 60;
-stopTime = 85;
+startTime = 0;
+stopTime = time(end);
 
 %% Interpolation
 
@@ -57,34 +59,43 @@ end
 
 % Plotting
     % X
-figure(Name="xQTMinterpolation");
-plot(t, xQTMi,'.', 'Color','#CEB7B7')
+xInterp = figure(Name="xQTMinterpolation");
+plot(t, xQTMi,'.', Color=[.85 .85 .85], MarkerSize=iSize)
 hold on
-% plot(t, zQTMiSpline,'.g', MarkerSize=2)
-plot(time,xQTM, '.k', MarkerSize=1)
+validIndicesQTMx = (xQTM ~= trans(1));
+plot(time(validIndicesQTMx),xQTM(validIndicesQTMx), ...
+        '.', 'Color','#9E0000',MarkerSize=rSize)
 title('Interpolation of QTM data: x')
-legend('xInterpolatedQTM', 'xQTM', 'Location', 'best')
-% xlim([startTime stopTime])
+legend('xInterpolatedQTM', 'xQTM', 'Location', 'southwest')
+xlim([startTime stopTime])
+
+set(xInterp,'units','normalized','outerposition',[0 0 1 1])
 
     % Y
-figure(Name="yQTMinterpolation");
-plot(t, yQTMi,'.', 'Color','#C4D383')
+yInterp = figure(Name="yQTMinterpolation");
+plot(t, yQTMi,'.', Color=[.85 .85 .85], MarkerSize=iSize)
 hold on
-% plot(t, zQTMiSpline,'.g', MarkerSize=2)
-plot(time,yQTM, '.k', MarkerSize=1)
+validIndicesQTMy = (yQTM ~= trans(2));
+plot(time(validIndicesQTMy),yQTM(validIndicesQTMy), ...
+        '.', 'Color','#176D00', MarkerSize=rSize)
 title('Interpolation of QTM data: y')
-legend('yInterpolatedQTM', 'yQTM', 'Location', 'best')
-% xlim([startTime stopTime])
+legend('yInterpolatedQTM', 'yQTM', 'Location', 'southwest')
+xlim([startTime stopTime])
+
+set(yInterp,'units','normalized','outerposition',[0 0 1 1])
 
     % Z
-figure(Name="zQTMinterpolation");
-plot(t, zQTMi,'.', 'Color','#77CCD1')
+zInterp = figure(Name="zQTMinterpolation");
+plot(t, zQTMi,'.', Color=[.85 .85 .85], MarkerSize=iSize)
 hold on
-% plot(t, zQTMiSpline,'.g', MarkerSize=2)
-plot(time,zQTM, '.k', MarkerSize=1)
+validIndicesQTMz = (zQTM ~= trans(3));
+plot(time(validIndicesQTMz),zQTM(validIndicesQTMz), ...
+        '.', 'Color','#21007F', MarkerSize=rSize)
 title('Interpolation of QTM data: z')
-legend('zInterpolatedQTM', 'zQTM', 'Location', 'best')
-% xlim([startTime stopTime])
+legend('zInterpolatedQTM', 'zQTM', 'Location', 'southwest')
+xlim([startTime stopTime])
+
+set(zInterp,'units','normalized','outerposition',[0 0 1 1])
 
 %% Speed and Acceleration
 
@@ -110,13 +121,16 @@ for i = 2 : length(t)
     zDotDotQTM(i) = (zDotQTM(i) - zDotQTM(i-1))/(dt); % [m/s^2]
 end
 
+% Set default seed for consistent simulation noise
+rng("default")
+
 % Output Noise Density - Datasheet BMI088
-xyOND = 160;      % [ug/sqrt(Hz)]
-zOND = 190;      % [ug/sqrt(Hz)]
+xyOND = 160*10^-6;      % [ug/sqrt(Hz)]
+zOND  = 190*10^-6;      % [ug/sqrt(Hz)]
 g = 9.80665;    % [m/s^2]
 % Convert to scalar
-xyScale = xyOND*g/(10^6)/sqrt(Hz);
-zScale =   zOND*g/(10^6)/sqrt(Hz);
+xyScale = xyOND*sqrt(Hz)/g;
+zScale =   zOND*sqrt(Hz)/g;
 % Zero Mean White Gaussian Noise - One for each to get different noise
 xWn = wgn(length(xDotDotQTM),1,xyScale, 'linear');
 yWn = wgn(length(yDotDotQTM),1,xyScale, 'linear');
@@ -126,15 +140,12 @@ zWn = wgn(length(zDotDotQTM),1,zScale, 'linear');
 xSimIMU = xDotDotQTM + zWn;
 ySimIMU = yDotDotQTM + zWn;
 zSimIMU = zDotDotQTM + zWn;
-% Standard Deviation for Covariance (matrix) Q
-% stdDevIMU = std(Wn);
 
 %% 3D Kalman Filter
 
 % Initialization
 timeTol = 0.01;     % Sync low sps to high sps
-% x = [   zQTM(1); 
-%         zDotQTM(1)  ];  % Start [z, zDot]
+
 % State Vector 6x1
 x = [   xQTM(1);
         xDotQTM(1);
@@ -169,8 +180,6 @@ B = [ dt^2/2    0     0   ;   % x''
 C = [ 1 0 0 0 0 0 ; % x
       0 0 1 0 0 0 ; % y
       0 0 0 0 1 0]; % z
-% Feedthrough Matrix
-D = 0;
 
 % Identity Matrix
 I = eye(6);
@@ -226,18 +235,17 @@ for i = 2 : length(t)
     end
 
     % Update Input: Simulated Acceleration
-    % u = [xDotDotQTM(i); yDotDotQTM(i); zDotDotQTM(i)];
     u = [xSimIMU(i); ySimIMU(i); zSimIMU(i)];
 
     % Prediction
-    x = A*x + B*u;  % A priori - \hat{x_k}^-
+    x = A*x + B*u;
     P = A*P*A' + B*Q*B';
 
     if ~isnan(y) % if detected
 
         % Measurement Update
         Kk = (P*C')/(C*P*C' + R);
-        x = x + Kk*(y - C*x); % A posterior - \hat{x_k}
+        x = x + Kk*(y - C*x);
         P = (I - Kk*C)*P;
     end
 
@@ -263,7 +271,7 @@ plot(t,xQTMi, '.k', MarkerSize=qSize)
 % Plot Kalman Filter Estimate Position
 plot(t, xKalman, '.r', MarkerSize=kSize)
 
-[~, icons] = legend('xCV0', 'xQTMinterp', 'xKalman', 'Location','eastoutside');
+[~, icons] = legend('xCV0', 'xQTMinterp', 'xKalman', 'Location','northeast');
 % Change size of legend icons
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
@@ -288,7 +296,7 @@ plot(t,yQTMi, '.k', MarkerSize=qSize)
 % Plot Kalman Filter Estimate Position
 plot(t, yKalman, '.','Color', '#1D9300', MarkerSize=kSize)
 
-[~, icons] = legend('yCV0', 'yQTMinterp', 'yKalman', 'Location','eastoutside');
+[~, icons] = legend('yCV0', 'yQTMinterp', 'yKalman', 'Location','northeast');
 % Change size of legend icons
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
@@ -312,7 +320,7 @@ plot(t,zQTMi, '.k', MarkerSize=qSize)
 % Plot Kalman Filter Estimate Position
 plot(t, zKalman, '.b', MarkerSize=kSize)
 
-[a, icons] = legend('zCV0', 'zQTMinterp', 'zKalman', 'Location','eastoutside');
+[a, icons] = legend('zCV0', 'zQTMinterp', 'zKalman', 'Location','southwest');
 % Change size of legend icons
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
