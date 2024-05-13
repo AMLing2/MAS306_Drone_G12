@@ -23,8 +23,8 @@ iSize = 6;
 rSize = 4;
 
 % xlims: position and speed
-startTime = 0;
-stopTime = time(end);
+startTime = 60;
+stopTime = 84;
 
 %% Interpolation
 
@@ -69,7 +69,10 @@ title('Interpolation of QTM data: x')
 legend('xInterpolatedQTM', 'xQTM', 'Location', 'southwest')
 xlim([startTime stopTime])
 
+% Save Figure
 set(xInterp,'units','normalized','outerposition',[0 0 1 1])
+saveas(xInterp, ['poseTest_',num2str(testNr), '_xInterpolation3D'])
+saveas(xInterp, ['poseTest_',num2str(testNr), '_xInterpolation3D.png'])
 
     % Y
 yInterp = figure(Name="yQTMinterpolation");
@@ -82,7 +85,10 @@ title('Interpolation of QTM data: y')
 legend('yInterpolatedQTM', 'yQTM', 'Location', 'southwest')
 xlim([startTime stopTime])
 
+% Save Figure
 set(yInterp,'units','normalized','outerposition',[0 0 1 1])
+saveas(yInterp, ['poseTest_',num2str(testNr), '_yInterpolation3D'])
+saveas(yInterp, ['poseTest_',num2str(testNr), '_yInterpolation3D.png'])
 
     % Z
 zInterp = figure(Name="zQTMinterpolation");
@@ -95,7 +101,10 @@ title('Interpolation of QTM data: z')
 legend('zInterpolatedQTM', 'zQTM', 'Location', 'southwest')
 xlim([startTime stopTime])
 
+% Save Figure
 set(zInterp,'units','normalized','outerposition',[0 0 1 1])
+saveas(zInterp, ['poseTest_',num2str(testNr), '_zInterpolation3D'])
+saveas(zInterp, ['poseTest_',num2str(testNr), '_zInterpolation3D.png'])
 
 %% Speed and Acceleration
 
@@ -258,6 +267,57 @@ for i = 2 : length(t)
     zDotKalman(i) = x(6);
 end
 
+% Calculate differences
+xFilter = [];
+yFilter = [];
+idxXf= [];
+idxYf= [];
+for i = 1 : length(t)
+    if t(i) > stopTime
+        break
+    end
+    if ~isnan(xQTMi(i)) && (t(i) > startTime)
+        xFilter(end+1) = abs(xKalman(i) - xQTMi(i));
+        idxXf(end+1) = i;
+    end
+    if ~isnan(yQTMi(i)) && (t(i) > startTime)
+        yFilter(end+1) = abs(yKalman(i) - yQTMi(i));
+        idxYf(end+1) = i;
+    end
+end
+
+xMeas = [];
+yMeas = [];
+idxXMeas = [];
+idxYMeas = [];
+for i = 1 : length(time)
+    if time(i) > stopTime
+        break
+    end
+    if (xQTM(i) ~= trans(1)) && (xCV0(i) ~= 0) && (time(i) > startTime)
+        xMeas(end+1) = abs(xCV0(i) - xQTM(i));
+        idxXMeas(end+1) = i;
+    end
+    if (yQTM(i) ~= trans(2)) && (yCV0(i) ~= 0) && (time(i) > startTime)
+        yMeas(end+1) = abs(yCV0(i) - yQTM(i));
+        idxYMeas(end+1) = i;
+    end
+end
+
+% Extract and display statistics - [mm]
+    % Filter
+XavgFilter = mean(xFilter)*1000;
+XstdFilter = std(xFilter)*1000;
+YavgFilter = mean(yFilter)*1000;
+YstdFilter = std(yFilter)*1000;
+table(XavgFilter, XstdFilter, YavgFilter, YstdFilter)
+    % X Measurements
+XavgMeas = mean((xMeas))*1000;
+XstdMeas = std((xMeas))*1000;
+YavgMeas = mean((yMeas))*1000;
+YstdMeas = std((yMeas))*1000;
+table(XavgMeas, XstdMeas, YavgMeas, YstdMeas)
+
 %% X Translation Plotting 
 
 xTransPlot = figure(Name="xTranslationPlot");
@@ -331,3 +391,85 @@ xlim([startTime stopTime])
 title('3D Kalman Filter: z Estimate')
 
 set(zTransPlot,'units','normalized','outerposition',[0 0 1 1])
+
+%% x Difference Plotting
+% Transpose for plotting
+xFilter = xFilter';
+xMeas = xMeas';
+
+% Plot Differences between filter and no filter
+xDiff3D = figure(Name='xDiff3D');
+measurements = plot(time(idxXMeas),xMeas,'.', ...
+                'Color','#CEB7B7');
+hold on
+filter = plot(t(idxXf),xFilter,'.r',MarkerSize=1);
+title('x Comparison: abs(error) of measurement and filter')
+
+% hold on
+diffSize = 1.5;
+diffColor = '#7F0000';
+measColor = '#FF9191';
+yline((XavgMeas+XstdMeas)/1000,'-','Color',measColor,'LineWidth',diffSize)
+yline((XavgMeas-XstdMeas)/1000,'-','Color',measColor,'LineWidth',diffSize)
+yline((XavgFilter+XstdFilter)/1000,'--', 'Color', diffColor,'LineWidth',diffSize)
+yline((XavgFilter-XstdFilter)/1000,'--', 'Color', diffColor,'LineWidth',diffSize)
+
+% Plot NaNs for legend
+measLine = plot(nan, nan, '--', 'Color', measColor);
+diffLine = plot(nan, nan, '--', 'Color', diffColor);
+
+ylabel('Meters')
+xlabel('Seconds')
+[~, icons] = legend([measurements filter measLine diffLine], ...
+    'xCV0-xQTM', 'xKalman-xQTMi', 'Measurement Confidence Interval', ...
+    'Filter Confidence Interval', 'Location','northeast');
+% Change size of legend icons
+icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
+set(icons, 'MarkerSize', 20)
+xlim([startTime stopTime])
+
+set(xDiff3D,'units','normalized','outerposition',[0 0 1 1])
+% Export figure
+saveas(xDiff3D, ['poseTest_',num2str(testNr), '_xDiff3D'])
+saveas(xDiff3D, ['poseTest_',num2str(testNr), '_xDiff3D.png'])
+
+%% y Difference Plotting
+% Transpose for plotting
+yFilter = yFilter';
+yMeas = yMeas';
+
+% Plot Differences between filter and no filter
+yDiff3D = figure(Name='yDiff3D');
+measurements = plot(time(idxYMeas),yMeas,'.', ...
+                'Color','#C4D383');
+hold on
+filter = plot(t(idxYf),yFilter,'.','Color','#1D9300',MarkerSize=1);
+title('y Comparison: abs(error) of measurement and filter')
+
+% hold on
+diffSize = 1.5;
+diffColor = '#007C1B';
+measColor = '#99FFA4';
+yline((YavgMeas+YstdMeas)/1000,'-','Color',measColor,'LineWidth',diffSize)
+yline((YavgMeas-YstdMeas)/1000,'-','Color',measColor,'LineWidth',diffSize)
+yline((YavgFilter+YstdFilter)/1000,'--', 'Color', diffColor,'LineWidth',diffSize)
+yline((YavgFilter-YstdFilter)/1000,'--', 'Color', diffColor,'LineWidth',diffSize)
+
+% Plot NaNs for legend
+measLine = plot(nan, nan, '--', 'Color', measColor);
+diffLine = plot(nan, nan, '--', 'Color', diffColor);
+
+ylabel('Meters')
+xlabel('Seconds')
+[~, icons] = legend([measurements filter measLine diffLine], ...
+    'yCV0-yQTM', 'yKalman-yQTMi', 'Measurement Confidence Interval', ...
+    'Filter Confidence Interval', 'Location','northeast');
+% Change size of legend icons
+icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
+set(icons, 'MarkerSize', 20)
+xlim([startTime stopTime])
+
+set(yDiff3D,'units','normalized','outerposition',[0 0 1 1])
+% Export figure
+saveas(yDiff3D, ['poseTest_',num2str(testNr), '_yDiff3D'])
+saveas(yDiff3D, ['poseTest_',num2str(testNr), '_yDiff3D.png'])
