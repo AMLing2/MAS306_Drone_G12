@@ -164,7 +164,7 @@ for i = 1 : length(t)
     if t(i) > stopTime
         break
     end
-    if ~isnan(zQTMi(i))
+    if ~isnan(zQTMi(i)) && (t(i) > startTime)
         diff(end+1) = abs(zKalman(i) - zQTMi(i));
         idxDiff(end+1) = i;
     end
@@ -176,7 +176,7 @@ for i = 1 : length(time)
     if time(i) > stopTime
         break
     end
-    if (zQTM(i) ~= trans(3)) && (zCV0(i) ~= 0)
+    if (zQTM(i) ~= trans(3)) && (zCV0(i) ~= 0) && (time(i) > startTime)
         meas(end+1) = abs(zCV0(i) - zQTM(i));
         idxMeas(end+1) = i;
     end
@@ -193,15 +193,6 @@ avgMeas = mean(meas)*1000;
 stdMeas = std(meas)*1000;
 madMeas = mad(meas)*1000; % WIP
 table(avgMeas, stdMeas, madMeas)
-
-figure
-diff = diff';
-plot(t(idxDiff),diff,'.k', MarkerSize=1)
-hold on
-meas = meas';
-plot(time(idxMeas),meas,'.m')
-legend('Kalman-zQTMi', 'zCV0-zQTM')
-
 
 %% Translation Plotting
 transPlot = figure(Name="TranslationPlot");
@@ -225,6 +216,23 @@ xlabel('Time [seconds]')
 xlim([startTime stopTime])
 title('1D Kalman Filter')
 
+set(transPlot,'units','normalized','outerposition',[0 0 1 1])
+
+%% Difference Plotting
+% Transpose for plotting
+diff = diff';
+meas = meas';
+
+% Plot Differences between filter and no filter
+filterNoFilter1D = figure(Name='FilterNoFilter1D');
+plot(time(idxMeas),meas,'.', 'Color',[109/255, 209/255, 255/255])
+hold on
+plot(t(idxDiff),diff,'.b', MarkerSize=1)
+legend('zCV0-zQTM', 'Kalman-zQTMi')
+title('Comparison: Error before and after filter')
+
+set(filterNoFilter1D,'units','normalized','outerposition',[0 0 1 1])
+
 %% Speed Plotting
 speedPlot = figure(Name="SpeedPlot");
 
@@ -233,7 +241,7 @@ plot(t,zDotQTM, '.k')
 hold on
 
 % Plot Estimated Speed
-plot(t,zDotKalman, '.r', MarkerSize=1)
+plot(t,zDotKalman, '.', 'Color', '#B1A9D8', MarkerSize=1)
 
 [~, icons] = legend('zDotQTM', 'zDotKalman', 'Location','eastoutside');
 % Change size of legend icons
@@ -243,16 +251,17 @@ set(icons, 'MarkerSize', 20)
 ylabel('zDot [m/s]')
 xlabel('Time [seconds]')
 xlim([startTime stopTime])
+title("Speed: Kalman' and QTM'")
+
+set(speedPlot,'units','normalized','outerposition',[0 0 1 1])
 
 %% Acceleration Plotting
 accPlot = figure(Name="AccPlot");
-
-% Plot Simulation with Noise
-plot(t,simIMU, 'og')
-hold on
-
 % Plot QTM Acceleration
 plot(t,zDotDotQTM, '.k')
+hold on
+% Plot Simulation with Noise
+plot(t,simIMU, '.', 'Color', '#F7B9EA', MarkerSize=1)
 
 [a, icons] = legend('IMUsim', 'zDotDotQTM', 'Location','eastoutside');
 % Change size of legend icons
@@ -262,3 +271,6 @@ set(icons, 'MarkerSize', 20)
 ylabel('zDotDot [m/s^2]')
 xlabel('Time [seconds]')
 xlim([startTime stopTime])
+title("Acceleration: simIMU and QTM''")
+
+set(accPlot,'units','normalized','outerposition',[0 0 1 1])
