@@ -1,7 +1,7 @@
 clc; clear; close all;
 
 %% Implement data
-testNr = 2;
+testNr = 4;
 fileName = ['ExportedResults_', num2str(testNr), '.csv'];
 data = csvread(fileName, 1,0);
 
@@ -17,7 +17,7 @@ trans = [0.190 0.143 1.564]; % Physically measured in m
 
 % xlims: position and speed
 startTime = 0;
-stopTime = 120;
+stopTime = time(end);
 
 %% Interpolation
 
@@ -40,14 +40,20 @@ while isnan(zQTMi(end))
     t(end) = [];
 end
 
-%%%%% Interpolation Plotting %%%%%
-figure(Name="zQTMinterpolation");
+% Interpolation Plotting
+interpPlot = figure(Name="zQTMinterpolation");
 plot(t, zQTMi,'.', Color=[.85 .85 .85])
 hold on
 validIndicesQTM = (zQTM ~= trans(3));
 plot(time(validIndicesQTM),zQTM(validIndicesQTM), '.k', MarkerSize=1)
 title('Interpolation of QTM data')
-legend('InterpolatedQTM', 'QTM', 'Location', 'best')
+legend('InterpolatedQTM', 'QTM', 'Location', 'southwest')
+xlim([startTime stopTime])
+
+% Export figure
+set(interpPlot,'units','normalized','outerposition',[0 0 1 1])
+saveas(interpPlot, ['poseTest_',num2str(testNr), '_interpolation'])
+saveas(interpPlot, ['poseTest_',num2str(testNr), '_interpolation.png'])
 
 %% Speed and Acceleration
 
@@ -57,7 +63,7 @@ zDotDotQTM = zeros(length(zQTMi)-1,1);
 
 % Save Recorded Speed z'
 for i = 2 : length(t)
-    zDotQTM(i) = (zQTMi(i) - zQTMi(i-1))/dt;
+    zDotQTM(i) = (zQTMi(i) - zQTMi(i-1))/dt; % [m/s]
 end
 
 % Save Recorded Acceleration z''
@@ -99,8 +105,6 @@ B = [ dt^2/2  ;
       dt     ];
 % Measurement Matrix
 C = [ 1 0 ];
-% Feedthrough Matrix
-D = 0;
 
 % Identity Matrix
 I = eye(2);
@@ -184,15 +188,13 @@ end
 
 % Extract and display statistics - [mm]
     % Difference
-avgDiff = mean(diff)*1000;
-stdDiff = std(diff)*1000;
-madDiff = mad(diff)*1000; % WIP
-table(avgDiff, stdDiff, madDiff)
+avgDiff = mean((diff))*1000;
+stdDiff = std((diff))*1000;
+table(avgDiff, stdDiff)
     % Measurements
-avgMeas = mean(meas)*1000;
-stdMeas = std(meas)*1000;
-madMeas = mad(meas)*1000; % WIP
-table(avgMeas, stdMeas, madMeas)
+avgMeas = mean((meas))*1000;
+stdMeas = std((meas))*1000;
+table(avgMeas, stdMeas)
 
 %% Translation Plotting
 transPlot = figure(Name="TranslationPlot");
@@ -206,7 +208,7 @@ plot(t,zQTMi, '.k', MarkerSize=1)
 % Plot Kalman Filter Estimate Position
 plot(t, zKalman, '.b', MarkerSize=1)
 
-[~, icons] = legend('zCV0', 'zQTMinterp', 'zKalman', 'Location','eastoutside');
+[~, icons] = legend('zCV0', 'zQTMinterp', 'zKalman', 'Location', 'southwest');
 % Change size of legend icons
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
@@ -217,6 +219,9 @@ xlim([startTime stopTime])
 title('1D Kalman Filter')
 
 set(transPlot,'units','normalized','outerposition',[0 0 1 1])
+% Export figure
+saveas(transPlot, ['poseTest_',num2str(testNr), '_transKalmanPlot'])
+saveas(transPlot, ['poseTest_',num2str(testNr), '_transKalmanPlot.png'])
 
 %% Difference Plotting
 % Transpose for plotting
@@ -225,13 +230,41 @@ meas = meas';
 
 % Plot Differences between filter and no filter
 filterNoFilter1D = figure(Name='FilterNoFilter1D');
-plot(time(idxMeas),meas,'.', 'Color',[109/255, 209/255, 255/255])
+measurements = plot(time(idxMeas),meas,'.', ...
+                'Color',[109/255, 209/255, 255/255]);
 hold on
-plot(t(idxDiff),diff,'.b', MarkerSize=1)
-legend('zCV0-zQTM', 'Kalman-zQTMi')
-title('Comparison: Error before and after filter')
+filter = plot(t(idxDiff),diff,'.b', MarkerSize=1);
+title('Comparison: abs(error) of measurement and filter')
+
+% hold on
+diffSize = 1.5;
+diffColor = '#0000B5';
+measColor = '#7EBBD6';
+% yline((avgMeas)/1000,'-','Color',measColor,'LineWidth',diffSize)
+yline((avgMeas+stdMeas)/1000,'--','Color',measColor,'LineWidth',diffSize)
+yline((avgMeas-stdMeas)/1000,'--','Color',measColor,'LineWidth',diffSize)
+% yline((avgDiff)/1000,'-', 'Color', diffColor, 'LineWidth',diffSize)
+yline((avgDiff+stdDiff)/1000,'--', 'Color', diffColor,'LineWidth',diffSize)
+yline((avgDiff-stdDiff)/1000,'--', 'Color', diffColor,'LineWidth',diffSize)
+
+% Plot NaNs for legend
+measLine = plot(nan, nan, '--', 'Color', measColor);
+diffLine = plot(nan, nan, '--', 'Color', diffColor);
+
+ylabel('z [m]')
+xlabel('Time [seconds]')
+[~, icons] = legend([measurements filter measLine diffLine], ...
+    'zCV0-zQTM', 'Kalman-zQTMi', 'Measurement Confidence Interval', ...
+    'Filter Confidence Interval', 'Location','northeast');
+% Change size of legend icons
+icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
+set(icons, 'MarkerSize', 20)
+xlim([startTime stopTime])
 
 set(filterNoFilter1D,'units','normalized','outerposition',[0 0 1 1])
+% Export figure
+saveas(filterNoFilter1D, ['poseTest_',num2str(testNr), '_filterNoFilter1D'])
+saveas(filterNoFilter1D, ['poseTest_',num2str(testNr), '_filterNoFilter1D.png'])
 
 %% Speed Plotting
 speedPlot = figure(Name="SpeedPlot");
@@ -243,7 +276,7 @@ hold on
 % Plot Estimated Speed
 plot(t,zDotKalman, '.', 'Color', '#B1A9D8', MarkerSize=1)
 
-[~, icons] = legend('zDotQTM', 'zDotKalman', 'Location','eastoutside');
+[~, icons] = legend('zDotQTM', 'zDotKalman', 'Location','northeast');
 % Change size of legend icons
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
@@ -263,7 +296,7 @@ hold on
 % Plot Simulation with Noise
 plot(t,simIMU, '.', 'Color', '#F7B9EA', MarkerSize=1)
 
-[a, icons] = legend('IMUsim', 'zDotDotQTM', 'Location','eastoutside');
+[a, icons] = legend('IMUsim', 'zDotDotQTM', 'Location','northeast');
 % Change size of legend icons
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
