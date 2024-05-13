@@ -2,7 +2,7 @@ clc; clear; close all;
 
 %% Import Results from Pose Validation Test
 
-testNr = 4;
+testNr = 2;
 fileName = ['ExportedResults_', num2str(testNr), '.csv'];
 data = csvread(fileName, 1,0);
 
@@ -70,10 +70,10 @@ avgDiffzCV0QTM = mean(diffzCV0QTM)*1000;
 avgDiffxCV1QTM = mean(diffxCV1QTM)*1000;
 avgDiffyCV1QTM = mean(diffyCV1QTM)*1000;
 avgDiffzCV1QTM = mean(diffzCV1QTM)*1000;
-% Present Mean Absolute Deviation
-madVecs = table(avgDiffxVecs, avgDiffyVecs, avgDiffzVecs)
-madQTMv0 = table(avgDiffxCV0QTM, avgDiffyCV0QTM, avgDiffzCV0QTM);
-madQTMv1 = table(avgDiffxCV1QTM, avgDiffyCV1QTM, avgDiffzCV1QTM);
+% Present Data
+avgDiffVecs = table(avgDiffxVecs, avgDiffyVecs, avgDiffzVecs)
+avgDiffQTMv0 = table(avgDiffxCV0QTM, avgDiffyCV0QTM, avgDiffzCV0QTM);
+avgDiffQTMv1 = table(avgDiffxCV1QTM, avgDiffyCV1QTM, avgDiffzCV1QTM);
 
 %% Translation Plotting
 transPlot = figure(Name="Plot of Translation comparison");
