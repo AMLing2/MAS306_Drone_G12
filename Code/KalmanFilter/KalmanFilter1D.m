@@ -1,7 +1,7 @@
 clc; clear; close all;
 
 %% Implement data
-testNr = 1;
+testNr = 2;
 fileName = ['ExportedResults_', num2str(testNr), '.csv'];
 data = csvread(fileName, 1,0);
 
@@ -17,7 +17,7 @@ trans = [0.190 0.143 1.564]; % Physically measured in m
 
 % xlims: position and speed
 startTime = 0;
-stopTime = time(end);
+stopTime = 120;
 
 %% Interpolation
 
@@ -69,7 +69,7 @@ end
 rng("default")
 
 % Output Noise Density - Datasheet BMI088
-ond = 190*10^-6;    % [ug/sqrt(Hz)]
+ond = 190*10^-6;    % [g/sqrt(Hz)]
 g = 9.80665;        % [m/s^2]
 % Convert to scalar
 scale = ond*sqrt(Hz)/g;
@@ -157,14 +157,51 @@ for i = 2 : length(t)
     zDotKalman(i) = x(2);
 end
 
-% Calculate difference
-diff = zKalman - zQTMi';
+% Calculate differences
+diff = [];
+idxDiff = [];
+for i = 1 : length(t)
+    if t(i) > stopTime
+        break
+    end
+    if ~isnan(zQTMi(i))
+        diff(end+1) = abs(zKalman(i) - zQTMi(i));
+        idxDiff(end+1) = i;
+    end
+end
 
-% Extract and display statistics
-avgDiff = mean(diff);
-stdDiff = std(diff);
-madDiff = mad(diff);
+meas = [];
+idxMeas = [];
+for i = 1 : length(time)
+    if time(i) > stopTime
+        break
+    end
+    if (zQTM(i) ~= trans(3)) && (zCV0(i) ~= 0)
+        meas(end+1) = abs(zCV0(i) - zQTM(i));
+        idxMeas(end+1) = i;
+    end
+end
+
+% Extract and display statistics - [mm]
+    % Difference
+avgDiff = mean(diff)*1000;
+stdDiff = std(diff)*1000;
+madDiff = mad(diff)*1000; % WIP
 table(avgDiff, stdDiff, madDiff)
+    % Measurements
+avgMeas = mean(meas)*1000;
+stdMeas = std(meas)*1000;
+madMeas = mad(meas)*1000; % WIP
+table(avgMeas, stdMeas, madMeas)
+
+figure
+diff = diff';
+plot(t(idxDiff),diff,'.k', MarkerSize=1)
+hold on
+meas = meas';
+plot(time(idxMeas),meas,'.m')
+legend('Kalman-zQTMi', 'zCV0-zQTM')
+
 
 %% Translation Plotting
 transPlot = figure(Name="TranslationPlot");
