@@ -1,7 +1,7 @@
 clc; clear; close all;
 
 %% Implement data
-testNr = 1;
+testNr = 4;
 fileName = ['ExportedResults_', num2str(testNr), '.csv'];
 data = csvread(fileName, 1,0);
 
@@ -23,8 +23,8 @@ iSize = 6;
 rSize = 4;
 
 % xlims: position and speed
-startTime = 60;
-stopTime = 84;
+startTime = 0;
+stopTime = time(end);
 
 %% Interpolation
 
@@ -66,8 +66,14 @@ validIndicesQTMx = (xQTM ~= trans(1));
 plot(time(validIndicesQTMx),xQTM(validIndicesQTMx), ...
         '.', 'Color','#9E0000',MarkerSize=rSize)
 title('Interpolation of QTM data: x')
-legend('xInterpolatedQTM', 'xQTM', 'Location', 'southwest')
+[~, icons] = legend('xInterpolatedQTM', 'xQTM', 'Location', 'northeast');
 xlim([startTime stopTime])
+ylabel('Meters')
+xlabel('Seconds')
+
+% Change size of legend icons
+icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
+set(icons, 'MarkerSize', 20)
 
 % Save Figure
 set(xInterp,'units','normalized','outerposition',[0 0 1 1])
@@ -82,8 +88,14 @@ validIndicesQTMy = (yQTM ~= trans(2));
 plot(time(validIndicesQTMy),yQTM(validIndicesQTMy), ...
         '.', 'Color','#176D00', MarkerSize=rSize)
 title('Interpolation of QTM data: y')
-legend('yInterpolatedQTM', 'yQTM', 'Location', 'southwest')
+[~, icons] = legend('yInterpolatedQTM', 'yQTM', 'Location', 'northeast');
 xlim([startTime stopTime])
+ylabel('Meters')
+xlabel('Seconds')
+
+% Change size of legend icons
+icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
+set(icons, 'MarkerSize', 20)
 
 % Save Figure
 set(yInterp,'units','normalized','outerposition',[0 0 1 1])
@@ -98,8 +110,14 @@ validIndicesQTMz = (zQTM ~= trans(3));
 plot(time(validIndicesQTMz),zQTM(validIndicesQTMz), ...
         '.', 'Color','#21007F', MarkerSize=rSize)
 title('Interpolation of QTM data: z')
-legend('zInterpolatedQTM', 'zQTM', 'Location', 'southwest')
+[~, icons] = legend('zInterpolatedQTM', 'zQTM', 'Location', 'southwest');
 xlim([startTime stopTime])
+ylabel('Meters')
+xlabel('Seconds')
+
+% Change size of legend icons
+icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
+set(icons, 'MarkerSize', 20)
 
 % Save Figure
 set(zInterp,'units','normalized','outerposition',[0 0 1 1])
@@ -336,13 +354,15 @@ plot(t, xKalman, '.r', MarkerSize=kSize)
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
 
-ylabel('x [m]')
-xlabel('Time [seconds]')
+ylabel('Meters')
+xlabel('Seconds')
 xlim([startTime stopTime])
 title('3D Kalman Filter: x Estimate')
 
 set(xTransPlot,'units','normalized','outerposition',[0 0 1 1])
-
+% Export figure
+saveas(xTransPlot, ['poseTest_',num2str(testNr), '_xTrans3D'])
+saveas(xTransPlot, ['poseTest_',num2str(testNr), '_xTrans3D.png'])
 
 %% Y Translation Plotting 
 yTransPlot = figure(Name="yTranslationPlot");
@@ -361,12 +381,15 @@ plot(t, yKalman, '.','Color', '#1D9300', MarkerSize=kSize)
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
 
-ylabel('y [m]')
-xlabel('Time [seconds]')
+ylabel('Meters')
+xlabel('Seconds')
 xlim([startTime stopTime])
 title('3D Kalman Filter: y Estimate')
 
 set(yTransPlot,'units','normalized','outerposition',[0 0 1 1])
+% Export figure
+saveas(yTransPlot, ['poseTest_',num2str(testNr), '_yTrans3D'])
+saveas(yTransPlot, ['poseTest_',num2str(testNr), '_yTrans3D.png'])
 
 %% Z Translation Plotting 
 zTransPlot = figure(Name="zTranslationPlot");
@@ -385,12 +408,15 @@ plot(t, zKalman, '.b', MarkerSize=kSize)
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
 
-ylabel('z [m]')
-xlabel('Time [seconds]')
+ylabel('Meters')
+xlabel('Seconds')
 xlim([startTime stopTime])
 title('3D Kalman Filter: z Estimate')
 
 set(zTransPlot,'units','normalized','outerposition',[0 0 1 1])
+% Export figure
+saveas(zTransPlot, ['poseTest_',num2str(testNr), '_zTrans3D'])
+saveas(zTransPlot, ['poseTest_',num2str(testNr), '_zTrans3D.png'])
 
 %% x Difference Plotting
 % Transpose for plotting

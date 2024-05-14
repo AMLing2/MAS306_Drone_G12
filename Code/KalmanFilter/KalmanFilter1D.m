@@ -45,10 +45,17 @@ interpPlot = figure(Name="zQTMinterpolation");
 plot(t, zQTMi,'.', Color=[.85 .85 .85])
 hold on
 validIndicesQTM = (zQTM ~= trans(3));
-plot(time(validIndicesQTM),zQTM(validIndicesQTM), '.k', MarkerSize=1)
+plot(time(validIndicesQTM),zQTM(validIndicesQTM), '.',...
+        'Color', '#21007F', MarkerSize=1)
 title('Interpolation of QTM data')
-legend('InterpolatedQTM', 'QTM', 'Location', 'southwest')
+[~, icons] = legend('InterpolatedQTM', 'QTM', 'Location', 'southwest');
 xlim([startTime stopTime])
+ylabel('Meters')
+xlabel('Seconds')
+
+% Change size of legend icons
+icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
+set(icons, 'MarkerSize', 20)
 
 % Export figure
 set(interpPlot,'units','normalized','outerposition',[0 0 1 1])
@@ -213,8 +220,8 @@ plot(t, zKalman, '.b', MarkerSize=1)
 icons = findobj(icons, '-property', 'Marker', '-and', '-not', 'Marker', 'none');
 set(icons, 'MarkerSize', 20)
 
-ylabel('z [m]')
-xlabel('Time [seconds]')
+ylabel('Meters')
+xlabel('Seconds')
 xlim([startTime stopTime])
 title('1D Kalman Filter')
 
@@ -251,8 +258,8 @@ yline((avgDiff-stdDiff)/1000,'--', 'Color', diffColor,'LineWidth',diffSize)
 measLine = plot(nan, nan, '--', 'Color', measColor);
 diffLine = plot(nan, nan, '--', 'Color', diffColor);
 
-ylabel('z [m]')
-xlabel('Time [seconds]')
+ylabel('Meters')
+xlabel('Seconds')
 [~, icons] = legend([measurements filter measLine diffLine], ...
     'zCV0-zQTM', 'Kalman-zQTMi', 'Measurement Confidence Interval', ...
     'Filter Confidence Interval', 'Location','northeast');
