@@ -1,7 +1,7 @@
 # Depth Camera Source Codes
 _All source codes in this folder are for Intel Realsense D435 with stereovision, RGB module_and infrared light._
 
-## Current Folder
+## [Folder] Current working directory
 
 ### arucoDetection.py
 - Simple detection of ArUco markers
@@ -17,6 +17,11 @@ _All source codes in this folder are for Intel Realsense D435 with stereovision,
 - Displays estimated camera matrix and distortion coefficients
 - Displays undistortion
 
+### computerVisionMain.py - Final version of visual pose estimation
+- Main code for pose estimation implementation inside arena
+- Final version after going to solePnP method ~~instead of estimatePoseSingleMarkers()~~
+- Also includes communication after collaboration with infrastructure-responsible student
+
 ### depthCamera.py
 - Live reading of the stereo vision
 - Q for stop stream, P for pause
@@ -30,20 +35,22 @@ _All source codes in this folder are for Intel Realsense D435 with stereovision,
 - For reading the recorded videos from recordingCamera.py
 - Display computation time
 - Display number of frames with data
-- Display number of false positives
 
 ### markerTestVideoExport.py
 - For playback and saving of video
 - Only one dict at a time, all at once in TestFiles folder
 - Saves video in local directory
-- Videos are TBA in final project video, currently on google drive
+- Videos are shown in final project video, also on google drive/zip
 
-### poseMarkerDepth.py
-- Color and Depth Stream
+### poseMarkerDepthPreArena.py
+- [DEPRECATED] Old file with estimatePoseSingleMarkers()
+- Successor is computerVisionMain.py
+- Color and Depth Stream (incorrect depth combination)
 - Displays axes and crosshair on color and depth respectively
 - Reads rVec, tVec and depth
 
-### poseTransRot.py
+### poseTransRot.py - Not included in report
+- For testing with rotation transforamtions
 - Trimmed poseMarkerDepth and added rotation matrices
 - Rodrigues function for converting between vector and matrix
 - Pitch roll and yaw matrices
@@ -61,7 +68,7 @@ _All source codes in this folder are for Intel Realsense D435 with stereovision,
 - Press Q to stop the stream
 - Automatic directory change and numbering
 
-## Screenshots
+## [Folder] Screenshots
 
 - From screenshotCamera.py
 - screenshot_0 = color bgra8 1920x1080
@@ -79,20 +86,26 @@ _All source codes in this folder are for Intel Realsense D435 with stereovision,
 - screenshot_12-saved = depth z16 848x480 60fps not mapped
 - screenshot_13 = Dynamic Calibration Tool: Print Target
 
-## calibrationCaps
+## [Folder] calibrationCaps
 - Screenshots captured for calibration
-- from screenshotCamera.py ~ Remember to change save folder!
+- from screenshotCamera.py
 - Saved based on frames
 
-## Results
+## <span style="color:grey">[Discontinued/Irrelevant Folder] Results
 
-### RSenumerateDevices.txt
-- Listed distortion model
-- Copy-pasted from terminal
-- Requires SDK
+### <span style="color:grey"> LiveReading_screenshot_20.02.2024
+- <span style="color:grey"> From translation measurement outside arena
 
-### RealSenseViewerIntrinsics.json
-- Listed intrinsic parameters from Intel.RealSense.Viewer.exe on Windows
+### <span style="color:grey"> calibrationResultOriginal & calibrationResultCropped
+- <span style="color:grey"> From calibration for report
+
+### <span style="color:grey"> RSenumerateDevices.txt
+- <span style="color:grey"> Listed distortion model
+- <span style="color:grey"> Copy-pasted from terminal
+- <span style="color:grey"> Requires SDK
+
+### <span style="color:grey"> RealSenseViewerIntrinsics.json
+- <span style="color:grey"> Listed intrinsic parameters from Intel.RealSense.Viewer.exe on Windows
 
 ---
 ---
