@@ -5,7 +5,7 @@ from time import sleep
 #Setup
 direc = 22
 step = 23
-EN_pin = 24
+#EN_pin = 24
 
 GPIO.setmode(GPIO.BCM)
 
@@ -21,10 +21,10 @@ GPIO.setmode(GPIO.BCM)
 #    sleep(0.02)
 
 stepMotor = RpiMotorLib.A4988Nema(direc, step, (21,21,21), "DRV8825")
-GPIO.setup(EN_pin, GPIO.OUT)
+#GPIO.setup(EN_pin, GPIO.OUT)
 
 #Motor Control
-GPIO.output(EN_pin, GPIO.LOW)
+#GPIO.output(EN_pin, GPIO.LOW)
 stepMotor.motor_go(False, "Full", 200, 0.0005, False, 0.05)
 
 GPIO.cleanup()

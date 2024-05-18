@@ -20,7 +20,7 @@ class stepper_motor:
     def __init__(self, direc, step, EN_pin, mode, base_wait_time, stepPerRot, roundUpDown):
         self.direc_pin = direc
         self.step_pin = step
-        self.EN_pin = EN_pin
+				#self.EN_pin = EN_pin
         self.mode = mode
         self.base_wait_time = base_wait_time
         self.stepPerRot = stepPerRot
@@ -32,11 +32,11 @@ class stepper_motor:
         
         GPIO.setup(self.direc_pin, GPIO.OUT)
         GPIO.setup(self.step_pin, GPIO.OUT)
-        GPIO.setup(self.EN_pin, GPIO.OUT)
+        #GPIO.setup(self.EN_pin, GPIO.OUT)
         GPIO.setup(self.mode, GPIO.OUT)
         
         #Stadard pins set
-        GPIO.output(EN_pin, GPIO.LOW)
+				#GPIO.output(EN_pin, GPIO.LOW)
         for i in range(3):
             GPIO.output(self.mode, self.resolution[self.resolution_choice]) 
         
@@ -103,10 +103,10 @@ class pwm_motor:
         GPIO.setup(self.AIN2, GPIO.OUT)
         
         #Setup hall interupt
-        GPIO.setup(self.C1, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.setup(self.C2, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.add_event_detect(self.C1, GPIO.RISING, callback=self.hall_callback)
-        GPIO.add_event_detect(self.C2, GPIO.RISING, callback=self.hall_callback)
+#GPIO.setup(self.C1, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+#       GPIO.setup(self.C2, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+ #	GPIO.add_event_detect(self.C1, GPIO.RISING, callback=self.hall_callback)
+#      GPIO.add_event_detect(self.C2, GPIO.RISING, callback=self.hall_callback)
         
         self.motor = GPIO.PWM(motor_pin, freq)
         self.motor.start(0)
