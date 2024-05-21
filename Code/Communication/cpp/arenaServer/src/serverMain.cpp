@@ -21,7 +21,7 @@ int main()
     ns_t timenow = std::chrono::duration_cast<ns_t>(std::chrono::steady_clock::now().time_since_epoch()); //get start of global server timer
     ServerMain serverMain(timenow,localAddr,20002);
 
-    std::vector<std::unique_ptr<AbMessenger>> vpMessengers;
+    std::vector<std::unique_ptr<AbMessenger>> vpMessengers; //vector of classes using polymorphisism, xxMessenger inherits AbMessenger with no new unique functions or data
     vpMessengers.push_back(std::make_unique<CameraMessenger>(serverMain.getServerTimer(),localAddr,10000000, 10000000,&queues[0])); // Camera
     vpMessengers.push_back(std::make_unique<EstimatorMessenger>(serverMain.getServerTimer(),localAddr,10000000, 10000000,&queues[0],&queues[2])); //Estimator
     vpMessengers.push_back(std::make_unique<DroneMessenger>(serverMain.getServerTimer(),localAddr,10000000, 10000000,&queues[0],&queues[1])); //Drone

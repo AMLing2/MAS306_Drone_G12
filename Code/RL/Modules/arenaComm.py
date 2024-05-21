@@ -174,7 +174,7 @@ class DataSending:
             return -1
 
 
-class arenaCommunication:
+class ArenaCommunication:
     expectedTime = 0 #temp
     qSend = None
     qRecv = None
@@ -333,7 +333,7 @@ class arenaCommunication:
         print("send and recieve multiprocess starting")
         self.c = DataSending(serverAddress,self.deviceType)
         #csv
-        fields = ['expected time','actual time']
+        fields = ['time diff']
         filename = "times.csv"
         #csv
         with open(filename, 'w') as csvfile:
@@ -346,13 +346,15 @@ class arenaCommunication:
                 self.c.checklist()
                 if self.c.waitForStartSignal() == -1:
                     self.c.mpLoop = False #dont start program
-                writer.writerow({self.c.globalTimer/1000000,(getTimeNow())/1000000})
-        
+
                 #main loop
                 self.c.sock.settimeout(10.0) #long initial timeout for if server is still doing things
                 while(self.c.mpLoop):
+                    self.expectedTime = (self.c.sleepTimeCalc(self.c.sendinterval,self.c.globalTimer)*1000000000.0) + getTimeNow()
+
+                    print(self.c.sleepTimeCalc(self.c.sendinterval,self.c.globalTimer))
                     time.sleep(self.c.sleepTimeCalc(self.c.sendinterval,self.c.globalTimer))
-                    self.expectedTime = getTimeNow()
+                    #self.expectedTime = getTimeNow()
                     try:
                         self.c.send(self.safeQueueGet(self.qSend,True,qtimeout))
                         recvMsg = self.c.recv()
@@ -362,7 +364,7 @@ class arenaCommunication:
                             except Exception: #will be called if both threads try to get() at the same time
                                 pass
                         self.qRecv.put(recvMsg)
-                        writer.writerow({0,(getTimeNow())/1000000})
+                        writer.writerow({(getTimeNow() - self.expectedTime)/1000000})
                         print("msg recieved with time difference (ms): " + str((getTimeNow() - self.expectedTime)/1000000))
                         self.c.sock.settimeout(5.0)
                         qtimeout = 5 # set to 5s after 

@@ -12,6 +12,7 @@ message dronePosition{
 	uint32 camIteration = 7; //where in array to append cameraRaw to cameraIMG
 	repeated uint32 cameraRaw = 8 	[packed=true];
 	repeated float rotation2 = 9		[packed=true];
+	float droneBattery = 10;
 }
 
 enum dataDevices {

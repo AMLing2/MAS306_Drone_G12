@@ -74,7 +74,7 @@ protected:
 	socklen_t clientAddrLen_;
 }; //SocketMethods
 
-class ServerSocket : public SocketMethods {
+class ServerSocket : public SocketMethods { //TODO: public -> protected
 public:
 	ServerSocket(ns_t timer,std::string addr, const int port)
 	:SocketMethods(timer,addr)
@@ -177,7 +177,7 @@ protected:
 
 class ServerMain : public ServerSocket {
 public:
-    ServerMain(std::chrono::nanoseconds time,std::string addr,const int port)
+    ServerMain(ns_t time,std::string addr,const int port)
     :ServerSocket(time,addr,port)
     {
         socketSetup_(port);

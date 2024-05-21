@@ -6,15 +6,16 @@ import numpy                    #
 import time
 import multiprocessing as mp    # 
 import socket
-import dronePosVec_pb2          #should be protobuf.dronePosVec_pb2 but wont work for some reason
-import comm_module.arenaComm as msgs
+from comm_module import dronePosVec_pb2 #should be protobuf.dronePosVec_pb2 but wont work for some reason
+from comm_module import arenaComm
 
 # --------------------------------------- Libraries ---------------------------------------
 # --------------------------------------- Socket Class -----------------------------------
 
 #START MULTIPROCESS
-sendpos = msgs.arenaSendPos()
-#input()
+hostname = 'b12.uia.no'
+messager = arenaComm.ArenaCommunication(arenaComm.SendrecvType.GENERICSEND,hostname,(3,3),dronePosVec_pb2.camera)
+
 
 if True: #UNINDEX LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     # --------------------------------------- Socket Class -----------------------------------
@@ -75,8 +76,8 @@ if True: #UNINDEX LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     transVectors = []
     reprojError = 0
     m  = 0      # iterator
-    rotVectorsExp = numpy.empty(sendpos.matrixSize[0] * sendpos.matrixSize[1],dtype=float)
-    transVectorsExp = numpy.empty(sendpos.matrixSize[0] * sendpos.matrixSize[1],dtype=float)
+    rotVectorsExp = numpy.empty(messager.matrixSize[0] * messager.matrixSize[1],dtype=float) #exp = export
+    transVectorsExp = numpy.empty(messager.matrixSize[0] * messager.matrixSize[1],dtype=float)
 
     while(True):
 
@@ -149,15 +150,15 @@ if True: #UNINDEX LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 # Print Depth
                 #print("Depth Distance: ", depthDist)
 
-                # Extract Rotation Matrices
+                # Extract Rotation Matrices (flatten)
                 m  = 0
-                for i in range(sendpos.matrixSize[0]-1):
-                    for n in range(sendpos.matrixSize[1]-1):
+                for i in range(messager.matrixSize[0]-1):
+                    for n in range(messager.matrixSize[1]-1):
                         rotVectorsExp[m] = rotVectors[i][n]
                         transVectorsExp[m] = transVectors[i][n]
                         m += 1
-                sendpos.dp.rotMatrix[:] = rotVectorsExp
-                sendpos.dp.position[:] = transVectorsExp
+                messager.dp.rotation[:] = rotVectorsExp
+                messager.dp.position[:] = transVectorsExp
 
         # Depth Stream: Add color map
         depth_image = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.15), cv2.COLORMAP_TURBO)
@@ -178,12 +179,12 @@ if True: #UNINDEX LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         #print("\nThis frame [ns]: ", diffTime)
         #print("\nTimestamp [ns]: ", startTime)
 
-        sendpos.addPosToQueue()
-        del sendpos.dp.rotMatrix[:]
-        del sendpos.dp.position[:]
+        messager.addPosToSendQueue()
+        del messager.dp.rotation[:]
+        del messager.dp.position[:]
 
         #TODO: Variabler for Adrian export: # startTime, rotVectors, transVectors[0], depthDist, markerID
 
 pipe.stop()             # Stop recording
 cv2.destroyAllWindows() # Free resources
-sendpos.endRecv()
+messager.endmps()

@@ -6,7 +6,7 @@ import time
 import traceback
 
 hostname = 'b12.uia.no'
-messager = arenaComm.arenaCommunication(arenaComm.SendrecvType.GENERICRECV | arenaComm.SendrecvType.GENERICSEND,hostname,{1,3},dronePosVec_pb2.rl)
+messager = arenaComm.ArenaCommunication(arenaComm.SendrecvType.GENERICRECV | arenaComm.SendrecvType.GENERICSEND,hostname,(1,3),dronePosVec_pb2.rl)
 
 msg = "0" #string
 motorvals = 0
@@ -17,8 +17,7 @@ try:
     while running:
         if messager.qRecv.empty() == False:
             msg = messager.safeQueueGet(messager.qRecv,True,5)
-            #print("msg:" + str(msg))
-            if not (len(msg) < 2): #an string with 0 might get sent due to an error
+            if not (len(msg) < 2): #a string with 0 might get sent due to an error
                 dp.ParseFromString(msg)
                 #print("msg recieved: " + str(dp.position))
             #else:
