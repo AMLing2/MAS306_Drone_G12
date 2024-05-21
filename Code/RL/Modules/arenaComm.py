@@ -294,6 +294,7 @@ class ArenaCommunication:
                 except Exception as e:
                     self.c.mpLoop = False #timeout 
                     print("exception:" + repr(e))
+                    break
 
         print("sender multiprocess closing")
 
@@ -325,6 +326,7 @@ class ArenaCommunication:
                 except Exception as e:
                     self.c.mpLoop = False #timeout 
                     print("exception:" + repr(e))
+                    break
 
         print("reciever multiprocess closing")
 
@@ -371,5 +373,6 @@ class ArenaCommunication:
                     except Exception as e:
                         self.c.mpLoop = False #timeout 
                         print("exception:" + repr(e))
+                        break
 
         print("send and reciever multiprocess closing")
