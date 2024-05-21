@@ -6,7 +6,7 @@ import time
 import traceback
 
 hostname = 'b12.uia.no'
-messager = arenaComm.ArenaCommunication(arenaComm.SendrecvType.GENERICRECV | arenaComm.SendrecvType.GENERICSEND,hostname,(1,3),dronePosVec_pb2.rl)
+messager = arenaComm.ArenaCommunication(arenaComm.SendrecvType.GENERICRECV | arenaComm.SendrecvType.GENERICSEND,hostname,(1,3),(3,3),dronePosVec_pb2.rl)
 
 msg = "0" #string
 motorvals = 0
