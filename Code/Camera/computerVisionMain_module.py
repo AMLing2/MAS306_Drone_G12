@@ -109,7 +109,7 @@ while(True):
 
             # Print current vectors
             #print("\nRotation Vectors: ", rotVectors)
-            #print("\nTranslation Vectors: ", transVectors) #TODO: uncomment
+            #print("\nTranslation Vectors: ", transVectors)
 
             # Extract Rotation Matrices
             rMat1, _ = cv2.Rodrigues(rotVectors[0])
