@@ -71,10 +71,7 @@ pipe.start(config)
 rotVectors = []
 transVectors = []
 reprojError = 0
-m  = 0      # iterator
-rotMatExp1 = numpy.empty(messager.rotShape[0] * messager.rotShape[1],dtype=float) #exp = export
-rotMatExp2 = numpy.empty(messager.rotShape[0] * messager.rotShape[1],dtype=float)
-transVectorsExp = numpy.empty(messager.posShape[0] * messager.posShape[1],dtype=float)
+transVectorsExp = numpy.empty(messager.posShape[0] * messager.posShape[1],dtype=float) #exp = export, needed because tuple
 
 while(True):
     
@@ -124,24 +121,13 @@ while(True):
             cv2.drawFrameAxes(color_image, cameraMatrix=cameraMatrix,
                             distCoeffs=distortionCoefficients, rvec=rotVectors[0], tvec=transVectors[0], length=axesLength)
 
-            # Extract Matrices (flatten)
             #flatten rotation:
-            #rotMatExp1 = rMat1[0]
-            #m = 0
-            #for i in range(messager.rotShape[0]):
-            #    for n in range(messager.rotShape[1]):
-            #        rotMatExp1[m] = rMat1[i][n]
-            #        rotMatExp2[m] = rMat2[i][n]
-            #        m += 1
-            #flatten position:
-            #for i in range(messager.posShape[0]):
-            #    transVectorsExp[i] = transVectors[0][i][1]
-            #transVectorsExp[:] = transVectors[0]
+            for i in range(messager.posShape[0]):
+                transVectorsExp[i] = transVectors[0][i][0]
             
-                
-            messager.dp.rotation[:] = rMat1
-            messager.dp.rotation2[:] = rMat2
-            messager.dp.position[:] = transVectors[0]
+            messager.dp.rotation[:] = rMat1.flatten()
+            messager.dp.rotation2[:] = rMat2.flatten()
+            messager.dp.position[:] = transVectorsExp
 
     # Depth Stream: Add color map
     #depth_image = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.15), cv2.COLORMAP_TURBO)
