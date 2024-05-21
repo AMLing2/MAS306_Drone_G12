@@ -27,7 +27,7 @@ int main()
     dp.add_posshape(3);
 
     //ClientClass droneClass("127.0.0.1",dronePosVec::drone,"128.39.200.239",20002,threadStartType::sendOnly);
-    ClientClass droneClass("dronearena.uia.no",dronePosVec::drone,"b12.uia.no",20002,threadStartType::sendRecv); //temp sendRecv, normally sendOnly for IMU
+    ClientClass droneClass("10.245.30.158",dronePosVec::drone,"b12.uia.no",20002,threadStartType::sendRecv); //temp sendRecv, normally sendOnly for IMU
     if (droneClass.connectServer() == 0)
     {
         if (droneClass.checkList() < 0)

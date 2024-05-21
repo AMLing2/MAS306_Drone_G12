@@ -61,7 +61,7 @@ int SocketMethods::socketSetup_(int port) //TODO: add freeaddrinfo()
         exit(r);
     }
     localAddrLen_ = sizeof(plocalAddr_);
-    freeaddrinfo(&hints);
+		//freeaddrinfo(&hints);
     return r;
 }
 
@@ -80,7 +80,7 @@ void SocketMethods::getIPfromName(std::string hostname,int port)
     if(r != 0 || pServerAddr_ == NULL)
     {
         std::cout<<"invalid address or port"<<std::endl;
-        return;
+        exit(r);
     }
     //convert to human readable IP to strIP
     char strIP[INET_ADDRSTRLEN];
@@ -88,7 +88,7 @@ void SocketMethods::getIPfromName(std::string hostname,int port)
     uint32_t port2 = ntohs(((struct sockaddr_in*)pServerAddr_->ai_addr)->sin_port);
     std::cout<<"address server: " <<strIP<<":"<<port2<<std::endl;
     serverAddr_ = std::string(strIP);
-    freeaddrinfo(&hints);
+    //freeaddrinfo(&hints);
 }
 
 void SocketMethods::genAddrProtoc(dronePosVec::dataTransfers &data)

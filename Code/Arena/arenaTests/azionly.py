@@ -49,16 +49,17 @@ class pwm_motor:
         self.motor.stop()  #Stop all movement
     
 
-    def runPWM(self):
-#        GPIO.output(self.AIN1, GPIO.HIGH)
-#        GPIO.output(self.AIN2, GPIO.LOW)
+    def runPWM(self, moveDir):
+        if moveDir == True: # clockwise
+            GPIO.output(self.AIN1, GPIO.HIGH)
+            GPIO.output(self.AIN2, GPIO.LOW)
+        else: #ccw
+            GPIO.output(self.AIN1, GPIO.LOW)
+            GPIO.output(self.AIN2, GPIO.HIGH)
 
-        GPIO.output(self.AIN1, GPIO.LOW)
-        GPIO.output(self.AIN2, GPIO.HIGH)
-
-
-        self.motor.ChangeDutyCycle(30)
-        time.sleep(1)
+        self.motor.ChangeDutyCycle(20)
+        time.sleep(4)
+        self.motor.ChangeDutyCycle(0)
 
 #Function setup
 def signal_handler(sig, frame):
@@ -80,12 +81,15 @@ mainRotMot = pwm_motor(12,2000,25,16,27,17)
 #mainStepper.go_rounds(1,'Down','Up',1234567890)
 while True:
     print('Initiate run')
-    mainRotMot.runPWM()
-    print('Run compleat')
-    mainRotMot.pwm_stop()
+    mainRotMot.runPWM(False)
+    time.sleep(1.4)
+    mainRotMot.runPWM(True)
+    print('Run complete')
+    #mainRotMot.pwm_stop()
     #signal.signal(signal.SIGINT, signal_handler)
     #signal.pause()
-    time.sleep(10)
+    mainRotMot.pwm_stop()
+    break
 
 
 

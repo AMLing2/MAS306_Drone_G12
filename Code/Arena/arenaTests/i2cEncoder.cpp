@@ -80,11 +80,14 @@ int main()
 			std::ofstream csvFile;
 			csvFile.open("encoderReadings.csv");
 			csvFile << "time (s)" << "deg reading\n";
-			for(int i = 0; i <= 8000; i++)
+			
+			reading = readRegisterByte(0x0E,0x0F);
+			float initreading = 0.0;//(static_cast<float>(reading)/4096.0) * 360.0;
+			for(int i = 0; i <= 10000; i++)
 			{
-				reading = readRegisterByte(0x0E,0x0F);
+				reading = readRegisterByte(0x0C,0x0D);
 				std::cout<<std::bitset<16>(reading);
-				encoderVal = (static_cast<float>(reading)/4096.0) * 360.0;
+				encoderVal = (static_cast<float>(reading)/4096.0) * 360.0 - initreading;
 				std::cout<<" rotation: " << encoderVal <<"\r";
 				csvFile <<std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count() <<","<< encoderVal << "\n";
 			}
