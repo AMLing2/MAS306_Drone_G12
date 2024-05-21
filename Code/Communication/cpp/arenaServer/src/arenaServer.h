@@ -188,7 +188,7 @@ public:
 	socklen_t getClientAddrSize();
 
 private:
-	void stateChange_();
+	void stateChange_(); //TODO: deprcated, remove
 };
 
 class CameraMessenger : public AbMessenger {

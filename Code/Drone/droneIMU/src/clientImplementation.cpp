@@ -14,7 +14,7 @@ int SocketMethods::socketSetup_(int port) //TODO: add freeaddrinfo()
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_DGRAM;
     hints.ai_protocol = IPPROTO_UDP;
-    hints.ai_flags = AI_CANONNAME; //retrieve the canonical name
+    hints.ai_flags = AI_CANONNAME; //retrieve the canonical name //unused, usage was moved elsewhere
     int r = -1;
     if (port == 0)
     {
@@ -23,9 +23,9 @@ int SocketMethods::socketSetup_(int port) //TODO: add freeaddrinfo()
     else
     {
         char decimal_port[16];
-		snprintf(decimal_port, 16, "%d", port);
+		snprintf(decimal_port, 16, "%d", port); //convert to format that getaddrinfo() wants
 		decimal_port[15] = '\0';
-        r = getaddrinfo(addr_.c_str(), decimal_port, &hints, &plocalAddr_); //connect with port
+        r = getaddrinfo(addr_.c_str(), decimal_port, &hints, &plocalAddr_); //generate addrinfo with port
     }
     if(r != 0 || plocalAddr_ == NULL)
     {
@@ -34,7 +34,7 @@ int SocketMethods::socketSetup_(int port) //TODO: add freeaddrinfo()
         exit(r);
     }
     //exit(r);//temp
-    //convert to human readable IP
+    //convert to human readable IP:
     char strIP[INET_ADDRSTRLEN];
 
     inet_ntop(AF_INET,&(((struct sockaddr_in*)plocalAddr_->ai_addr)->sin_addr),&strIP[0],INET_ADDRSTRLEN);
@@ -51,7 +51,7 @@ int SocketMethods::socketSetup_(int port) //TODO: add freeaddrinfo()
     r = setsockopt(f_socket_,SOL_SOCKET,SO_REUSEADDR,&reusenum,sizeof(reusenum)); //allow reuse of local address, primarily for main server class
     if(r != 0)
     {
-        std::cout<<"failed to set sock option socket"<<std::endl;
+        std::cout<<"failed to set sock option"<<std::endl;
         exit(r);
     }
     r = bind(f_socket_, plocalAddr_->ai_addr,plocalAddr_->ai_addrlen);
@@ -61,6 +61,7 @@ int SocketMethods::socketSetup_(int port) //TODO: add freeaddrinfo()
         exit(r);
     }
     localAddrLen_ = sizeof(plocalAddr_);
+    freeaddrinfo(&hints);
     return r;
 }
 
@@ -81,12 +82,13 @@ void SocketMethods::getIPfromName(std::string hostname,int port)
         std::cout<<"invalid address or port"<<std::endl;
         return;
     }
-    //convert to human readable IP
+    //convert to human readable IP to strIP
     char strIP[INET_ADDRSTRLEN];
     inet_ntop(AF_INET,&(((struct sockaddr_in*)pServerAddr_->ai_addr)->sin_addr),&strIP[0],INET_ADDRSTRLEN);
     uint32_t port2 = ntohs(((struct sockaddr_in*)pServerAddr_->ai_addr)->sin_port);
     std::cout<<"address server: " <<strIP<<":"<<port2<<std::endl;
     serverAddr_ = std::string(strIP);
+    freeaddrinfo(&hints);
 }
 
 void SocketMethods::genAddrProtoc(dronePosVec::dataTransfers &data)
@@ -228,30 +230,8 @@ int ClientClass::connectServer()
 	}
 }
 
-ssize_t ClientClass::initSend(char* msg, size_t msgLen) //TODO: fix and big cleanup
+ssize_t ClientClass::initSend(char* msg, size_t msgLen)
 {
-    //depracated from when non-hostname was used
-    /*
-    std::string serverAddr = "128.39.200.239";
-	struct sockaddr_in arenaServerAddr;
-	memset(&arenaServerAddr,0,sizeof(arenaServerAddr)); //probably pointless
-	arenaServerAddr.sin_family = AF_INET;
-	arenaServerAddr.sin_port = htons(serverPort_); //converts to network byte order
-	inet_pton(arenaServerAddr.sin_family, serverAddr.c_str(), &(arenaServerAddr.sin_addr));
-	memset(&arenaServerAddr.sin_zero,0,sizeof(arenaServerAddr.sin_zero));
-	struct sockaddr* sockaddrServer = reinterpret_cast<sockaddr*>(&arenaServerAddr);
-    */
-    //std::cout<<"sendto: "<<f_socket_<<", "<<msg<<", prev: "<<sizeof(arenaServerAddr)<<", new: "<<pServerAddr_->ai_addrlen<<std::endl;
-    /*
-    for (int i = 0; i < 16;i++)
-    {
-        std::cout<<int(sockaddrServer->sa_data[i])<<" ";
-    }
-    std::cout<<"fam: "<<int(sockaddrServer->sa_family);
-    std::cout<<std::endl;
-    */
-
-	//std::cout<<"sendto: "<<f_socket_<<", "<<msg<<", "<<msgLen<<", "<<0<<", "<<pServerAddr_->ai_addr<<", "<<pServerAddr_->ai_addrlen<<", size2 "<<sizeof(pServerAddr_->ai_addr)<<std::endl;
     return sendto(f_socket_,msg,msgLen,0,pServerAddr_->ai_addr,pServerAddr_->ai_addrlen);
 }
 
@@ -447,7 +427,14 @@ int ClientClass::waitForStartSignal_(bool passRecv)
         {
             msgLen = clientRecv(recvMsg_,bufferSize_);
         }
-        data_.ParseFromArray(recvMsg_,msgLen);
+        if (recvMsg_[0] != '\4')
+        {
+            data_.ParseFromArray(recvMsg_,msgLen);
+        }
+        else
+        {
+            return -1;
+        }
     }
     catch(const std::exception& e)
     {

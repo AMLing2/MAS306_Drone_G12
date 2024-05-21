@@ -282,6 +282,7 @@ class dronePosition PROTOBUF_FINAL :
     kDeviceTypeFieldNumber = 1,
     kCamIterationFieldNumber = 7,
     kTimestampNsFieldNumber = 6,
+    kDroneBatteryFieldNumber = 10,
   };
   // repeated uint32 posShape = 2 [packed = true];
   int posshape_size() const;
@@ -442,6 +443,15 @@ class dronePosition PROTOBUF_FINAL :
   void _internal_set_timestamp_ns(::PROTOBUF_NAMESPACE_ID::uint64 value);
   public:
 
+  // float droneBattery = 10;
+  void clear_dronebattery();
+  float dronebattery() const;
+  void set_dronebattery(float value);
+  private:
+  float _internal_dronebattery() const;
+  void _internal_set_dronebattery(float value);
+  public:
+
   // @@protoc_insertion_point(class_scope:dronePosVec.dronePosition)
  private:
   class _Internal;
@@ -464,6 +474,7 @@ class dronePosition PROTOBUF_FINAL :
   int devicetype_;
   ::PROTOBUF_NAMESPACE_ID::uint32 camiteration_;
   ::PROTOBUF_NAMESPACE_ID::uint64 timestamp_ns_;
+  float dronebattery_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_dronePosVec_2eproto;
 };
@@ -1272,6 +1283,26 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
 dronePosition::mutable_rotation2() {
   // @@protoc_insertion_point(field_mutable_list:dronePosVec.dronePosition.rotation2)
   return _internal_mutable_rotation2();
+}
+
+// float droneBattery = 10;
+inline void dronePosition::clear_dronebattery() {
+  dronebattery_ = 0;
+}
+inline float dronePosition::_internal_dronebattery() const {
+  return dronebattery_;
+}
+inline float dronePosition::dronebattery() const {
+  // @@protoc_insertion_point(field_get:dronePosVec.dronePosition.droneBattery)
+  return _internal_dronebattery();
+}
+inline void dronePosition::_internal_set_dronebattery(float value) {
+  
+  dronebattery_ = value;
+}
+inline void dronePosition::set_dronebattery(float value) {
+  _internal_set_dronebattery(value);
+  // @@protoc_insertion_point(field_set:dronePosVec.dronePosition.droneBattery)
 }
 
 // -------------------------------------------------------------------

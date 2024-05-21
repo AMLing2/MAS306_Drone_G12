@@ -357,7 +357,7 @@ dronePosVec::progName ServerMain::checklistLoop()
     return data_.id();//TODO: pointless, repalce with void?
 }
 
-void ServerMain::stateChange_() //REMOVE, THIS IS IN MAIN FUNCTION
+void ServerMain::stateChange_() //TODO: REMOVE, THIS IS IN MAIN FUNCTION
 {
     switch (clientProgram_)
     {
@@ -436,7 +436,7 @@ int ServerSocket::sendSocketInfo()
     return clientSend(buffer_,data_.ByteSizeLong());
 }
 
-void ServerSocket::setSocketList(std::vector<std::unique_ptr<AbMessenger>>* socketClasses) // is supposed to be type: std::vector<std::unique_prt<AbMessenger>>* 
+void ServerSocket::setSocketList(std::vector<std::unique_ptr<AbMessenger>>* socketClasses)
 {
     vpSocketClasses_ = socketClasses;
 }
@@ -496,13 +496,12 @@ int AbMessenger::joinThread()
 int AbMessenger::startThread(threadStartType startType)
 {
     if (startType == threadStartType::recvOnly)
-    {
+    { //lambda expression used for capturing class variables
         tRecv_ = std::thread([this]()
 		{
             recvThread();
         });
-        
-        //std::thread(&AbMessenger::recvThread, this);
+
         tRecv_.detach();
     }
     else if (startType == threadStartType::sendOnly)
@@ -566,25 +565,24 @@ int AbMessenger::waitforProgStart_()
 
 void AbMessenger::conditionNotify(bool startProg)
 {
-    dronePosVec::dataTransfers data;
-    data.Clear();
     if (!startProg)
     {
-        data.set_type(dronePosVec::end);
-        data.set_msg("end");
+        char EOTmsg[1] = {'\4'};
+        clientSend(EOTmsg,1); 
         threadloop_ = false;
     }
     else
     {
+        dronePosVec::dataTransfers data;
+        data.Clear();
         data.set_type(dronePosVec::start);
         data.set_msg("start");
-        data.set_timesync_ns(sendInterval_.count());   
-    }
-    
-    data.set_id(classProgram_);  
-    data.SerializeToArray(sendMsg_,bufferSize_);
+        data.set_timesync_ns(sendInterval_.count());  
+        data.set_id(classProgram_);  
 
-    clientSend(sendMsg_,data.ByteSizeLong());
+        data.SerializeToArray(sendMsg_,bufferSize_);
+        clientSend(sendMsg_,data.ByteSizeLong()); 
+    }
     cv_.notify_all(); //can cause "thundering herd" bottleneck but should only last for a short time before threads start sleeping again
 }
 

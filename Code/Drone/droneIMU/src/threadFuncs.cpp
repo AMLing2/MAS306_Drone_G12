@@ -15,7 +15,7 @@ void ClientClass::recvThread()
         try
         {
             msglen = clientRecv(recvMsg_,bufferSize_);
-            if ((msglen <= 1) || (recvMsg_[0] == '\0'))// || (recvMsg_[0] == -1)) //msg of size 1 (0 sent) or -1 might be sent in case of error
+            if ( (msglen == -1) || ((msglen <= 2) & ((recvMsg_[0] == '\0') || (recvMsg_[0] == '\4'))))//msg of size 1 (0 sent) or -1 might be sent in case of error
             {
                 threadloop = false;
                 break;
@@ -24,14 +24,15 @@ void ClientClass::recvThread()
             {
                 dc.Clear();
                 dc.ParseFromArray(recvMsg_,msglen);
-                std::cout<<"msg recieved: "<<dc.motorfl()<<std::endl; //TEMP
+                std::cout<<"msg recieved: "<<dc.motorfl()<<"\r"; //TEMP
             }
-            //std::cout<<"msg recieved: "<<std::string(recvMsg_,msglen)<<std::endl; //TEMP
+            //std::cout<<"msg recieved: "<<std::string(recvMsg_,msglen)<<"\r"; //TEMP
         }
         catch(const std::exception& e)
         {
             std::cerr << e.what() << '\n';
             threadloop = false;
+            break;
         }
     }
     std::cout<<"drone recvThread done"<<std::endl;
@@ -61,6 +62,7 @@ void ClientClass::sendThread()
             std::cout<<"error"<<std::endl;
             std::cerr << e.what() << '\n';
             threadloop = false;
+            break;
         }
     }
     std::cout<<"drone sendThread done"<<std::endl;
