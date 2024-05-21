@@ -126,24 +126,22 @@ while(True):
 
             # Extract Matrices (flatten)
             #flatten rotation:
-            m = 0
-            for i in range(messager.rotShape[0]):
-                for n in range(messager.rotShape[1]):
-                    #print("m: " + str(m) + " i: " +  str(i) + " n: " + str(n))
-                    rotMatExp1[m] = rMat1[i][n]
-                    rotMatExp2[m] = rMat2[i][n]
-                    m += 1
+            #rotMatExp1 = rMat1[0]
+            #m = 0
+            #for i in range(messager.rotShape[0]):
+            #    for n in range(messager.rotShape[1]):
+            #        rotMatExp1[m] = rMat1[i][n]
+            #        rotMatExp2[m] = rMat2[i][n]
+            #        m += 1
             #flatten position:
-            m = 0
-            for i in range(messager.posShape[0]):
-                for n in range(messager.posShape[1]):
-                    transVectorsExp[m] = transVectors[0][i][n]
-                    print(str(transVectorsExp) + "\r")
-                    #transVectorsExp[m] = transVectors[i][n][0]
-                    m += 1
-            messager.dp.rotation[:] = rotMatExp1
-            messager.dp.rotation2[:] = rotMatExp1
-            messager.dp.position[:] = transVectorsExp
+            #for i in range(messager.posShape[0]):
+            #    transVectorsExp[i] = transVectors[0][i][1]
+            #transVectorsExp[:] = transVectors[0]
+            
+                
+            messager.dp.rotation[:] = rMat1
+            messager.dp.rotation2[:] = rMat2
+            messager.dp.position[:] = transVectors[0]
 
     # Depth Stream: Add color map
     #depth_image = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.15), cv2.COLORMAP_TURBO)
@@ -158,7 +156,6 @@ while(True):
         break
     elif pressedKey == ord('p'):    # Press P to pause
         cv2.waitKey(-1)
-
 
     messager.addPosToSendQueue()
     del messager.dp.rotation[:]
