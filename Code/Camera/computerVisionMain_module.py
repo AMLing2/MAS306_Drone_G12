@@ -14,7 +14,7 @@ from comm_module import arenaComm
 
 #START MULTIPROCESS
 hostname = 'b12.uia.no'
-messager = arenaComm.ArenaCommunication(arenaComm.SendrecvType.GENERICSEND,hostname,(3,3),dronePosVec_pb2.camera)
+messager = arenaComm.ArenaCommunication(arenaComm.SendrecvType.GENERICSEND,hostname,(1,3),(3,3),dronePosVec_pb2.camera)
 
 
 if True: #UNINDEX LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -76,8 +76,9 @@ if True: #UNINDEX LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     transVectors = []
     reprojError = 0
     m  = 0      # iterator
-    rotVectorsExp = numpy.empty(messager.matrixSize[0] * messager.matrixSize[1],dtype=float) #exp = export
-    transVectorsExp = numpy.empty(messager.matrixSize[0] * messager.matrixSize[1],dtype=float)
+    rotMatExp1 = numpy.empty(messager.rotShape[0] * messager.rotShape[1],dtype=float) #exp = export
+    rotMatExp2 = numpy.empty(messager.rotShape[0] * messager.rotShape[1],dtype=float)
+    transVectorsExp = numpy.empty(messager.posShape[0] * messager.posShape[1],dtype=float)
 
     while(True):
 
@@ -99,7 +100,7 @@ if True: #UNINDEX LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         corners, ids, rejectedImagePoints = aruco.detectMarkers(gray, arucoDictionary, parameters=arucoParams)
 
         ############ Export Depth and Color frames here ############
-        print("\nDepth Image: ", depth_image)
+        #print("\nDepth Image: ", depth_image)
 
         # Is marker detected?
         if len(corners) > 0:
@@ -113,8 +114,8 @@ if True: #UNINDEX LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     useExtrinsicGuess=False, flags=cv2.SOLVEPNP_IPPE)
 
                 # Print current vectors
-                print("\nRotation Vectors: ", rotVectors)
-                print("\nTranslation Vectors: ", transVectors)
+                #print("\nRotation Vectors: ", rotVectors)
+                #print("\nTranslation Vectors: ", transVectors) #TODO: uncomment
 
                 # Extract Rotation Matrices
                 rMat1, _ = cv2.Rodrigues(rotVectors[0])
@@ -150,14 +151,23 @@ if True: #UNINDEX LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 # Print Depth
                 #print("Depth Distance: ", depthDist)
 
-                # Extract Rotation Matrices (flatten)
-                m  = 0
-                for i in range(messager.matrixSize[0]-1):
-                    for n in range(messager.matrixSize[1]-1):
-                        rotVectorsExp[m] = rotVectors[i][n]
+                # Extract Matrices (flatten)
+                #flatten rotation:
+                m = 0
+                for i in range(messager.rotShape[0]):
+                    for n in range(messager.rotShape[1]):
+                        #print("m: " + str(m) + " i: " +  str(i) + " n: " + str(n))
+                        rotMatExp1[m] = rMat1[i][n]
+                        rotMatExp2[m] = rMat2[i][n]
+                        m += 1
+                #flatten position:
+                m = 0
+                for i in range(messager.posShape[0]):
+                    for n in range(messager.posShape[1]):
                         transVectorsExp[m] = transVectors[i][n]
                         m += 1
-                messager.dp.rotation[:] = rotVectorsExp
+                messager.dp.rotation[:] = rotMatExp1
+                messager.dp.rotation2[:] = rotMatExp1
                 messager.dp.position[:] = transVectorsExp
 
         # Depth Stream: Add color map
@@ -181,6 +191,7 @@ if True: #UNINDEX LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         messager.addPosToSendQueue()
         del messager.dp.rotation[:]
+        del messager.dp.rotation2[:]
         del messager.dp.position[:]
 
         #TODO: Variabler for Adrian export: # startTime, rotVectors, transVectors[0], depthDist, markerID

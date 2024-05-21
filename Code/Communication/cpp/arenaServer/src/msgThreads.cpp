@@ -27,7 +27,7 @@ void AbMessenger::recvThread()
             try
             {
                 data.ParseFromArray(recvMsg_,msgsize);
-                //std::cout<<strName<<" msg recieved: "<<std::string(recvMsg_,msgsize)<<std::endl; //TEMP
+                //std::cout<<strName<<" msg recieved: "<<std::string(recvMsg_,msgsize)<<"\r"; //TEMP
                 appendToQueue_(*pq1,std::string(recvMsg_,msgsize));
             }
             catch(const std::exception& e)

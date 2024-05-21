@@ -185,18 +185,20 @@ class ArenaCommunication:
     c = None
     dp = None
     dc = None
-    matrixSize = []
+    posShape = []
+    rotShape = []
     serverIP = None
 
-    def __init__(self,startflags,hostname,matrixSize,deviceType):
-        self.matrixSize[:] = matrixSize
+    def __init__(self,startflags,hostname,posShape_,rotShape_,deviceType):
+        self.posShape[:] = posShape_
+        self.rotShape[:] = rotShape_
         self.deviceType = deviceType
         #init drone position message:
         self.dp = dronePosVec_pb2.dronePosition()
         self.dp.Clear()
         self.dp.deviceType = deviceType
-        self.dp.posShape[:] = self.matrixSize
-        self.dp.rotShape[:] = self.matrixSize
+        self.dp.posShape[:] = self.posShape
+        self.dp.rotShape[:] = self.rotShape
         self.dc = dronePosVec_pb2.droneControl()
         self.dc.Clear()
         self.serverIP = socket.gethostbyname(hostname)
