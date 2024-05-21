@@ -12,7 +12,7 @@ from comm_module import arenaComm
 
 #START MULTIPROCESS
 hostname = 'b12.uia.no'
-messager = arenaComm.ArenaCommunication(arenaComm.SendrecvType.GENERICSEND,hostname,(1,3),(3,3),dronePosVec_pb2.camera)
+messager = arenaComm.ArenaCommunication(arenaComm.SendrecvType.GENERICSEND,hostname,(3,1),(3,3),dronePosVec_pb2.camera)
 
 # --------------------------------------- Socket Class -----------------------------------
 # ------------------- Constant variables for simple changes -------------------
@@ -137,7 +137,9 @@ while(True):
             m = 0
             for i in range(messager.posShape[0]):
                 for n in range(messager.posShape[1]):
-                    transVectorsExp[m] = transVectors[i][n]
+                    transVectorsExp[m] = transVectors[0][i][n]
+                    print(str(transVectorsExp) + "\r")
+                    #transVectorsExp[m] = transVectors[i][n][0]
                     m += 1
             messager.dp.rotation[:] = rotMatExp1
             messager.dp.rotation2[:] = rotMatExp1

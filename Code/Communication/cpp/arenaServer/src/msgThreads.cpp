@@ -33,7 +33,7 @@ void AbMessenger::recvThread()
             catch(const std::exception& e)
             {
                 std::cerr << e.what() << '\n'; //incorrect message, possibly caused by port scanning or error on other process, thread should continue
-                appendToQueue_(*pq1,std::string(errorStr,1)); //append empty string, correct protobuf messages never start with '\0'
+                appendToQueue_(*pq1,std::string(errorStr,1)); //append empty string
             }
         }
         else
