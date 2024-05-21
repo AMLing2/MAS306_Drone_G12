@@ -1,6 +1,6 @@
 clc; clear; close all;
 
-%% Computational Flow Dynamics Simulation Result Plotting
+%% Computational Fluid Dynamics Simulation Result Plotting
 
 radSec = [2900, 3000, 3100, 3200, 3300, ...
           3400, 3500, 3600, 3700, 3800]; % [rad/sec]
@@ -26,8 +26,8 @@ xlim([2800 3900])
 title('CFD Comparison: Surface Goals')
 xlabel('Propeller Speed $\left[\frac{rad}{sec}\right]$', ...
         Interpreter='latex')
-ylabel('Net Reaction force [N]')
-legend('2022 Design', '2024 Design')
+ylabel('Force [N]')
+legend('2022 Design', '2024 Design', 'Location','southeast')
 
 % Global Goals
 cfdGG = figure(Name='CDF Comparison: Global Goals');
@@ -40,5 +40,5 @@ xlim([2800 3900])
 title('CFD Comparison: Global Goals')
 xlabel('Propeller Speed $\left[\frac{rad}{sec}\right]$', ...
         Interpreter='latex')
-ylabel('Net Reaction force [N]')
-legend('2022 Design', '2024 Design')
+ylabel('Force [N]')
+legend('2022 Design', '2024 Design', 'Location','southeast')
