@@ -187,7 +187,7 @@ for i = 1 : length(time)
     if time(i) > stopTime
         break
     end
-    if (zQTM(i) ~= trans(3)) && (zCV0(i) ~= 0) && (time(i) > startTime)
+    if (zQTM(i) ~= trans(3)) && (time(i) > startTime)
         meas(end+1) = abs(zCV0(i) - zQTM(i));
         idxMeas(end+1) = i;
     end
