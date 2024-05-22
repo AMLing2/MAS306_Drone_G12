@@ -2,7 +2,7 @@ clc; clear; close all;
 
 %% Import Results from Pose Validation Test
 
-testNr = 2;
+testNr = 0;
 fileName = ['ExportedResults_', num2str(testNr), '.csv'];
 data = csvread(fileName, 1,0);
 
@@ -42,17 +42,17 @@ diffzCV1QTM = zeros(length(time), 1);
 
 % Append differences to lists
 for i = 1 : length(time)
-    if (xQTM(i) ~= trans(1)) && (xCV0(i) ~= 0)
+    if (xQTM(i) ~= trans(1))
         diffxV01(i)    = abs(xCV0(i) - xCV1(i));
         diffxCV0QTM(i) = abs(xCV0(i) - xQTM(i));
         diffxCV1QTM(i) = abs(xCV1(i) - xQTM(i));
     end
-    if (yQTM(i) ~= trans(2)) && (yCV0(i) ~= 0)
+    if (yQTM(i) ~= trans(2))
         diffyV01(i)    = abs(yCV0(i) - yCV1(i));
         diffyCV0QTM(i) = abs(yCV0(i) - yQTM(i));
         diffyCV1QTM(i) = abs(yCV1(i) - yQTM(i));
     end
-    if (zQTM(i) ~= trans(3)) && (zCV0(i) ~= 0)
+    if (zQTM(i) ~= trans(3))
         diffzV01(i)    = abs(zCV0(i) - zCV1(i));
         diffzCV0QTM(i) = abs(zCV0(i) - zQTM(i));
         diffzCV1QTM(i) = abs(zCV1(i) - zQTM(i));
