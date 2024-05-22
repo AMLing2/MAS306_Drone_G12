@@ -1,39 +1,49 @@
 #include "droneIMU.h"
 #include <iostream>
-#include <thread>
-#include <chrono>
+#include <csignal>
 
-#define MHZ_1 1000000 
+volatile bool mainExit = false;
+void sig_handler(int signum);
+volatile bool running = true;
 
 int main()
 {
-    IMUDevice imu(MHZ_1);
-
-    int n = 0;
-    int a;
-    bool running = true;
-    while(running)
+    int spiHandle = spiInit();
+    if (spiHandle < 0)
     {
-        imu.readIMU(imu.txBuffer_,imu.rxBuffer_,imu.bufferSize_);
-        imu.combineHL(imu.rxBuffer_,imu.bufferSize_);
-        std::cout<<"gyro: X: "<<imu.gyroscope_[0]<<" Y: "<<imu.gyroscope_[1]<<" Z: "<<imu.gyroscope_[2]<<std::endl;
-        std::cout<<"Accel: X: "<<imu.accelerometer_[0]<<" Y: "<<imu.accelerometer_[1]<<" Z: "<<imu.accelerometer_[2]<<std::endl;
-        n++;
-        std::this_thread::sleep_for(std::chrono::milliseconds(2));
-        if (n >= 50)
-        {
-            std::cout<<"press 0 to exit"<<std::endl;
-            std::cin>>a;
-            if (a == 0)
-            {
-                running = false;
-            }
-            else
-            {
-                n = 0;
-            }
-        }
+        std::cout<<"\n pigpio failed to initialize"<<std::endl;
+        return -1;
     }
     
+    GyroIMU gyro(spiHandle);
+    AccelIMU accel(spiHandle);
+
+    std::signal(SIGINT, &sig_handler);
+    while(running) //TODO: make some way of exiting safely
+    {
+        accel.readData();
+        gyro.readData();
+
+        //std::this_thread::sleep_for(std::chrono::microseconds(50));
+        if (mainExit)
+        {
+            running = false;
+        }
+    }
+    gpioEnd(spiHandle); //needs to be called before end of program
     return 0;
+}
+
+void sig_handler(int signum)
+{
+    if (signum == SIGINT)
+    {
+        mainExit = true;
+        std::cerr << "Interrupt signal (" << signum << ") received.\n";
+    }
+    else
+    {
+        //restore default signal handler
+        std::signal(signum, SIG_DFL);
+    }
 }

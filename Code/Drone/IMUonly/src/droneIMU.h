@@ -1,60 +1,103 @@
-#ifndef DRONEIMUHEADER_H
-#define DRONEIMUHEADER_H
+#ifndef DRONEIMU_H
+#define DRONEIMU_H
 
-#include "dronePosVec.pb.h"
-#include <pigpio.h>
+#include <thread>
+#include <chrono>
 
-#define LED 18 //GPIO 18, physical pin 12 //remove !!!!!!!!!!!!!!!!
-#define CS_PIN 25 //GPIO 25, physical pin 22
+//pin defs
+#define LED 18 //GPIO 18, physical pin 12
+#define CS_ACCEL 12 //GPIO 12, physical pin 22
+#define CS_GYRO 13
+//spi flags:
+#define SPI_CHANNEL 1
+#define SPI_SPEED 1000000
+#define SPI_MODE_0 0x0
+#define SPI_WORDLEN_16 (0x10<<16)
+#define SPI_DISABLE_UX ((0x1<<5) | (0x1<<6)| (0x1<<7))
+#define SPI_AUXILIARY (0x1<<8)
 
-#define G_SI 9.80665
-#define PI  3.14159
+//registers:
+#define READ_BIT (1<<7)
+#define ACC_PWR_CTRL 0x7D
+#define ACC_X_LSB 0x12
+#define ACC_RANGE 0x41
+#define GYRO_RANGE 0x0F
+#define RATE_X_LSB 0x02
+#define GYRO_BANDWIDTH 0x10
+#define ACC_CONF 0x40
 
-class IMUDevice
+void gpioEnd(int spiHandle);
+int spiInit();//push to class but leave for now
+
+using ns_t = std::chrono::nanoseconds;
+
+class IIMU
 {
 public:
-    IMUDevice(int spiRate)
-    :spiRate_(spiRate)
+    IIMU(int handle)
+    :spiHandle_(handle)
     {
-        spiHandle_ = initIMU_();
-        if (spiHandle_ < 0)
-        {
-            std::cout<<"failed to setup gpio or spi"<<std::endl;
-            exit(-1); //terminate
-        }
-        imuCalibrate_(txBuffer_,bufferSize_);
-        accelerometer_[3] = 0;
-        gyroscope_[3] = 0;
+        
     }
-    //buffersizes have to be the same.
-    int readIMU(char* txBuffer,char* rxBuffer, size_t bufferSize);
-    //takes the exact rx output from readIMU()?
-    int combineHL(char* imuBuffer, size_t bufferSize);
-    int combineHL(char* imuBuffer,size_t imuBufferSize, uint16_t* combBuffer, size_t combBufferSize);
-    void populateProtoc();
-    int calculateIMU();
+    //virtual void readData(int spiHandle,char* txBuffer,char* rxBuffer, struct outputVals& vals) = 0 ;
+    virtual int writeSingleReg() = 0;
+    //virtual void populateProtobuf(dronePosVec::dronePosition& dp) = 0;
+    void numIntergration(struct outputVals& valsPrev,struct outputVals& valsCur ,ns_t tPrev, ns_t tCur,struct outputVals& valsOut);
+    struct outputVals
+    {
+        float xf,yf,zf = 0;
+        int16_t xi,yi,zi = 0;
+        ns_t t;
+    } offsetVals_,sensorVals;
 
-//temporarily moving to public:
-    //bufferSize cannot be smaller than 2
-    const size_t bufferSize_ = 15; //max needed + 1 for null terminator
-    char txBuffer_[15];
-    char rxBuffer_[15];
-
-    const size_t dataArraySize = 4;
-    float accelerometer_[4];
-    float gyroscope_[4];
-private:
-    //turns on IMU as well as pigpio and GPIO pins
-    int initIMU_();
-    //call after initIMU_()
-    int imuCalibrate_(char* buffer,size_t bufferSize);
-    int calibGyro_(char* buffer,size_t bufferSize);
-    int calibAccel_(char* buffer,size_t bufferSize);
-    int regWriteSingle_(uint8_t addr,uint8_t data);
+protected:
+    virtual int sensorInit_(int spiHandle, char* buffer) = 0;
+    ns_t monoTimeNow_();
+    virtual void calib_() = 0;
     
+    const int spiHandle_;
+    float range_;
+    const size_t bufferSize = 16;
+    char txBuffer_[16];
+	char rxBuffer_[16];
 
-    const int spiRate_;
-    int spiHandle_;
-};
+}; //IIMU
 
-#endif //DRONEIMUHEADER_H
+class GyroIMU : protected IIMU
+{
+public:
+    GyroIMU(int handle)
+    :IIMU(handle)
+    {
+        sensorInit_(spiHandle_,txBuffer_);
+        calib_();
+    }
+    void readData();//should be override but compiler dosent like it because ??????????
+    virtual int writeSingleReg() override;
+    //virtual void populateProtobuf(dronePosVec::dronePosition& dp) override;
+
+protected:
+    virtual int sensorInit_(int spiHandle, char* buffer) override;
+    virtual void calib_() override;
+
+}; //GyroIMU
+
+class AccelIMU : protected IIMU
+{
+public:
+    AccelIMU(int handle)
+    :IIMU(handle)
+    {
+
+    }
+    void readData();
+    virtual int writeSingleReg() override;
+    //virtual void populateProtobuf(dronePosVec::dronePosition& dp) override;
+
+protected:
+    virtual int sensorInit_(int spiHandle,char* buffer) override;
+    virtual void calib_() override;
+
+}; //AccelIMU
+
+#endif //DRONEIMU_H
