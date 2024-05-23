@@ -5,11 +5,11 @@
 #include <chrono>
 
 //pin defs
-#define LED 18 //GPIO 18, physical pin 12
-#define CS_ACCEL 12 //GPIO 12, physical pin 22
-#define CS_GYRO 13
+//#define LED 18 //GPIO 18, physical pin 12
+#define CS_ACCEL 8 //GPIO 12, physical pin 22
+#define CS_GYRO 7
 //spi flags:
-#define SPI_CHANNEL 1
+#define SPI_CHANNEL 0
 #define SPI_SPEED 1000000
 #define SPI_MODE_0 0x0
 #define SPI_WORDLEN_16 (0x10<<16)
@@ -31,6 +31,13 @@ int spiInit();//push to class but leave for now
 
 using ns_t = std::chrono::nanoseconds;
 
+struct outputVals
+{
+        double xf,yf,zf = 0;
+        int16_t xi,yi,zi = 0;
+        ns_t t;
+};
+
 class IIMU
 {
 public:
@@ -42,15 +49,13 @@ public:
     //virtual void readData(int spiHandle,char* txBuffer,char* rxBuffer, struct outputVals& vals) = 0 ;
     virtual int writeSingleReg() = 0;
     //virtual void populateProtobuf(dronePosVec::dronePosition& dp) = 0;
-    void numIntergration(struct outputVals& valsPrev,struct outputVals& valsCur ,ns_t tPrev, ns_t tCur,struct outputVals& valsOut);
-    struct outputVals
-    {
-        float xf,yf,zf = 0;
-        int16_t xi,yi,zi = 0;
-        ns_t t;
-    } offsetVals_,sensorVals;
+    outputVals sensorVals;
+
+    void numIntergration(outputVals& valsPrev, outputVals& valsOut);
+    void dubnumIntergration(outputVals& valsPrev, outputVals& singVals, outputVals& dubvalsOut);
 
 protected:
+    outputVals offsetVals_;
     virtual int sensorInit_(int spiHandle, char* buffer) = 0;
     ns_t monoTimeNow_();
     virtual void calib_() = 0;
@@ -63,17 +68,18 @@ protected:
 
 }; //IIMU
 
-class GyroIMU : protected IIMU
+class GyroIMU : public IIMU
 {
 public:
     GyroIMU(int handle)
     :IIMU(handle)
     {
         sensorInit_(spiHandle_,txBuffer_);
-        calib_();
+        //calib_();
     }
     void readData();//should be override but compiler dosent like it because ??????????
     virtual int writeSingleReg() override;
+    using IIMU::numIntergration;
     //virtual void populateProtobuf(dronePosVec::dronePosition& dp) override;
 
 protected:
@@ -82,16 +88,18 @@ protected:
 
 }; //GyroIMU
 
-class AccelIMU : protected IIMU
+class AccelIMU : public IIMU
 {
 public:
     AccelIMU(int handle)
     :IIMU(handle)
     {
-
+        sensorInit_(spiHandle_,txBuffer_);
+        calib_();
     }
     void readData();
     virtual int writeSingleReg() override;
+    using IIMU::numIntergration;
     //virtual void populateProtobuf(dronePosVec::dronePosition& dp) override;
 
 protected:
