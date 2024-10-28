@@ -5,6 +5,11 @@
 <!-- <p style="text-align: center;"><i> Adrian Mathias Lervik Ling </i></p>
 <p style="text-align: center;"><i> Jan Laksesvela Haugstad </i></p>  -->
 
+![alt text](frontPageArenaDrone.png)
+
+Video from BSc. thesis, edited by Thomas Lønne Stiansen: \
+https://youtu.be/jgXzDRpN-2Y?si=vNdUQDb9o-jMdF8C
+
 ## Repository Structure
 - CAD ~ 3D modelling
 - Canvas ~ Gathered files scattered through modules and courses
